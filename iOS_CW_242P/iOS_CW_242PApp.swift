@@ -9,9 +9,22 @@ import SwiftUI
 
 @main
 struct iOS_CW_242PApp: App {
+    @StateObject private var authViewModel = AuthViewModel()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if authViewModel.isAuthenticated, let user = authViewModel.currentUser {
+                let _ = print("[Info] Routing user  Role: \(user.role.rawValue)")
+                switch user.role {
+                    case .patient:
+                        let _ = print("   Directing to patient dashboard")
+                    case .pharmacist:
+                        let _ = print("   Directing to Pharmacist dashboard")
+                }
+            } else {
+                let _ = print("   Not authenticated directing to LoginView")
+                LoginView().environmentObject(authViewModel)
+            }
         }
     }
 }
