@@ -17,7 +17,7 @@ struct iOS_CW_242PApp: App {
                 let _ = print("[Info] Routing user  Role: \(user.role.rawValue)")
                 switch user.role {
                     case .patient:
-                        let _ = print("   Directing to patient dashboard")
+                        PatientAppContainer().environmentObject(authViewModel)
                     case .pharmacist:
                         let _ = print("   Directing to Pharmacist dashboard")
                 }

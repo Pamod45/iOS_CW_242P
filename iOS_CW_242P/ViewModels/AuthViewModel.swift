@@ -24,8 +24,8 @@ class AuthViewModel: ObservableObject {
     
     private let demoOTPCode = "123456"
     private let demoAccounts: [String: (name: String, role: UserRole, specialization: String?)] = [
-        "+94704556421": ("Pubudu Perera", .patient, nil),
-        "+94704556422": ("Nimal Perera", .pharmacist, nil)
+        "+94711111111": ("Pubudu Perera", .patient, nil),
+        "+94722222222": ("Liviru Navaratna", .pharmacist, nil)
     ]
     
     init() {

@@ -1,0 +1,56 @@
+//
+//  AppContainer.swift
+//  iOS_CW_242P
+//
+//  Created by Pubudu Perera on 2026-02-25.
+//
+
+
+import SwiftUI
+
+struct PatientAppContainer: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @State private var selectedTab = 0
+    
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            DashboardView()
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+                .tag(0)
+            
+            Text("Bookings")
+                .tabItem {
+                    Label("Check-In", systemImage: "calendar.badge.plus")
+                }
+                .tag(1)
+            
+            Text("Map View")
+                .tabItem {
+                    Label("Map", systemImage: "map.fill")
+                }
+                .tag(2)
+            
+            Text("Notifications")
+                .tabItem {
+                    Label("Notifications", systemImage: "bell.fill")
+                }
+                .tag(3)
+//                .badge(2)
+            
+            Text("Profile")
+                .tabItem {
+                    Label("Profile", systemImage: "person.fill")
+                }
+                .tag(4)
+        }
+        .environmentObject(authViewModel)
+        .accentColor(.blue)
+    }
+}
+
+#Preview {
+    PatientAppContainer()
+        .environmentObject(AuthViewModel())
+}

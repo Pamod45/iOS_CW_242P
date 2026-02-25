@@ -15,22 +15,9 @@ struct CountryCode: Identifiable, Hashable {
     let name: String
 }
 
-let countryCodes: [CountryCode] = [
-    CountryCode(flag: "🇱🇰", code: "+94", name: "Sri Lanka"),
-    CountryCode(flag: "🇮🇳", code: "+91", name: "India"),
-    CountryCode(flag: "🇺🇸", code: "+1", name: "United States"),
-    CountryCode(flag: "🇬🇧", code: "+44", name: "United Kingdom"),
-    CountryCode(flag: "🇦🇺", code: "+61", name: "Australia"),
-    CountryCode(flag: "🇸🇬", code: "+65", name: "Singapore"),
-    CountryCode(flag: "🇦🇪", code: "+971", name: "UAE"),
-    CountryCode(flag: "🇨🇦", code: "+1", name: "Canada"),
-    CountryCode(flag: "🇩🇪", code: "+49", name: "Germany"),
-    CountryCode(flag: "🇯🇵", code: "+81", name: "Japan")
-]
-
 struct LoginView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
-    @State private var selectedCountry: CountryCode = countryCodes[0]
+    @State private var selectedCountry: CountryCode = MockData.countryCodes[0]
     @State private var phoneNumber = ""
     @State private var otpCode = ""
     @State private var showCountryPicker = false
@@ -47,7 +34,6 @@ struct LoginView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 28) {
-                // Header
                 VStack(spacing: 12) {
                     Image(systemName: "heart.text.square.fill")
                         .font(.system(size: 80))
@@ -135,9 +121,7 @@ struct LoginView: View {
             Text(authViewModel.errorMessage ?? "An error occurred")
         }
     }
-    
-    // MARK: - Phone Input View
-    
+        
     private var phoneInputView: some View {
         VStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 8) {
@@ -147,7 +131,6 @@ struct LoginView: View {
                     .foregroundColor(.secondary)
                 
                 HStack(spacing: 10) {
-                    // Country Code Dropdown
                     Button(action: { showCountryPicker = true }) {
                         HStack(spacing: 6) {
                             Text(selectedCountry.flag)
@@ -166,7 +149,6 @@ struct LoginView: View {
                         .cornerRadius(10)
                     }
                     
-                    // Phone Number Input
                     TextField("7X XXX XXXX", text: $phoneNumber)
                         .keyboardType(.phonePad)
                         .textFieldStyle(PlainTextFieldStyle())
@@ -195,12 +177,9 @@ struct LoginView: View {
             .padding(.horizontal)
         }
     }
-    
-    // MARK: - OTP Input View
-    
+        
     private var otpInputView: some View {
         VStack(spacing: 16) {
-            // Phone number display
             HStack {
                 Image(systemName: "phone.fill")
                     .foregroundColor(.blue)
@@ -222,7 +201,6 @@ struct LoginView: View {
             .background(Color(.systemGray6))
             .cornerRadius(10)
             
-            // OTP Code Entry
             VStack(alignment: .leading, spacing: 8) {
                 Text("Verification Code")
                     .font(.subheadline)
@@ -241,7 +219,6 @@ struct LoginView: View {
                     focusedField = .otp
                 }
                 
-                // Hidden text field for OTP input
                 TextField("", text: $otpCode)
                     .keyboardType(.numberPad)
                     .focused($focusedField, equals: .otp)
@@ -259,7 +236,6 @@ struct LoginView: View {
                     .foregroundColor(.secondary)
             }
             
-            // Verify & Resend buttons
             PrimaryButton(
                 title: "Verify & Sign In",
                 action: {
@@ -283,9 +259,7 @@ struct LoginView: View {
         }
         .padding(.horizontal)
     }
-    
-    // MARK: - Helpers
-    
+        
     private func getDigit(at index: Int) -> String {
         guard index < otpCode.count else { return "" }
         return String(otpCode[otpCode.index(otpCode.startIndex, offsetBy: index)])
@@ -303,8 +277,6 @@ struct LoginView: View {
         controller.performRequests()
     }
 }
-
-// MARK: - OTP Digit Box
 
 struct OTPDigitBox: View {
     let digit: String
@@ -327,8 +299,6 @@ struct OTPDigitBox: View {
         }
     }
 }
-
-// MARK: - Apple Sign-In Coordinator
 
 class AppleSignInCoordinator: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     var authViewModel: AuthViewModel
@@ -362,8 +332,6 @@ class AppleSignInCoordinator: NSObject, ASAuthorizationControllerDelegate, ASAut
     }
 }
 
-// MARK: - Country Code Picker
-
 struct CountryCodePickerView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedCountry: CountryCode
@@ -371,9 +339,9 @@ struct CountryCodePickerView: View {
     
     var filteredCountries: [CountryCode] {
         if searchText.isEmpty {
-            return countryCodes
+            return MockData.countryCodes
         }
-        return countryCodes.filter {
+        return MockData.countryCodes.filter {
             $0.name.localizedCaseInsensitiveContains(searchText) ||
             $0.code.contains(searchText)
         }
