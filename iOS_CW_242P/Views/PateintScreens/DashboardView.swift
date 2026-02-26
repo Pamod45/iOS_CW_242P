@@ -56,7 +56,7 @@ struct DashboardView: View {
                                     .foregroundColor(.orange)
                                 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Journey in Progress")
+                                    Text("Visit in Progress")
                                         .font(.headline)
                                         .foregroundColor(.primary)
                                     Text("Lab tests - Queue #5")
@@ -84,7 +84,7 @@ struct DashboardView: View {
                         
                         HStack(spacing: 16) {
                             ServiceCard(
-                                title: "OPD",
+                                title: "Doctor Visit (OPD)",
                                 subtitle: "Book an OPD visit",
                                 icon: "stethoscope",
                                 color: .blue
@@ -106,10 +106,27 @@ struct DashboardView: View {
                     
                     if !todaysAppointments.isEmpty {
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Today's Appointments")
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .padding(.horizontal)
+                            HStack(alignment: .top) {
+                                Text("Today's Appointments")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+
+                                Spacer()
+
+                                NavigationLink(destination: Text("See all appointments")) {
+                                    HStack(spacing: 4){
+                                        Text("See All")
+                                            .font(.subheadline)
+                                            .foregroundColor(.primary)
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                            .foregroundColor(.primary)
+                                    }
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal)
+                            
                             
                             ForEach($todaysAppointments) { $appointment in
                                 NavigationLink(destination: Text("Coming soon")) {
@@ -119,44 +136,6 @@ struct DashboardView: View {
                                 .padding(.horizontal)
                             }
                         }
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 14) {
-                        Text("Hospital Info")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .padding(.horizontal)
-                        
-                        VStack(spacing: 0) {
-                            HStack(spacing: 0) {
-                                WaitTimeTile(department: "OPD", waitMinutes: 35)
-                                
-                                Divider()
-                                    .frame(height: 50)
-                                
-                                WaitTimeTile(department: "Laboratory", waitMinutes: 15)
-                            }
-                            .padding(.vertical, 14)
-                            
-                            Divider().padding(.horizontal)
-                            
-                            HospitalInfoRow(icon: "clock", label: "Open Today", value: "6:00 AM – 9:00 PM")
-                            
-                            Divider().padding(.horizontal)
-                            
-                            HospitalInfoRow(icon: "phone.fill", label: "Contact No.", value: "011-234-5678")
-                            
-                            Divider().padding(.horizontal)
-                            
-                            HospitalInfoRow(icon: "cross.case.fill", label: "Pharmacy", value: "7:00 AM – 8:00 PM")
-                            
-                            Divider().padding(.horizontal)
-                            
-                            HospitalInfoRow(icon: "location.fill", label: "Location", value:"Parkinson Road, Colombo", link: true)
-                        }
-                        .background(Color(.systemBackground))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
                     }
                 }
                 .padding(.bottom, 40)
