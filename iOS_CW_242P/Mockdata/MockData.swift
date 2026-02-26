@@ -9,6 +9,7 @@ import Foundation
 
 struct MockData {
     
+    //Sample Country Codes data
     static let countryCodes: [CountryCode] = [
         CountryCode(flag: "🇱🇰", code: "+94", name: "Sri Lanka"),
         CountryCode(flag: "🇮🇳", code: "+91", name: "India"),
@@ -22,6 +23,7 @@ struct MockData {
         CountryCode(flag: "🇯🇵", code: "+81", name: "Japan")
     ]
     
+    //Sample Sessions data
     static let sessions: [Session] = [
         Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true, currentQueueNumber: 5),
         Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 12),
@@ -33,6 +35,7 @@ struct MockData {
         Session(id: "8", startTime: "03:00", endTime: "06:00", isAvailable: false, currentQueueNumber: 0)
     ]
     
+    //Sample Bookings data
     static let sampleBookings: [Appointment] = [
         // 1. Upcoming OPD — Confirmed, paid
         Appointment(
@@ -183,6 +186,7 @@ struct MockData {
         ),
     ]
     
+    //Sample Lab Test data
     static let sampleTests: [LabTest] = [
         // No Approval Required Tests
         LabTest(
@@ -288,7 +292,80 @@ struct MockData {
             preparationRequired: "Doctor referral required"
         )
     ]
+    
+    
+    //Sample Notifications List
+    static let sampleNotifications: [AppNotification] = [
+        // Today notifications
+        AppNotification(
+            type: .appointmentReminder,
+            title: "Appointment in 30 Minutes",
+            message: "Your OPD appointment with Dr. Silva is at 9:00 AM today. Room 103, Queue #15.",
+            timestamp: Date().addingTimeInterval(-1800)
+        ),
+        AppNotification(
+            type: .queueUpdate,
+            title: "Queue Update",
+            message: "You are now #3 in the queue. Estimated wait time: 15 minutes.",
+            timestamp: Date().addingTimeInterval(-3600)
+        ),
+        AppNotification(
+            type: .labApproval,
+            title: "Lab Test Approved",
+            message: "Your Complete Blood Count (CBC) test has been approved by Dr. Perera. Please proceed to Lab Room 1.",
+            timestamp: Date().addingTimeInterval(-5400)
+        ),
+        AppNotification(
+            type: .pharmacyReady,
+            title: "Prescription Ready",
+            message: "Your prescription is ready for pickup at Pharmacy Counter 1. Token: PH-042.",
+            timestamp: Date().addingTimeInterval(-7200)
+        ),
+        
+        // Yesterday notifications
+        AppNotification(
+            type: .labReminder,
+            title: "Lab Check-In Tomorrow",
+            message: "Reminder: You have a Lipid Panel test scheduled for tomorrow at 8:00 AM. Please fast for 12 hours before the test.",
+            timestamp: Date().addingTimeInterval(-86400)
+        ),
+        AppNotification(
+            type: .appointmentReminder,
+            title: "Appointment Confirmed",
+            message: "Your appointment with Dr. Fernando (Cardiologist) has been confirmed for Feb 21 at 10:00 AM, Room 103.",
+            timestamp: Date().addingTimeInterval(-90000)
+        ),
+        AppNotification(
+            type: .labApproval,
+            title: "Lab Test Requires Approval",
+            message: "Your X-Ray Chest test requires doctor approval. We have notified Dr. Silva. You will be updated once approved.",
+            timestamp: Date().addingTimeInterval(-100000)
+        ),
+        
+        // Older notifications
+        AppNotification(
+            type: .general,
+            title: "Welcome to MediQueue",
+            message: "Thank you for registering! You can now book OPD appointments, schedule lab tests, and track your journey through the clinic.",
+            timestamp: Date().addingTimeInterval(-259200)
+        ),
+        AppNotification(
+            type: .queueUpdate,
+            title: "Check-In Complete",
+            message: "You have successfully checked in for your OPD appointment. Your queue number is #8.",
+            timestamp: Date().addingTimeInterval(-172800)
+        ),
+        AppNotification(
+            type: .pharmacyReady,
+            title: "Prescription Ready",
+            message: "Your prescription from your visit on Feb 17 is ready for pickup at Pharmacy Counter 1.",
+            timestamp: Date().addingTimeInterval(-259200)
+        ),
+        AppNotification(
+            type: .labReminder,
+            title: "Lab Results Available",
+            message: "Your CBC test results from Feb 16 are now available. Please check with your doctor during your next visit.",
+            timestamp: Date().addingTimeInterval(-345600)
+        ),
+    ]
 }
-
-
-
