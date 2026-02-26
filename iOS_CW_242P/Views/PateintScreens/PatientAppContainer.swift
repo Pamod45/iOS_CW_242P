@@ -32,11 +32,11 @@ struct PatientAppContainer: View {
                 }
                 .tag(2)
             
-            Text("Notifications")
+            NotificationView()
                 .tabItem {
-                    Label("Notifications", systemImage: "bell.fill")
-                }
-                .tag(3)
+                        Label("Notifications", systemImage: "bell.fill")
+                    }
+                    .tag(3)
 //                .badge(2)
             
             Text("Profile")

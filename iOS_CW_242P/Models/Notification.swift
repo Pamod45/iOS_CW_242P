@@ -88,5 +88,18 @@ struct AppNotification : Identifiable {
         return formatter.string(from: timestamp)
     }
     
+    //filter notifications based on the selected filter
+    func matchesFilter(_ filter: NotificationFilter) -> Bool {
+        switch filter {
+        case .all:
+            return true
+        case .reminders:
+            return type == .appointmentReminder || type == .labReminder
+        case .approvals:
+            return type == .labApproval
+        case .updates:
+            return type == .queueUpdate || type == .pharmacyReady || type == .general
+        }
+    }
     
 }
