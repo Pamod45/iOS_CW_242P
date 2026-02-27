@@ -109,7 +109,9 @@ struct MyBookingsView: View {
                             Section {
                                 VStack(spacing: 12) {
                                     ForEach(items) { booking in
-                                        NavigationLink(destination: BookingDetailView()) {
+                                        NavigationLink(destination: BookingDetailView(booking: binding(for: booking), onPayNow: {
+                                            showLabPaymentFor = booking
+                                        })) {
                                             BookingCard(booking: booking)
                                         }
                                     }
