@@ -119,7 +119,7 @@ extension Appointment{
     }
     
     static var todaysAppointments: [Appointment] {
-        MockData.sampleBookings.filter { appointment in
+        MockData.sampleAppointments.filter { appointment in
                 Calendar.current.isDate(appointment.date, inSameDayAs: Date())
             }
     }
