@@ -143,6 +143,10 @@ struct DashboardView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Home")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showLabCheckIn){
+                LabCheckInFlow(isPresented: $showLabCheckIn)
+                    .environmentObject(authViewModel)
+            }
         }
     }
     
