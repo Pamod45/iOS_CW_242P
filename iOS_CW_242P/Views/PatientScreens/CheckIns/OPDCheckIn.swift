@@ -1,39 +1,46 @@
 //
-//  LabCheckInFlow.swift
+//  OPDCheckIn.swift
 //  iOS_CW_242P
 //
-//  Created by Pubudu Perera on 2026-02-28.
+//  Created by Pubudu Perera on 2026-03-01.
 //
+
 
 import SwiftUI
 
-struct LabCheckInFlow: View {
+struct OPDCheckInFlow: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = LabCheckInViewModel()
+    @StateObject private var viewModel = CheckInViewModel()
+    @EnvironmentObject var authViewModel: AuthViewModel
     @Binding var isPresented: Bool
     
     @State private var currentStep = 1
-    @State private var selectedTests: [LabTest] = []
     @State private var selectedSession: Session?
-    @State private var showApprovalRequired = false
+    @State private var reasonForVisit = "Headache"
     @State private var showPaymentSuccess = false
+    @State private var showQueueTracking = false
     
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                ProgressBar(currentStep: currentStep, totalSteps: 3)
+                ProgressBar(currentStep: currentStep, totalSteps: 4)
                     .padding()
+                
                 ZStack {
                     if currentStep == 1 {
-                        LabTestSelectionView(selectedTests: $selectedTests)
+                        DateSelectionView(selectedDate: $viewModel.selectedDate)
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     } else if currentStep == 2 {
                         SessionSelectionView(selectedSession: $selectedSession)
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     } else if currentStep == 3 {
-                        LabPaymentView(
-                            selectedTests: selectedTests,
+                        ReasonForVisitView(reasonForVisit: $reasonForVisit, user: authViewModel.currentUser)
+                            .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+                    } else if currentStep == 4 {
+                        PaymentView(
+                            selectedDate: viewModel.selectedDate,
                             selectedSession: selectedSession,
+                            reasonForVisit: reasonForVisit,
                             onPaymentComplete: {
                                 showPaymentSuccess = true
                             }
@@ -42,6 +49,7 @@ struct LabCheckInFlow: View {
                     }
                 }
                 
+                // Navigation Buttons
                 HStack(spacing: 16) {
                     if currentStep > 1 {
                         SecondaryButton(title: "Back") {
@@ -52,9 +60,9 @@ struct LabCheckInFlow: View {
                     }
                     
                     PrimaryButton(
-                        title: currentStep == 3 ? (requiresApproval ? "Request Approval" : "Pay Now") : "Continue",
+                        title: currentStep == 4 ? "Pay Now" : "Continue",
                         action: {
-                            if currentStep == 3 {
+                            if currentStep == 4 {
                                 processPayment()
                             } else {
                                 withAnimation {
@@ -69,7 +77,7 @@ struct LabCheckInFlow: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Laboratory Check-In")
+            .navigationTitle("OPD Check-In")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -78,18 +86,11 @@ struct LabCheckInFlow: View {
                     }
                 }
             }
-            .alert("Approval Required", isPresented: $showApprovalRequired) {
-                Button("OK") {
-                    dismiss()
-                }
-            } message: {
-                Text("Your request for approval has been submitted. You can proceed with payment once approved.")
-            }
             .sheet(isPresented: $showPaymentSuccess) {
-                PaymentSuccessView(
-                    queueNumber: 8,
-                    estimatedWaitTime: 30,
-                    doctorRoom: "Lab Room 1",
+                QueueTrackingView(
+                    queueNumber: 15,
+                    estimatedWaitTime: 45,
+                    doctorRoom: "Room 105",
                     dismissEntireFlow: {
                         showPaymentSuccess = false
                         isPresented = false
@@ -100,17 +101,15 @@ struct LabCheckInFlow: View {
         .interactiveDismissDisabled(showPaymentSuccess)
     }
     
-    private var requiresApproval: Bool {
-        selectedTests.contains { $0.category == .approvalRequired }
-    }
-    
     private var canProceed: Bool {
         switch currentStep {
         case 1:
-            return !selectedTests.isEmpty
+            return true // Date is always valid
         case 2:
             return selectedSession != nil
         case 3:
+            return !reasonForVisit.isEmpty
+        case 4:
             return true
         default:
             return false
@@ -121,17 +120,13 @@ struct LabCheckInFlow: View {
         viewModel.isLoading = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             viewModel.isLoading = false
-            if requiresApproval {
-                showApprovalRequired = true
-            } else {
-                showPaymentSuccess = true
-            }
+            showPaymentSuccess = true
         }
     }
 }
 
 #Preview {
-    LabCheckInFlow(isPresented: .constant(true))
+    OPDCheckInFlow(isPresented: .constant(true))
         .environmentObject(AuthViewModel())
 }
 

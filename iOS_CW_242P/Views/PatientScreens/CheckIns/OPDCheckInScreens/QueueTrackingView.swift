@@ -1,14 +1,14 @@
 //
-//  PaymentSuccessView.swift
+//  QueueTrackingView.swift
 //  iOS_CW_242P
 //
-//  Created by Pubudu Perera on 2026-02-28.
+//  Created by Pubudu Perera on 2026-03-01.
 //
 
 
 import SwiftUI
 
-struct PaymentSuccessView: View {
+struct QueueTrackingView: View {
     @Environment(\.dismiss) private var dismiss
     let queueNumber: Int
     let estimatedWaitTime: Int
@@ -196,49 +196,6 @@ struct PaymentSuccessView: View {
     }
 }
 
-struct QueueStatCard: View {
-    let icon: String
-    let title: String
-    let value: String
-    let color: Color
-    
-    var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(color)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            
-            Text(value)
-                .font(.headline)
-                .fontWeight(.bold)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-    }
-}
-
-struct InfoBullet: View {
-    let text: String
-    
-    var body: some View {
-        HStack(alignment: .top, spacing: 8) {
-            Image(systemName: "circle.fill")
-                .font(.system(size: 6))
-                .foregroundColor(.blue)
-                .padding(.top, 6)
-            Text(text)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-    }
-}
-
 #Preview {
-    PaymentSuccessView(queueNumber: 15, estimatedWaitTime: 45, doctorRoom: "Room 105", dismissEntireFlow: {})
+    QueueTrackingView(queueNumber: 15, estimatedWaitTime: 45, doctorRoom: "Room 105", dismissEntireFlow: {})
 }
