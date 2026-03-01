@@ -326,3 +326,5 @@ struct AppointmentCard: View {
     DashboardView()
         .environmentObject(AuthViewModel())
 }
+
+

@@ -111,3 +111,9 @@ struct LabTestDetailRow: View {
         }
     }
 }
+
+#Preview {
+    LabTestDetailView(
+        test: MockData.sampleTests[0]
+    )
+}

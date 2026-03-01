@@ -107,3 +107,10 @@ struct PaymentView: View {
         }
     }
 }
+
+#Preview {
+    PaymentView(
+        selectedDate: Date(),selectedSession: MockData.sessions[0], reasonForVisit: "Headache",
+        onPaymentComplete: {}
+    )
+}

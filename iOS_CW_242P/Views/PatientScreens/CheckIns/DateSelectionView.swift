@@ -47,3 +47,7 @@ struct DateSelectionView: View {
         }
     }
 }
+
+#Preview{
+    DateSelectionView(selectedDate: .constant(Date()))
+}

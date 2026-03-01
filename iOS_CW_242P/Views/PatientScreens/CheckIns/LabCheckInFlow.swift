@@ -18,6 +18,7 @@ struct LabCheckInFlow: View {
     @State private var showApprovalRequired = false
     @State private var showPaymentSuccess = false
     
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {

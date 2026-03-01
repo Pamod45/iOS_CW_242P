@@ -102,3 +102,8 @@ struct SessionCard: View {
         }
     }
 }
+
+
+#Preview{
+    SessionSelectionView(selectedSession: .constant(MockData.sessions[0]))
+}

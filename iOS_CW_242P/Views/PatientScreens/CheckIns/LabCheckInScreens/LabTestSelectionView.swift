@@ -8,7 +8,9 @@ import SwiftUI
 
 struct LabTestSelectionView: View {
     @Binding var selectedTests: [LabTest]
-    @State private var selectedCategory: LabTestCategory = .noApprovalRequired
+    @State private var selectedCategory: LabTestCategory = .allCategories
+    
+    @State private var searchText: String = ""
     
     var body: some View {
         VStack(spacing: 0) {
@@ -24,8 +26,9 @@ struct LabTestSelectionView: View {
             .padding()
             
             Picker("Category", selection: $selectedCategory) {
-                Text("No Approval Required").tag(LabTestCategory.noApprovalRequired)
-                Text("Approval Required").tag(LabTestCategory.approvalRequired)
+                Text("All").tag(LabTestCategory.allCategories)
+                Text("No Approval Req ").tag(LabTestCategory.noApprovalRequired)
+                Text("Approval Req ").tag(LabTestCategory.approvalRequired)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
@@ -57,11 +60,11 @@ struct LabTestSelectionView: View {
                 }
                 .padding()
             }
-        }
+        }.searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
     }
     
     private func getFilteredTests() -> [LabTest] {
-        MockData.sampleTests.filter { $0.category == selectedCategory }
+        LabTest.filteredTests(by: searchText, in: selectedCategory)
     }
     
     private func toggleTest(_ test: LabTest) {
@@ -166,4 +169,8 @@ struct TestCartBadge: View {
         .foregroundColor(.blue)
         .cornerRadius(20)
     }
+}
+
+#Preview{
+    LabTestSelectionView(selectedTests: .constant(Array(MockData.sampleTests.prefix(2))))
 }

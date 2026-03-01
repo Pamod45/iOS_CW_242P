@@ -99,3 +99,7 @@ struct NotificationView : View {
         notifications.filter { $0.matchesFilter(filter) }.count
     }
 }
+
+#Preview{
+    NotificationView()
+}

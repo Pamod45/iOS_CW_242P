@@ -147,3 +147,11 @@ struct LabPaymentView: View {
         }
     }
 }
+
+#Preview {
+    LabPaymentView(
+        selectedTests: Array(MockData.sampleTests.prefix(2)),
+        selectedSession: MockData.sessions.first,
+        onPaymentComplete: {}
+    )
+}
