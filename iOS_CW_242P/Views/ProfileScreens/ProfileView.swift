@@ -33,7 +33,7 @@ struct ProfileView: View {
     private var displayPhone: String {
         let phone = authViewModel.currentUser?.telephone
                     ?? authViewModel.currentUser?.phoneNumber
-        return phone?.isEmpty == false ? phone! : "No Phone"
+        return phone?.isEmpty == false ? phone! : "No Number"
     }
     private var displayAddress: String {
         authViewModel.currentUser?.address?.isEmpty == false
@@ -154,42 +154,23 @@ struct ProfileView: View {
                     .padding(.horizontal, 16)
                     .animation(.easeInOut(duration: 0.22), value: isEditing)
                     
-                    // MARK: - Edit / Save Button
-                    Button(action: handleEditSave) {
-                        HStack(spacing: 8) {
-                            if authViewModel.isLoading {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            } else {
-                                Image(systemName: isEditing ? "checkmark.circle.fill" : "pencil")
-                                    .font(.system(size: 15, weight: .semibold))
-                                Text(isEditing ? "Save Profile" : "Edit Profile")
-                                    .font(.system(size: 16, weight: .semibold))
-                            }
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(isEditing ? Color(hex: "#22C55E") : Color(hex: "#3B82F6"))
-                        .cornerRadius(12)
-                        .animation(.easeInOut(duration: 0.2), value: isEditing)
-                    }
-                    .padding(.horizontal, 16)
-                    .disabled(authViewModel.isLoading)
-                    
-                    // Cancel — only shown in edit mode
+                    // MARK: - Edit / Save + Cancel Buttons
                     if isEditing {
-                        Button(action: cancelEditing) {
-                            Text("Cancel")
-                                .font(.system(size: 15, weight: .medium))
-                                .foregroundColor(.gray)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 44)
-                                .background(Color.white)
-                                .cornerRadius(12)
+                        // Save + Cancel side by side (PrimaryButton + SecondaryButton style)
+                        HStack(spacing: 12) {
+                            SecondaryButton(title: "Cancel", action: cancelEditing)
+                            PrimaryButton(
+                                title: "Save Profile",
+                                action: handleEditSave,
+                                isLoading: authViewModel.isLoading
+                            )
                         }
                         .padding(.horizontal, 16)
                         .transition(.opacity.combined(with: .move(edge: .top)))
+                    } else {
+                        // Single Edit Profile button
+                        PrimaryButton(title: "Edit Profile", action: handleEditSave)
+                            .padding(.horizontal, 16)
                     }
                     
                     // MARK: - Settings Section
