@@ -23,26 +23,40 @@ struct User: Identifiable, Codable {
     var phoneNumber: String?
     var email: String?
     var name: String
+    var age: Int
     var dateOfBirth: Date?
     var address: String?
     var telephone: String?
+    var pharmacistID: String?
     var createdAt: Date
     var role: UserRole
     var authProvider: AuthProvider
     
-    init(id: String = UUID().uuidString, email: String? = nil, name: String, phoneNumber: String? = nil, dateOfBirth: Date? = nil, address: String? = nil, telephone: String? = nil, createdAt: Date = Date(), role: UserRole = .patient, authProvider: AuthProvider = .phone) {
+    init(id: String = UUID().uuidString,
+         email: String? = nil,
+         name: String,
+         age: Int = 0,
+         phoneNumber: String? = nil,
+         dateOfBirth: Date? = nil,
+         address: String? = nil,
+         telephone: String? = nil,
+         pharmacistID: String? = nil,
+         createdAt: Date = Date(),
+         role: UserRole = .patient,
+         authProvider: AuthProvider = .phone)
+    {
         self.id = id
         self.email = email
         self.name = name
+        self.age = age
         self.phoneNumber = phoneNumber
         self.dateOfBirth = dateOfBirth
         self.address = address
         self.telephone = telephone
+        self.pharmacistID = pharmacistID
         self.createdAt = createdAt
         self.role = role
         self.authProvider = authProvider
     }
 }
-
-
 
