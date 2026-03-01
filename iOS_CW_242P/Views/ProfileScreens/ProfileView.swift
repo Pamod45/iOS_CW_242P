@@ -5,7 +5,7 @@ struct ProfileView: View {
     
     @EnvironmentObject var authViewModel: AuthViewModel
     
-    // MARK: - Edit State
+    //Edit State
     @State private var isEditing = false
     @State private var editName: String    = ""
     @State private var editEmail: String   = ""
@@ -14,12 +14,12 @@ struct ProfileView: View {
     @State private var editRole: UserRole        = .patient
     @State private var editPharmacistID: String  = ""
     
-    // MARK: - UI State
+    //UI State
     @State private var showLogoutAlert          = false
     @State private var navigateToChangePassword = false
     @State private var showSaveSuccess          = false
     
-    // MARK: - Computed Properties — always read live from currentUser
+    //Computed Properties — always read live from currentUser
     private var displayName: String {
         authViewModel.currentUser?.name.isEmpty == false
             ? authViewModel.currentUser!.name
@@ -57,7 +57,7 @@ struct ProfileView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     
-                    // MARK: - Avatar + Header
+                    //Avatar + Header
                     VStack(spacing: 8) {
                         ZStack {
                             Circle()
@@ -97,11 +97,11 @@ struct ProfileView: View {
                     }
                     .padding(.top, 20)
                     
-                    // MARK: - Role Toggle — always visible
+                    //Role Toggle — always visible
                     RoleToggleRow(selectedRole: $editRole)
                         .padding(.horizontal, 16)
                     
-                    // MARK: - Info Fields (read-only ↔ editable)
+                    //Info Fields (read-only ↔ editable)
                     VStack(spacing: 12) {
                         if isEditing {
                             //Editable fields pre-filled with current user data
@@ -154,7 +154,7 @@ struct ProfileView: View {
                     .padding(.horizontal, 16)
                     .animation(.easeInOut(duration: 0.22), value: isEditing)
                     
-                    // MARK: - Edit / Save + Cancel Buttons
+                    //Edit / Save + Cancel Buttons
                     if isEditing {
                         //Save + Cancel side by side (PrimaryButton + SecondaryButton style)
                         HStack(spacing: 12) {
@@ -177,30 +177,30 @@ struct ProfileView: View {
                     VStack(spacing: 0) {
                         
                         //Hidden link for programmatic navigation
-                        NavigationLink(
-                            destination: ChangePasswordView(),
-                            isActive: $navigateToChangePassword
-                        ) { EmptyView() }
-                        
+//                        NavigationLink(
+//                            destination: ChangePasswordView(),
+//                            isActive: $navigateToChangePassword
+//                        ) { EmptyView() }
+//                        
                         //Change Password row
-                        Button(action: { navigateToChangePassword = true }) {
-                            HStack {
-                                Image(systemName: "lock.rotation")
-                                    .foregroundColor(Color(hex: "#3B82F6"))
-                                    .frame(width: 24)
-                                Text("Change Password")
-                                    .font(.system(size: 15))
-                                    .foregroundColor(.black)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.gray)
-                                    .font(.system(size: 13))
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 16)
-                        }
-                        
-                        Divider().padding(.horizontal, 16)
+//                        Button(action: { navigateToChangePassword = true }) {
+//                            HStack {
+//                                Image(systemName: "lock.rotation")
+//                                    .foregroundColor(Color(hex: "#3B82F6"))
+//                                    .frame(width: 24)
+//                                Text("Change Password")
+//                                    .font(.system(size: 15))
+//                                    .foregroundColor(.black)
+//                                Spacer()
+//                                Image(systemName: "chevron.right")
+//                                    .foregroundColor(.gray)
+//                                    .font(.system(size: 13))
+//                            }
+//                            .padding(.horizontal, 16)
+//                            .padding(.vertical, 16)
+//                        }
+//                        
+//                        Divider().padding(.horizontal, 16)
                         
                         // Logout row
                         Button(action: { showLogoutAlert = true }) {
@@ -376,7 +376,7 @@ struct PasswordField: View {
     }
 }
 
-// MARK: - Role Toggle Row
+//Role Toggle Row
 struct RoleToggleRow: View {
     @Binding var selectedRole: UserRole
 
@@ -443,7 +443,6 @@ extension Color {
     }
 }
 
-// MARK: - Preview
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
         ProfileView()
