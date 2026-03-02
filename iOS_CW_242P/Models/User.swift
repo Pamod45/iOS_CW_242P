@@ -30,6 +30,7 @@ struct User: Identifiable, Codable {
     var pharmacistID: String?
     var createdAt: Date
     var role: UserRole
+    var roles: [UserRole]
     var authProvider: AuthProvider
     
     init(id: String = UUID().uuidString,
@@ -57,6 +58,6 @@ struct User: Identifiable, Codable {
         self.createdAt = createdAt
         self.role = role
         self.authProvider = authProvider
+        self.roles = [role]
     }
 }
-

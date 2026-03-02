@@ -85,8 +85,9 @@ class AuthViewModel: ObservableObject {
             
             let cleanedNumber = phoneNumber.replacingOccurrences(of: " ", with: "")
             
-            let user: User
+            var user: User
             if let demoAccount = self.demoAccounts[cleanedNumber] {
+                
                 user = User(
                     name: demoAccount.name,
                     phoneNumber: cleanedNumber,
@@ -94,6 +95,10 @@ class AuthViewModel: ObservableObject {
                     role: demoAccount.role,
                     authProvider: .phone
                 )
+                if(demoAccount.role == .pharmacist){
+                    user.role = .patient // just to check the account change in the user profiles
+                    user.roles.append(.pharmacist)
+                }
             } else {
                 user = User(
                     name: "New User",
@@ -250,4 +255,3 @@ class AuthViewModel: ObservableObject {
         }
     }
 }
-

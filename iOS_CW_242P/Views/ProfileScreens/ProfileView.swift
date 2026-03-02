@@ -18,6 +18,11 @@ struct ProfileView: View {
     @State private var showLogoutAlert          = false
     @State private var navigateToChangePassword = false
     @State private var showSaveSuccess          = false
+    @State private var showProfileChangeAlert   = false
+    
+    @State private var pendingRole: UserRole?        = nil
+    @State private var navigateToPatientDashboard    = false
+    @State private var navigateToPharmacistDashboard = false
     
     //Computed Properties — always read live from currentUser
     private var displayName: String {
@@ -98,8 +103,25 @@ struct ProfileView: View {
                     .padding(.top, 20)
                     
                     //Role Toggle — always visible
-                    RoleToggleRow(selectedRole: $editRole)
-                        .padding(.horizontal, 16)
+                    if authViewModel.currentUser?.roles.contains(.pharmacist) == true {
+                        Picker(
+                            "UserRole",
+                            selection: Binding(
+                                get: { editRole },
+                                set: { newRole in
+                                    guard newRole != editRole else { return }
+                                    pendingRole = newRole
+                                    showProfileChangeAlert = true
+                                }
+                            )
+                        ) {
+                            Text("Pharmacist").tag(UserRole.pharmacist)
+                            Text("Patient").tag(UserRole.patient)
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.horizontal)
+                    }
+                    
                     
                     //Info Fields (read-only ↔ editable)
                     VStack(spacing: 12) {
@@ -175,33 +197,6 @@ struct ProfileView: View {
                     
                     //Settings Section
                     VStack(spacing: 0) {
-                        
-                        //Hidden link for programmatic navigation
-//                        NavigationLink(
-//                            destination: ChangePasswordView(),
-//                            isActive: $navigateToChangePassword
-//                        ) { EmptyView() }
-//                        
-                        //Change Password row
-//                        Button(action: { navigateToChangePassword = true }) {
-//                            HStack {
-//                                Image(systemName: "lock.rotation")
-//                                    .foregroundColor(Color(hex: "#3B82F6"))
-//                                    .frame(width: 24)
-//                                Text("Change Password")
-//                                    .font(.system(size: 15))
-//                                    .foregroundColor(.black)
-//                                Spacer()
-//                                Image(systemName: "chevron.right")
-//                                    .foregroundColor(.gray)
-//                                    .font(.system(size: 13))
-//                            }
-//                            .padding(.horizontal, 16)
-//                            .padding(.vertical, 16)
-//                        }
-//                        
-//                        Divider().padding(.horizontal, 16)
-                        
                         // Logout row
                         Button(action: { showLogoutAlert = true }) {
                             HStack {
@@ -250,6 +245,26 @@ struct ProfileView: View {
             } message: {
                 Text("Your profile has been saved successfully.")
             }
+            .alert("ProfileChanged", isPresented: $showProfileChangeAlert) {
+                Button("Yes", role: .destructive) {
+                    if let role = pendingRole {
+                        editRole = role
+                        if role == .patient { editPharmacistID = "" }
+                    }
+                    pendingRole = nil
+                    if pendingRole == .patient {
+                        navigateToPatientDashboard = true
+                    } else {
+                        navigateToPharmacistDashboard = true
+                    }
+                }
+                Button("No", role: .cancel) {
+                    pendingRole = nil
+                }
+            } message: {
+                Text("Are you sure you want to switch your profile ?")
+            }
+            
             // Loading overlay
             .overlay {
                 if authViewModel.isLoading {
@@ -261,6 +276,17 @@ struct ProfileView: View {
                     }
                 }
             }
+        }
+        .background {
+            NavigationLink(
+                destination: DashboardView(),
+                isActive: $navigateToPatientDashboard
+            ) { EmptyView() }
+            
+            NavigationLink(
+                destination: Text("Pharmacist dashboard not implemented yet"),
+                isActive: $navigateToPharmacistDashboard
+            ) { EmptyView() }
         }
     }
     
