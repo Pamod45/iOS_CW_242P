@@ -25,12 +25,40 @@ struct LabTestSelectionView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
             
-            Picker("Category", selection: $selectedCategory) {
-                Text("All").tag(LabTestCategory.allCategories)
-                Text("No Approval Req ").tag(LabTestCategory.noApprovalRequired)
-                Text("Approval Req ").tag(LabTestCategory.approvalRequired)
+            HStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+
+                    TextField("Search lab tests", text: $searchText)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled(true)
+                        .submitLabel(.search)
+
+                    if !searchText.isEmpty {
+                        Button {
+                            searchText = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                Button {
+                    
+                } label: {
+                    Image(systemName: "line.3.horizontal.decrease")
+                        .font(.title3)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Filters")
             }
-            .pickerStyle(.segmented)
             .padding(.horizontal)
             
             if !selectedTests.isEmpty {
@@ -60,7 +88,7 @@ struct LabTestSelectionView: View {
                 }
                 .padding()
             }
-        }.searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
+        }
     }
     
     private func getFilteredTests() -> [LabTest] {

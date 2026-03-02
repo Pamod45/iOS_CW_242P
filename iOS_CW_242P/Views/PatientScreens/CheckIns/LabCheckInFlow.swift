@@ -22,7 +22,7 @@ struct LabCheckInFlow: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                ProgressBar(currentStep: currentStep, totalSteps: 3)
+                ProgressBar(currentStep: currentStep, totalSteps: 5)
                     .padding()
                 ZStack {
                     if currentStep == 1 {
