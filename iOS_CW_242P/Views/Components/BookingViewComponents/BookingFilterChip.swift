@@ -35,6 +35,5 @@ struct BookingFilterChip: View {
             )
             .shadow(color: isSelected ? Color.blue.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
         }
-
     }
 }

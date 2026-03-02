@@ -10,46 +10,129 @@ import SwiftUI
 struct BookingDetailView: View {
     @Binding var booking: Appointment
     let onPayNow: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var localBooking: Appointment
+    @Binding var shouldDismissAfterPayment: Bool
     
+    // Reschedule & Cancel states
+    @State private var showRescheduleSheet = false
+    @State private var showCancelAlert = false
+    @State private var rescheduleDate = Date()
+    @State private var rescheduleSession: Session? = nil
+    @State private var showSuccessAlert = false
+    @State private var successMessage = ""
+
+    init(booking: Binding<Appointment>, shouldDismissAfterPayment: Binding<Bool>, onPayNow: @escaping () -> Void) {
+        self._booking = booking
+        self._shouldDismissAfterPayment = shouldDismissAfterPayment
+        self.onPayNow = onPayNow
+        self._localBooking = State(initialValue: booking.wrappedValue)
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Status Header
-                BookingStatusHeader(booking: booking)
-                    .padding(.horizontal)
-                
-                // Booking Info Card
-                BookingInfoCard(booking: booking)
-                    .padding(.horizontal)
-                
-                // Lab Tests (if lab booking)
-                if booking.type == .laboratory, let tests = booking.labTests {
-                    LabTestsCard(tests: tests, approvalStatus: booking.approvalStatus)
+                if localBooking.isUpcoming && !localBooking.isPendingApproval && !localBooking.isAwaitingPayment {
+                    if let queue = localBooking.queueNumber, let wait = localBooking.estimatedWaitTime {
+                        CompactQueueCard(
+                            queueNumber: queue,
+                            estimatedWait: wait,
+                            room: localBooking.doctorRoom ?? (localBooking.type == .opd ? "Room 101" : "Lab Room 1"),
+                            appointmentType: localBooking.type
+                        )
                         .padding(.horizontal)
-                }
-                
-                // Timeline
-                BookingTimeline(booking: booking)
-                    .padding(.horizontal)
-                
-                // Payment Section
-                PaymentInfoCard(booking: booking)
-                    .padding(.horizontal)
-                
-                // Action Button
-                if booking.isAwaitingPayment {
-                    PrimaryButton(
-                        title: "Pay Now — Rs. \(String(format: "%.2f", booking.amount))",
-                        action: onPayNow
-                    )
-                    .padding(.horizontal)
-                }
-                
-                if booking.isUpcoming && !booking.isPendingApproval && !booking.isAwaitingPayment {
-                    // Queue info if confirmed
-                    if let queue = booking.queueNumber, let wait = booking.estimatedWaitTime {
-                        QueueInfoCard(queueNumber: queue, estimatedWait: wait, room: booking.doctorRoom)
+                    }
+                    
+                    // Booking Info
+                    BookingInfoCard(booking: localBooking)
+                        .padding(.horizontal)
+                    
+                    // Lab Tests (if lab booking)
+                    if localBooking.type == .laboratory, let tests = localBooking.labTests {
+                        LabTestsCard(tests: tests, approvalStatus: localBooking.approvalStatus)
                             .padding(.horizontal)
+                    }
+                    
+                    // Payment Section
+                    PaymentInfoCard(booking: localBooking)
+                        .padding(.horizontal)
+                    
+                    // Reschedule & Cancel Buttons
+                    if canModifyBooking {
+                        HStack(spacing: 12) {
+                            Button(action: { showRescheduleSheet = true }) {
+                                HStack {
+                                    Image(systemName: "calendar.badge.clock")
+                                    Text("Reschedule")
+                                        .fontWeight(.semibold)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                            }
+                            
+                            Button(action: { showCancelAlert = true }) {
+                                HStack {
+                                    Image(systemName: "xmark.circle")
+                                    Text("Cancel")
+                                        .fontWeight(.semibold)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(Color.red)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                            }
+                        }
+                        .padding(.horizontal)
+                    } else if !localBooking.isCompleted && !localBooking.isCancelled {
+                        // Show info message why they can't modify
+                        HStack(spacing: 12) {
+                            Image(systemName: "info.circle.fill")
+                                .foregroundColor(.orange)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Modification Not Allowed")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                Text("Changes can only be made 24 hours before the appointment")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                        }
+                        .padding()
+                        .background(Color.orange.opacity(0.1))
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                    }
+                } else {
+                    // Status Header
+                    BookingStatusHeader(booking: localBooking)
+                        .padding(.horizontal)
+                    
+                    // Booking Info Card
+                    BookingInfoCard(booking: localBooking)
+                        .padding(.horizontal)
+                    
+                    // Lab Tests (if lab booking)
+                    if localBooking.type == .laboratory, let tests = localBooking.labTests {
+                        LabTestsCard(tests: tests, approvalStatus: localBooking.approvalStatus)
+                            .padding(.horizontal)
+                    }
+                    
+                    // Payment Section
+                    PaymentInfoCard(booking: localBooking)
+                        .padding(.horizontal)
+                    
+                    // Action Button — only show when genuinely awaiting payment
+                    if localBooking.isAwaitingPayment {
+                        PrimaryButton(
+                            title: "Pay Now — Rs. \(String(format: "%.2f", localBooking.amount))",
+                            action: onPayNow
+                        )
+                        .padding(.horizontal)
                     }
                 }
             }
@@ -59,434 +142,107 @@ struct BookingDetailView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Booking Details")
         .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-// MARK: - Status Header
-
-struct BookingStatusHeader: View {
-    let booking: Appointment
-    
-    private var statusColor: Color {
-        if booking.isPendingApproval { return .orange }
-        if booking.isAwaitingPayment { return .red }
-        if booking.approvalStatus == .rejected { return .red }
-        switch booking.status {
-        case .pending:    return .orange
-        case .confirmed:  return .blue
-        case .inProgress: return .purple
-        case .completed:  return .green
-        case .cancelled:  return .red
+        // Sync localBooking whenever the parent binding changes (e.g. after payment)
+        .onChange(of: booking.paymentCompleted) { oldValue, newValue in
+            localBooking = booking
         }
-    }
-    
-    private var statusIcon: String {
-        if booking.isPendingApproval { return "clock.badge.questionmark" }
-        if booking.isAwaitingPayment { return "creditcard" }
-        if booking.approvalStatus == .rejected { return "xmark.circle" }
-        switch booking.status {
-        case .pending:    return "clock"
-        case .confirmed:  return "checkmark.circle"
-        case .inProgress: return "arrow.triangle.2.circlepath"
-        case .completed:  return "checkmark.seal.fill"
-        case .cancelled:  return "xmark.circle"
-        }
-    }
-    
-    private var statusText: String {
-        if booking.isPendingApproval { return "Pending Doctor Approval" }
-        if booking.isAwaitingPayment { return "Awaiting Payment" }
-        if booking.approvalStatus == .rejected { return "Approval Rejected" }
-        return booking.status.rawValue
-    }
-    
-    var body: some View {
-        VStack(spacing: 14) {
-            Image(systemName: statusIcon)
-                .font(.system(size: 36))
-                .foregroundColor(statusColor)
-                .frame(width: 72, height: 72)
-                .background(statusColor.opacity(0.1))
-                .cornerRadius(18)
-            
-            Text(statusText)
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(statusColor)
-            
-            HStack(spacing: 6) {
-                Image(systemName: booking.type == .opd ? "stethoscope" : "flask.fill")
-                    .font(.caption)
-                Text(booking.type.rawValue)
-                    .font(.subheadline)
-            }
-            .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 20)
-        .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
-    }
-}
-
-// MARK: - Info Card
-
-struct BookingInfoCard: View {
-    let booking: Appointment
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Booking Information")
-                .font(.headline)
-            
-            VStack(spacing: 14) {
-                BookingInfoRow(icon: "calendar", label: "Date", value: booking.displayDate, color: .blue)
-                
-                Divider()
-                
-                BookingInfoRow(icon: "clock", label: "Session", value: booking.sessionDisplay, color: .purple)
-                
-                if booking.type == .opd {
-                    Divider()
-                    
-                    BookingInfoRow(icon: "text.bubble", label: "Reason", value: booking.reasonForVisit ?? "N/A", color: .orange)
-                    
-                    if let room = booking.doctorRoom {
-                        Divider()
-                        BookingInfoRow(icon: "door.left.hand.open", label: "Room", value: room, color: .teal)
-                    }
-                }
-                
-                Divider()
-                
-                BookingInfoRow(icon: "number", label: "Booking ID", value: booking.id.prefix(12).uppercased().description, color: .gray)
+        // Pop back to MyBookingsView after payment is confirmed
+        .onChange(of: shouldDismissAfterPayment) { oldValue, newValue in
+            if newValue {
+                shouldDismissAfterPayment = false
+                dismiss()
             }
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
-    }
-}
-
-struct BookingInfoRow: View {
-    let icon: String
-    let label: String
-    let value: String
-    let color: Color
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.subheadline)
-                .foregroundColor(color)
-                .frame(width: 24)
-            
-            Text(label)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            Spacer()
-            
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .lineLimit(1)
+        // Reschedule Sheet
+        .sheet(isPresented: $showRescheduleSheet) {
+            RescheduleSheet(
+                booking: localBooking,
+                rescheduleDate: $rescheduleDate,
+                rescheduleSession: $rescheduleSession,
+                onConfirm: confirmReschedule
+            )
         }
-    }
-}
-
-// MARK: - Lab Tests Card
-
-struct LabTestsCard: View {
-    let tests: [LabTest]
-    let approvalStatus: ApprovalStatus?
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Lab Tests")
-                    .font(.headline)
-                Spacer()
-                
-                if let status = approvalStatus {
-                    Text(status.rawValue)
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundColor(colorFor(status))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(colorFor(status).opacity(0.1))
-                        .cornerRadius(8)
-                }
+        // Cancel Alert
+        .alert("Cancel Booking", isPresented: $showCancelAlert) {
+            Button("Cancel Booking", role: .destructive) {
+                cancelBooking()
             }
-            
-            ForEach(tests) { test in
-                HStack(alignment: .top, spacing: 12) {
-                    Image(systemName: "flask.fill")
-                        .font(.caption)
-                        .foregroundColor(.green)
-                        .frame(width: 32, height: 32)
-                        .background(Color.green.opacity(0.1))
-                        .cornerRadius(8)
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(test.name)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                        
-                        Text(test.description)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .lineLimit(2)
-                        
-                        HStack(spacing: 12) {
-                            HStack(spacing: 4) {
-                                Image(systemName: "clock")
-                                    .font(.caption2)
-                                Text("\(test.duration) min")
-                                    .font(.caption)
-                            }
-                            .foregroundColor(.secondary)
-                            
-                            if let prep = test.preparationRequired {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "exclamationmark.triangle")
-                                        .font(.caption2)
-                                    Text(prep)
-                                        .font(.caption)
-                                }
-                                .foregroundColor(.orange)
-                            }
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    Text("Rs. \(String(format: "%.0f", test.price))")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                }
-                .padding(10)
-                .background(Color.gray.opacity(0.04))
-                .cornerRadius(10)
+            Button("Keep Booking", role: .cancel) {}
+        } message: {
+            Text("Are you sure you want to cancel this booking? This action cannot be undone.")
+        }
+        // Success Alert
+        .alert(successMessage, isPresented: $showSuccessAlert) {
+            Button("OK", role: .cancel) {
+                dismiss()
             }
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
     }
-    
-    private func colorFor(_ status: ApprovalStatus) -> Color {
-        switch status {
-        case .pending:  return .orange
-        case .approved: return .green
-        case .rejected: return .red
-        }
-    }
-}
-
-// MARK: - Timeline
-
-struct BookingTimeline: View {
-    let booking: Appointment
-    
-    private var steps: [(String, String, Bool)] {
-        if booking.type == .opd {
-            return opdSteps
-        } else {
-            return labSteps
-        }
-    }
-    
-    private var opdSteps: [(String, String, Bool)] {
-        let s = booking.status
-        return [
-            ("Booked", "Appointment created", true),
-            ("Payment", booking.paymentCompleted ? "Payment completed" : "Awaiting payment", booking.paymentCompleted),
-            ("Confirmed", "Appointment confirmed", s == .confirmed || s == .inProgress || s == .completed),
-            ("In Progress", "Consultation started", s == .inProgress || s == .completed),
-            ("Completed", "Visit completed", s == .completed),
-        ]
-    }
-    
-    private var labSteps: [(String, String, Bool)] {
-        let requiresApproval = booking.requiresApproval ?? false
-        let approval = booking.approvalStatus
-        let paid = booking.paymentCompleted
-        let s = booking.status
         
-        var result: [(String, String, Bool)] = [
-            ("Booked", "Lab check-in created", true),
-        ]
+    
+    //Functions and methods
+    private var canModifyBooking: Bool {
         
-        if requiresApproval {
-            let approved = approval == .approved
-            let rejected = approval == .rejected
-            result.append(("Approval", rejected ? "Approval rejected" : (approved ? "Doctor approved" : "Awaiting doctor approval"), approved || rejected))
+        guard localBooking.status == .confirmed || localBooking.status == .pending else {
+            return false
         }
         
-        result.append(("Payment", paid ? "Payment completed" : "Awaiting payment", paid))
-        result.append(("Confirmed", "Check-in confirmed", s == .confirmed || s == .inProgress || s == .completed))
-        result.append(("Completed", "Tests completed", s == .completed))
+        if localBooking.isAwaitingPayment || localBooking.isPendingApproval {
+            return false
+        }
         
-        return result
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Progress")
-                .font(.headline)
-            
-            VStack(spacing: 0) {
-                ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
-                    HStack(alignment: .top, spacing: 14) {
-                        // Timeline indicator
-                        VStack(spacing: 0) {
-                            ZStack {
-                                Circle()
-                                    .fill(step.2 ? Color.blue : Color.gray.opacity(0.2))
-                                    .frame(width: 28, height: 28)
-                                
-                                if step.2 {
-                                    Image(systemName: "checkmark")
-                                        .font(.system(size: 11, weight: .bold))
-                                        .foregroundColor(.white)
-                                } else {
-                                    Text("\(index + 1)")
-                                        .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(.gray)
-                                }
-                            }
-                            
-                            if index < steps.count - 1 {
-                                Rectangle()
-                                    .fill(step.2 ? Color.blue.opacity(0.3) : Color.gray.opacity(0.15))
-                                    .frame(width: 2, height: 28)
-                            }
-                        }
-                        
-                        // Step content
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(step.0)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(step.2 ? .primary : .secondary)
-                            
-                            Text(step.1)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.bottom, index < steps.count - 1 ? 8 : 0)
-                        
-                        Spacer()
-                    }
+        //Should be before 24 hours to be able to cancel or reschedule
+        let calendar = Calendar.current
+        let bookingDateTime = calendar.startOfDay(for: localBooking.date)
+        
+        // Get session start time
+        if let session = MockData.sessions.first(where: { $0.id == localBooking.sessionId }) {
+            let components = session.startTime.split(separator: ":")
+            if components.count == 2,
+               let hour = Int(components[0]),
+               let minute = Int(components[1]) {
+                if let sessionStartDateTime = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: bookingDateTime) {
+                    let twentyFourHoursBefore = calendar.date(byAdding: .hour, value: -24, to: sessionStartDateTime) ?? sessionStartDateTime
+                    return Date() < twentyFourHoursBefore
                 }
             }
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+        
+        return false
     }
-}
-
-// MARK: - Payment Info
-
-struct PaymentInfoCard: View {
-    let booking: Appointment
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Payment")
-                    .font(.headline)
-                
-                Spacer()
-                
-                Text(booking.paymentCompleted ? "Paid" : "Unpaid")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundColor(booking.paymentCompleted ? .green : .red)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background((booking.paymentCompleted ? Color.green : Color.red).opacity(0.1))
-                    .cornerRadius(8)
-            }
-            
-            HStack {
-                Text("Total Amount")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Text("Rs. \(String(format: "%.2f", booking.amount))")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(.blue)
-            }
-        }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+        
+    private func confirmReschedule() {
+        guard let newSession = rescheduleSession else { return }
+        
+        // Update the booking
+        var updated = localBooking
+        updated.date = rescheduleDate
+        updated.sessionId = newSession.id
+        updated.queueNumber = Int.random(in: 1...15)
+        updated.estimatedWaitTime = newSession.estimatedWaitTime
+        
+        // Update parent binding
+        booking = updated
+        localBooking = updated
+        
+        // Show success
+        successMessage = "Booking rescheduled successfully to \(rescheduleDate.formatted(date: .long, time: .omitted)) at \(newSession.displayTime)"
+        showSuccessAlert = true
+        showRescheduleSheet = false
     }
-}
-
-// MARK: - Queue Info
-
-struct QueueInfoCard: View {
-    let queueNumber: Int
-    let estimatedWait: Int
-    let room: String?
     
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Queue Information")
-                .font(.headline)
-            
-            HStack(spacing: 16) {
-                VStack(spacing: 4) {
-                    Text("Queue #")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("\(queueNumber)")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.blue)
-                }
-                .frame(maxWidth: .infinity)
-                
-                VStack(spacing: 4) {
-                    Text("Est. Wait")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("~\(estimatedWait) min")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.orange)
-                }
-                .frame(maxWidth: .infinity)
-                
-                if let room = room {
-                    VStack(spacing: 4) {
-                        Text("Room")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(room)
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-            }
-        }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+    private func cancelBooking() {
+        // Update the booking
+        var updated = localBooking
+        updated.status = .cancelled
+        
+        // Update parent binding
+        booking = updated
+        localBooking = updated
+        
+        // Show success and dismiss
+        successMessage = "Booking cancelled successfully. You will receive a full refund within 3-5 business days."
+        showSuccessAlert = true
     }
 }
 
@@ -494,6 +250,7 @@ struct QueueInfoCard: View {
     NavigationView {
         BookingDetailView(
             booking: .constant(MockData.sampleBookings[2]),
+            shouldDismissAfterPayment: .constant(false),
             onPayNow: {}
         )
     }

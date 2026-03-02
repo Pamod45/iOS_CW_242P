@@ -14,18 +14,15 @@ struct SummaryMini: View {
     let icon: String
     
     var body: some View {
-        VStack(spacing: 8){
-            //Icon for the summary
+        VStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.title3)
                 .foregroundColor(color)
             
-            //title for the summary
             Text(value)
                 .font(.title2)
                 .fontWeight(.bold)
             
-            //label for the summary
             Text(label)
                 .font(.caption)
                 .foregroundColor(.secondary)
