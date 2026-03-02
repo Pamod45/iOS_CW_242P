@@ -190,7 +190,6 @@ class AuthViewModel: ObservableObject {
     func signOut() {
         isLoading = true
         
-        // Clear all user data
         currentUser = nil
         isAuthenticated = false
         otpSent = false
@@ -206,8 +205,9 @@ class AuthViewModel: ObservableObject {
             self?.objectWillChange.send()
         }
     }
-        
-    func updateProfile(name: String, email: String?, age: Int?, address: String?, telephone: String?, completion: @escaping (Bool) -> Void) {
+    
+    // ✅ FIX: Added pharmacistID parameter so it gets saved properly
+    func updateProfile(name: String, email: String?, age: Int?, address: String?, telephone: String?, pharmacistID: String? = nil, completion: @escaping (Bool) -> Void) {
         guard var user = currentUser else {
             showErrorMessage("No user logged in")
             completion(false)
@@ -219,17 +219,18 @@ class AuthViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             guard let self = self else { return }
             
-            user.name = name
-            user.email = email
-            user.address = address
-            user.telephone = telephone
+            user.name         = name
+            user.email        = email
+            user.address      = address
+            user.telephone    = telephone
+            user.pharmacistID = pharmacistID  // ✅ FIX: now persisted
             
             self.currentUser = user
             self.saveUser(user)
             self.isLoading = false
             self.objectWillChange.send()
             
-            print("✅ Profile updated - Name: \(name), Age: \(age?.description ?? "nil")")
+            print("✅ Profile updated - Name: \(name), PharmacistID: \(pharmacistID ?? "nil")")
             
             completion(true)
         }

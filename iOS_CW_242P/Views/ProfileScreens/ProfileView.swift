@@ -13,6 +13,7 @@ struct ProfileView: View {
     @State private var editAddress: String       = ""
     @State private var editRole: UserRole        = .patient
     @State private var editPharmacistID: String  = ""
+    @State private var editNIC: String           = ""
     
     //UI State
     @State private var showLogoutAlert          = false
@@ -28,22 +29,21 @@ struct ProfileView: View {
     private var displayName: String {
         authViewModel.currentUser?.name.isEmpty == false
             ? authViewModel.currentUser!.name
-            : "No Name"
+            : "New User"
     }
     private var displayEmail: String {
-        authViewModel.currentUser?.email?.isEmpty == false
-            ? authViewModel.currentUser!.email!
-            : "No Email"
+        let email = authViewModel.currentUser?.email
+        return email?.isEmpty == false ? email! : "Not Set"
     }
     private var displayPhone: String {
         let phone = authViewModel.currentUser?.telephone
                     ?? authViewModel.currentUser?.phoneNumber
-        return phone?.isEmpty == false ? phone! : "No Number"
+        return phone?.isEmpty == false ? phone! : "Not Set"
     }
     private var displayAddress: String {
         authViewModel.currentUser?.address?.isEmpty == false
             ? authViewModel.currentUser!.address!
-            : "No Address"
+            : "Not Set"
     }
     private var displayRole: String {
         authViewModel.currentUser?.role.rawValue ?? "Patient"
@@ -51,58 +51,35 @@ struct ProfileView: View {
     private var displayPharmacistID: String {
         authViewModel.currentUser?.pharmacistID?.isEmpty == false
             ? authViewModel.currentUser!.pharmacistID!
-            : "No Pharmacist ID"
+            : "Not Set"
+    }
+    private var displayNIC: String {
+        // NIC not in User model yet — always "Not Set" unless added
+        return "Not Set"
     }
     private var avatarLetter: String {
         String(displayName.prefix(1)).uppercased()
     }
     
+    // Profile completeness (out of 4: name, email, phone, address)
+    private var completedFields: Int {
+        var count = 0
+        if !(authViewModel.currentUser?.name.isEmpty ?? true) { count += 1 }
+        if authViewModel.currentUser?.email?.isEmpty == false { count += 1 }
+        if (authViewModel.currentUser?.telephone?.isEmpty == false ||
+            authViewModel.currentUser?.phoneNumber?.isEmpty == false) { count += 1 }
+        if authViewModel.currentUser?.address?.isEmpty == false { count += 1 }
+        return count
+    }
+    private var totalFields: Int { 4 }
+    private var isProfileComplete: Bool { completedFields >= totalFields }
+    
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 16) {
                     
-                    //Avatar + Header
-                    VStack(spacing: 8) {
-                        ZStack {
-                            Circle()
-                                .fill(Color(hex: "#8B5CF6"))
-                                .frame(width: 80, height: 80)
-                            Text(isEditing
-                                 ? (editName.isEmpty ? "?" : String(editName.prefix(1)).uppercased())
-                                 : avatarLetter)
-                                .font(.system(size: 36, weight: .semibold))
-                                .foregroundColor(.white)
-                                .animation(.easeInOut, value: editName)
-                        }
-                        
-                        // Name updates live as user types in edit mode
-                        Text(isEditing
-                             ? (editName.isEmpty ? "Your Name" : editName)
-                             : displayName)
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.black)
-                        
-                        // Email updates live as user types in edit mode
-                        Text(isEditing
-                             ? (editEmail.isEmpty ? "your@email.com" : editEmail)
-                             : displayEmail)
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                        
-                        // Role badge — updates live with toggle
-                        Text(editRole.rawValue)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(Color(hex: "#8B5CF6"))
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 4)
-                            .background(Color(hex: "#8B5CF6").opacity(0.12))
-                            .cornerRadius(20)
-                            .animation(.easeInOut(duration: 0.2), value: editRole)
-                    }
-                    .padding(.top, 20)
-                    
-                    //Role Toggle — always visible
+                    // MARK: Role Picker (above avatar)
                     if authViewModel.currentUser?.roles.contains(.pharmacist) == true {
                         Picker(
                             "UserRole",
@@ -119,19 +96,94 @@ struct ProfileView: View {
                             Text("Patient").tag(UserRole.patient)
                         }
                         .pickerStyle(.segmented)
-                        .padding(.horizontal)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
                     }
                     
+                    // MARK: Avatar + Name Row
+                    HStack(spacing: 14) {
+                        ZStack {
+                            Circle()
+                                .fill(Color(hex: "#8B5CF6"))
+                                .frame(width: 56, height: 56)
+                            Text(isEditing
+                                 ? (editName.isEmpty ? "?" : String(editName.prefix(1)).uppercased())
+                                 : avatarLetter)
+                                .font(.system(size: 24, weight: .semibold))
+                                .foregroundColor(.white)
+                        }
+                        
+                        Text(isEditing
+                             ? (editName.isEmpty ? "Your Name" : editName)
+                             : displayName)
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundColor(.black)
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
                     
-                    //Info Fields (read-only ↔ editable)
+                    // MARK: Complete Profile Banner
+                    if !isProfileComplete {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "info.circle")
+                                    .foregroundColor(Color(hex: "#3B82F6"))
+                                Text("Complete Profile")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundColor(Color(hex: "#3B82F6"))
+                            }
+                            
+                            Text("\(completedFields) OF \(totalFields) COMPLETE")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(Color(hex: "#3B82F6"))
+                                .kerning(0.5)
+                            
+                            // Progress bar
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(Color(hex: "#3B82F6").opacity(0.15))
+                                        .frame(height: 6)
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(Color(hex: "#3B82F6"))
+                                        .frame(width: geo.size.width * CGFloat(completedFields) / CGFloat(totalFields), height: 6)
+                                }
+                            }
+                            .frame(height: 6)
+                            
+                            Text("Adding the remaining details will help avoid delays during appointments and lab visits.")
+                                .font(.system(size: 12))
+                                .foregroundColor(.gray)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(16)
+                        .background(Color(hex: "#EFF6FF"))
+                        .cornerRadius(12)
+                        .padding(.horizontal, 16)
+                    }
+                    
+                    // MARK: Info Fields
                     VStack(spacing: 12) {
                         if isEditing {
-                            //Editable fields pre-filled with current user data
                             EditableInfoRow(
                                 icon: "person",
                                 label: "Name",
                                 value: $editName,
                                 keyboardType: .default
+                            )
+                            EditableInfoRow(
+                                icon: "creditcard",
+                                label: "NIC (National Identity Card)",
+                                value: $editNIC,
+                                keyboardType: .default
+                            )
+                            EditableInfoRow(
+                                icon: "envelope",
+                                label: "Email Address",
+                                value: $editEmail,
+                                keyboardType: .emailAddress
                             )
                             EditableInfoRow(
                                 icon: "phone",
@@ -145,16 +197,9 @@ struct ProfileView: View {
                                 value: $editAddress,
                                 keyboardType: .default
                             )
-                            EditableInfoRow(
-                                icon: "envelope",
-                                label: "Email",
-                                value: $editEmail,
-                                keyboardType: .emailAddress
-                            )
-                            // Pharmacist ID — only shown when Pharmacist is selected
                             if editRole == .pharmacist {
                                 EditableInfoRow(
-                                    icon: "creditcard",
+                                    icon: "cross.case",
                                     label: "Pharmacist ID",
                                     value: $editPharmacistID,
                                     keyboardType: .default
@@ -162,13 +207,13 @@ struct ProfileView: View {
                                 .transition(.opacity.combined(with: .move(edge: .top)))
                             }
                         } else {
-                            //Read-only fields showing live currentUser data
-                            ProfileInfoRow(icon: "person",             label: "Name",      value: displayName)
-                            ProfileInfoRow(icon: "phone",              label: "Telephone", value: displayPhone)
-                            ProfileInfoRow(icon: "mappin.and.ellipse", label: "Address",   value: displayAddress)
-                            ProfileInfoRow(icon: "envelope",           label: "Email",     value: displayEmail)
+                            ProfileInfoRow(icon: "person",             label: "Name",                      value: displayName)
+                            ProfileInfoRow(icon: "creditcard",         label: "NIC (National Identity Card)", value: displayNIC)
+                            ProfileInfoRow(icon: "envelope",           label: "Email Address",             value: displayEmail)
+                            ProfileInfoRow(icon: "phone",              label: "Telephone",                 value: displayPhone)
+                            ProfileInfoRow(icon: "mappin.and.ellipse", label: "Address",                   value: displayAddress)
                             if editRole == .pharmacist {
-                                ProfileInfoRow(icon: "creditcard", label: "Pharmacist ID", value: displayPharmacistID)
+                                ProfileInfoRow(icon: "cross.case", label: "Pharmacist ID", value: displayPharmacistID)
                                     .transition(.opacity.combined(with: .move(edge: .top)))
                             }
                         }
@@ -176,9 +221,8 @@ struct ProfileView: View {
                     .padding(.horizontal, 16)
                     .animation(.easeInOut(duration: 0.22), value: isEditing)
                     
-                    //Edit / Save + Cancel Buttons
+                    // MARK: Edit / Save + Cancel Buttons
                     if isEditing {
-                        //Save + Cancel side by side (PrimaryButton + SecondaryButton style)
                         HStack(spacing: 12) {
                             SecondaryButton(title: "Cancel", action: cancelEditing)
                             PrimaryButton(
@@ -190,31 +234,9 @@ struct ProfileView: View {
                         .padding(.horizontal, 16)
                         .transition(.opacity.combined(with: .move(edge: .top)))
                     } else {
-                        // Single Edit Profile button
                         PrimaryButton(title: "Edit Profile", action: handleEditSave)
                             .padding(.horizontal, 16)
                     }
-                    
-                    //Settings Section
-                    VStack(spacing: 0) {
-                        // Logout row
-                        Button(action: { showLogoutAlert = true }) {
-                            HStack {
-                                Image(systemName: "rectangle.portrait.and.arrow.right")
-                                    .foregroundColor(.red)
-                                    .frame(width: 24)
-                                Text("Logout")
-                                    .font(.system(size: 15))
-                                    .foregroundColor(.red)
-                                Spacer()
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 16)
-                        }
-                    }
-                    .background(Color.white)
-                    .cornerRadius(12)
-                    .padding(.horizontal, 16)
                     
                     Spacer(minLength: 40)
                 }
@@ -222,15 +244,21 @@ struct ProfileView: View {
             .background(Color(hex: "#F3F4F6").ignoresSafeArea())
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
-            //Reload edit fields whenever the view appears (catches external updates)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showLogoutAlert = true }) {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .foregroundColor(Color(hex: "#EF4444"))
+                            .font(.system(size: 17))
+                    }
+                }
+            }
             .onAppear { syncEditFields() }
-            //Also sync whenever currentUser changes (e.g. after save)
             .onChange(of: authViewModel.currentUser?.name)    { _ in syncEditFields() }
             .onChange(of: authViewModel.currentUser?.email)   { _ in syncEditFields() }
             .onChange(of: authViewModel.currentUser?.telephone) { _ in syncEditFields() }
             .onChange(of: authViewModel.currentUser?.address) { _ in syncEditFields() }
             .onChange(of: authViewModel.currentUser?.pharmacistID) { _ in syncEditFields() }
-            // Logout alert
             .alert("Logout", isPresented: $showLogoutAlert) {
                 Button("Cancel", role: .cancel) {}
                 Button("Logout", role: .destructive) {
@@ -239,7 +267,6 @@ struct ProfileView: View {
             } message: {
                 Text("Are you sure you want to logout?")
             }
-            // Save success toast-style alert
             .alert("Profile Updated", isPresented: $showSaveSuccess) {
                 Button("OK", role: .cancel) {}
             } message: {
@@ -262,10 +289,8 @@ struct ProfileView: View {
                     pendingRole = nil
                 }
             } message: {
-                Text("Are you sure you want to switch your profile ?")
+                Text("Are you sure you want to switch your profile?")
             }
-            
-            // Loading overlay
             .overlay {
                 if authViewModel.isLoading {
                     ZStack {
@@ -290,7 +315,6 @@ struct ProfileView: View {
         }
     }
     
-    //Sync local edit fields from currentUser
     private func syncEditFields() {
         editName         = authViewModel.currentUser?.name ?? ""
         editEmail        = authViewModel.currentUser?.email ?? ""
@@ -300,18 +324,13 @@ struct ProfileView: View {
         editAddress      = authViewModel.currentUser?.address ?? ""
         editRole         = authViewModel.currentUser?.role ?? .patient
         editPharmacistID = authViewModel.currentUser?.pharmacistID ?? ""
+        editNIC          = "" // NIC not in User model yet
     }
     
-    //Edit with Save toggle
     private func handleEditSave() {
         if isEditing {
-            // Guard: name must not be empty
             guard !editName.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-            
-            // ✅ Immediately flip back to view mode and hide Cancel button
             withAnimation { isEditing = false }
-            
-            // Then persist the changes in the background
             authViewModel.updateProfile(
                 name: editName.trimmingCharacters(in: .whitespaces),
                 email: editEmail.trimmingCharacters(in: .whitespaces).isEmpty
@@ -320,29 +339,28 @@ struct ProfileView: View {
                 address: editAddress.trimmingCharacters(in: .whitespaces).isEmpty
                     ? nil : editAddress.trimmingCharacters(in: .whitespaces),
                 telephone: editPhone.trimmingCharacters(in: .whitespaces).isEmpty
-                    ? nil : editPhone.trimmingCharacters(in: .whitespaces)
+                    ? nil : editPhone.trimmingCharacters(in: .whitespaces),
+                pharmacistID: editPharmacistID.trimmingCharacters(in: .whitespaces).isEmpty
+                    ? nil : editPharmacistID.trimmingCharacters(in: .whitespaces)
             ) { success in
-                if success {
-                    showSaveSuccess = true
-                }
+                if success { showSaveSuccess = true }
             }
         } else {
-            // Pre-fill with current user data before entering edit mode
             syncEditFields()
             withAnimation { isEditing = true }
         }
     }
     
     private func cancelEditing() {
-        syncEditFields()  // reset to last saved values
+        syncEditFields()
         withAnimation { isEditing = false }
     }
 }
 
-//Validation State
+// MARK: - Supporting Components (unchanged from original)
+
 enum ValidationState { case none, valid, invalid }
 
-//Password Field Component
 struct PasswordField: View {
     let label: String
     let icon: String
@@ -402,7 +420,6 @@ struct PasswordField: View {
     }
 }
 
-//Role Toggle Row
 struct RoleToggleRow: View {
     @Binding var selectedRole: UserRole
 
@@ -446,7 +463,6 @@ struct RoleToggleRow: View {
     }
 }
 
-//Hex Color Extension
 extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
