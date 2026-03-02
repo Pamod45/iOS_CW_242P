@@ -10,7 +10,7 @@ struct ProfileView: View {
     @State private var editName: String    = ""
     @State private var editEmail: String   = ""
     @State private var editPhone: String   = ""
-    @State private var editAddress: String       = ""
+//    @State private var editAddress: String       = ""
     @State private var editRole: UserRole        = .patient
     @State private var editPharmacistID: String  = ""
     @State private var editNIC: String           = ""
@@ -40,11 +40,11 @@ struct ProfileView: View {
                     ?? authViewModel.currentUser?.phoneNumber
         return phone?.isEmpty == false ? phone! : "Not Set"
     }
-    private var displayAddress: String {
-        authViewModel.currentUser?.address?.isEmpty == false
-            ? authViewModel.currentUser!.address!
-            : "Not Set"
-    }
+//    private var displayAddress: String {
+//        authViewModel.currentUser?.address?.isEmpty == false
+//            ? authViewModel.currentUser!.address!
+//            : "Not Set"
+//    }
     private var displayRole: String {
         authViewModel.currentUser?.role.rawValue ?? "Patient"
     }
@@ -54,7 +54,6 @@ struct ProfileView: View {
             : "Not Set"
     }
     private var displayNIC: String {
-        // NIC not in User model yet — always "Not Set" unless added
         return "Not Set"
     }
     private var avatarLetter: String {
@@ -191,12 +190,12 @@ struct ProfileView: View {
                                 value: $editPhone,
                                 keyboardType: .phonePad
                             )
-                            EditableInfoRow(
-                                icon: "mappin.and.ellipse",
-                                label: "Address",
-                                value: $editAddress,
-                                keyboardType: .default
-                            )
+//                            EditableInfoRow(
+//                                icon: "mappin.and.ellipse",
+//                                label: "Address",
+//                                value: $editAddress,
+//                                keyboardType: .default
+//                            )
                             if editRole == .pharmacist {
                                 EditableInfoRow(
                                     icon: "cross.case",
@@ -211,7 +210,7 @@ struct ProfileView: View {
                             ProfileInfoRow(icon: "creditcard",         label: "NIC (National Identity Card)", value: displayNIC)
                             ProfileInfoRow(icon: "envelope",           label: "Email Address",             value: displayEmail)
                             ProfileInfoRow(icon: "phone",              label: "Telephone",                 value: displayPhone)
-                            ProfileInfoRow(icon: "mappin.and.ellipse", label: "Address",                   value: displayAddress)
+//                            ProfileInfoRow(icon: "mappin.and.ellipse", label: "Address",                   value: displayAddress)
                             if editRole == .pharmacist {
                                 ProfileInfoRow(icon: "cross.case", label: "Pharmacist ID", value: displayPharmacistID)
                                     .transition(.opacity.combined(with: .move(edge: .top)))
@@ -221,7 +220,7 @@ struct ProfileView: View {
                     .padding(.horizontal, 16)
                     .animation(.easeInOut(duration: 0.22), value: isEditing)
                     
-                    // MARK: Edit / Save + Cancel Buttons
+                    //Edit / Save + Cancel Buttons
                     if isEditing {
                         HStack(spacing: 12) {
                             SecondaryButton(title: "Cancel", action: cancelEditing)
@@ -257,7 +256,7 @@ struct ProfileView: View {
             .onChange(of: authViewModel.currentUser?.name)    { _ in syncEditFields() }
             .onChange(of: authViewModel.currentUser?.email)   { _ in syncEditFields() }
             .onChange(of: authViewModel.currentUser?.telephone) { _ in syncEditFields() }
-            .onChange(of: authViewModel.currentUser?.address) { _ in syncEditFields() }
+//            .onChange(of: authViewModel.currentUser?.address) { _ in syncEditFields() }
             .onChange(of: authViewModel.currentUser?.pharmacistID) { _ in syncEditFields() }
             .alert("Logout", isPresented: $showLogoutAlert) {
                 Button("Cancel", role: .cancel) {}
@@ -321,10 +320,10 @@ struct ProfileView: View {
         editPhone        = authViewModel.currentUser?.telephone
                            ?? authViewModel.currentUser?.phoneNumber
                            ?? ""
-        editAddress      = authViewModel.currentUser?.address ?? ""
+//        editAddress      = authViewModel.currentUser?.address ?? ""
         editRole         = authViewModel.currentUser?.role ?? .patient
         editPharmacistID = authViewModel.currentUser?.pharmacistID ?? ""
-        editNIC          = "" // NIC not in User model yet
+        editNIC          = ""
     }
     
     private func handleEditSave() {
@@ -336,8 +335,9 @@ struct ProfileView: View {
                 email: editEmail.trimmingCharacters(in: .whitespaces).isEmpty
                     ? nil : editEmail.trimmingCharacters(in: .whitespaces),
                 age: nil,
-                address: editAddress.trimmingCharacters(in: .whitespaces).isEmpty
-                    ? nil : editAddress.trimmingCharacters(in: .whitespaces),
+                address: nil,
+//                address: editAddress.trimmingCharacters(in: .whitespaces).isEmpty
+//                    ? nil : editAddress.trimmingCharacters(in: .whitespaces),
                 telephone: editPhone.trimmingCharacters(in: .whitespaces).isEmpty
                     ? nil : editPhone.trimmingCharacters(in: .whitespaces),
                 pharmacistID: editPharmacistID.trimmingCharacters(in: .whitespaces).isEmpty
@@ -357,7 +357,7 @@ struct ProfileView: View {
     }
 }
 
-// MARK: - Supporting Components (unchanged from original)
+//Supporting Components (unchanged from original)
 
 enum ValidationState { case none, valid, invalid }
 

@@ -148,7 +148,7 @@ class AuthViewModel: ObservableObject {
             self.isAuthenticated = true
             self.isLoading = false
             self.objectWillChange.send()
-            print("✅ Google Sign-In successful - Role: \(user.role)")
+            print("Google Sign-In successful - Role: \(user.role)")
             completion(true)
         }
     }
@@ -198,7 +198,7 @@ class AuthViewModel: ObservableObject {
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
         objectWillChange.send()
         
-        print("🚪 User logged out successfully")
+        print("User logged out successfully")
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
             self?.isLoading = false
@@ -206,7 +206,7 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    // ✅ FIX: Added pharmacistID parameter so it gets saved properly
+    // Added pharmacistID parameter so it gets saved properly
     func updateProfile(name: String, email: String?, age: Int?, address: String?, telephone: String?, pharmacistID: String? = nil, completion: @escaping (Bool) -> Void) {
         guard var user = currentUser else {
             showErrorMessage("No user logged in")
@@ -221,16 +221,16 @@ class AuthViewModel: ObservableObject {
             
             user.name         = name
             user.email        = email
-            user.address      = address
+//            user.address      = address
             user.telephone    = telephone
-            user.pharmacistID = pharmacistID  // ✅ FIX: now persisted
+            user.pharmacistID = pharmacistID
             
             self.currentUser = user
             self.saveUser(user)
             self.isLoading = false
             self.objectWillChange.send()
             
-            print("✅ Profile updated - Name: \(name), PharmacistID: \(pharmacistID ?? "nil")")
+            print("Profile updated - Name: \(name), PharmacistID: \(pharmacistID ?? "nil")")
             
             completion(true)
         }
