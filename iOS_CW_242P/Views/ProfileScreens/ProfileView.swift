@@ -1,23 +1,20 @@
 import SwiftUI
 
-// MARK: - Profile View
 struct ProfileView: View {
     
     @EnvironmentObject var authViewModel: AuthViewModel
     
     //Edit State
     @State private var isEditing = false
-    @State private var editName: String    = ""
-    @State private var editEmail: String   = ""
-    @State private var editPhone: String   = ""
-//    @State private var editAddress: String       = ""
+    @State private var editName: String          = ""
+    @State private var editEmail: String         = ""
+    @State private var editPhone: String         = ""
     @State private var editRole: UserRole        = .patient
     @State private var editPharmacistID: String  = ""
     @State private var editNIC: String           = ""
     
     //UI State
     @State private var showLogoutAlert          = false
-    @State private var navigateToChangePassword = false
     @State private var showSaveSuccess          = false
     @State private var showProfileChangeAlert   = false
     
@@ -40,37 +37,30 @@ struct ProfileView: View {
                     ?? authViewModel.currentUser?.phoneNumber
         return phone?.isEmpty == false ? phone! : "Not Set"
     }
-//    private var displayAddress: String {
-//        authViewModel.currentUser?.address?.isEmpty == false
-//            ? authViewModel.currentUser!.address!
-//            : "Not Set"
-//    }
-    private var displayRole: String {
-        authViewModel.currentUser?.role.rawValue ?? "Patient"
-    }
     private var displayPharmacistID: String {
         authViewModel.currentUser?.pharmacistID?.isEmpty == false
             ? authViewModel.currentUser!.pharmacistID!
             : "Not Set"
     }
     private var displayNIC: String {
-        return "Not Set"
+        authViewModel.currentUser?.nic?.isEmpty == false
+            ? authViewModel.currentUser!.nic!
+            : "Not Set"
     }
     private var avatarLetter: String {
         String(displayName.prefix(1)).uppercased()
     }
     
-    // Profile completeness (out of 4: name, email, phone, address)
+    // Profile completeness (out of 3: name, email, phone)
     private var completedFields: Int {
         var count = 0
         if !(authViewModel.currentUser?.name.isEmpty ?? true) { count += 1 }
         if authViewModel.currentUser?.email?.isEmpty == false { count += 1 }
         if (authViewModel.currentUser?.telephone?.isEmpty == false ||
             authViewModel.currentUser?.phoneNumber?.isEmpty == false) { count += 1 }
-        if authViewModel.currentUser?.address?.isEmpty == false { count += 1 }
         return count
     }
-    private var totalFields: Int { 4 }
+    private var totalFields: Int { 3 }
     private var isProfileComplete: Bool { completedFields >= totalFields }
     
     var body: some View {
@@ -78,7 +68,7 @@ struct ProfileView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     
-                    // MARK: Role Picker (above avatar)
+                    //Role Picker (above avatar)
                     if authViewModel.currentUser?.roles.contains(.pharmacist) == true {
                         Picker(
                             "UserRole",
@@ -99,8 +89,8 @@ struct ProfileView: View {
                         .padding(.top, 8)
                     }
                     
-                    // MARK: Avatar + Name Row
-                    HStack(spacing: 14) {
+                    //Avatar + Name Row
+                    VStack(spacing: 14) {
                         ZStack {
                             Circle()
                                 .fill(Color(hex: "#8B5CF6"))
@@ -123,7 +113,7 @@ struct ProfileView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
                     
-                    // MARK: Complete Profile Banner
+                    //Complete Profile Banner
                     if !isProfileComplete {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(spacing: 6) {
@@ -139,7 +129,6 @@ struct ProfileView: View {
                                 .foregroundColor(Color(hex: "#3B82F6"))
                                 .kerning(0.5)
                             
-                            // Progress bar
                             GeometryReader { geo in
                                 ZStack(alignment: .leading) {
                                     RoundedRectangle(cornerRadius: 4)
@@ -163,7 +152,7 @@ struct ProfileView: View {
                         .padding(.horizontal, 16)
                     }
                     
-                    // MARK: Info Fields
+                    //Info Fields
                     VStack(spacing: 12) {
                         if isEditing {
                             EditableInfoRow(
@@ -190,12 +179,6 @@ struct ProfileView: View {
                                 value: $editPhone,
                                 keyboardType: .phonePad
                             )
-//                            EditableInfoRow(
-//                                icon: "mappin.and.ellipse",
-//                                label: "Address",
-//                                value: $editAddress,
-//                                keyboardType: .default
-//                            )
                             if editRole == .pharmacist {
                                 EditableInfoRow(
                                     icon: "cross.case",
@@ -206,11 +189,10 @@ struct ProfileView: View {
                                 .transition(.opacity.combined(with: .move(edge: .top)))
                             }
                         } else {
-                            ProfileInfoRow(icon: "person",             label: "Name",                      value: displayName)
-                            ProfileInfoRow(icon: "creditcard",         label: "NIC (National Identity Card)", value: displayNIC)
-                            ProfileInfoRow(icon: "envelope",           label: "Email Address",             value: displayEmail)
-                            ProfileInfoRow(icon: "phone",              label: "Telephone",                 value: displayPhone)
-//                            ProfileInfoRow(icon: "mappin.and.ellipse", label: "Address",                   value: displayAddress)
+                            ProfileInfoRow(icon: "person",     label: "Name",                         value: displayName)
+                            ProfileInfoRow(icon: "creditcard", label: "NIC (National Identity Card)", value: displayNIC)
+                            ProfileInfoRow(icon: "envelope",   label: "Email Address",                value: displayEmail)
+                            ProfileInfoRow(icon: "phone",      label: "Telephone",                    value: displayPhone)
                             if editRole == .pharmacist {
                                 ProfileInfoRow(icon: "cross.case", label: "Pharmacist ID", value: displayPharmacistID)
                                     .transition(.opacity.combined(with: .move(edge: .top)))
@@ -237,27 +219,38 @@ struct ProfileView: View {
                             .padding(.horizontal, 16)
                     }
                     
+                    //Logout Section
+                    VStack(spacing: 0) {
+                        Button(action: { showLogoutAlert = true }) {
+                            HStack {
+                                Image(systemName: "rectangle.portrait.and.arrow.right")
+                                    .foregroundColor(.red)
+                                    .frame(width: 24)
+                                Text("Logout")
+                                    .font(.system(size: 15))
+                                    .foregroundColor(.red)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 16)
+                        }
+                    }
+                    .background(Color.white)
+                    .cornerRadius(12)
+                    .padding(.horizontal, 16)
+                    
                     Spacer(minLength: 40)
                 }
             }
             .background(Color(hex: "#F3F4F6").ignoresSafeArea())
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showLogoutAlert = true }) {
-                        Image(systemName: "rectangle.portrait.and.arrow.right")
-                            .foregroundColor(Color(hex: "#EF4444"))
-                            .font(.system(size: 17))
-                    }
-                }
-            }
             .onAppear { syncEditFields() }
-            .onChange(of: authViewModel.currentUser?.name)    { _ in syncEditFields() }
-            .onChange(of: authViewModel.currentUser?.email)   { _ in syncEditFields() }
-            .onChange(of: authViewModel.currentUser?.telephone) { _ in syncEditFields() }
-//            .onChange(of: authViewModel.currentUser?.address) { _ in syncEditFields() }
+            .onChange(of: authViewModel.currentUser?.name)         { _ in syncEditFields() }
+            .onChange(of: authViewModel.currentUser?.email)        { _ in syncEditFields() }
+            .onChange(of: authViewModel.currentUser?.telephone)    { _ in syncEditFields() }
             .onChange(of: authViewModel.currentUser?.pharmacistID) { _ in syncEditFields() }
+            .onChange(of: authViewModel.currentUser?.nic)          { _ in syncEditFields() }
             .alert("Logout", isPresented: $showLogoutAlert) {
                 Button("Cancel", role: .cancel) {}
                 Button("Logout", role: .destructive) {
@@ -314,16 +307,16 @@ struct ProfileView: View {
         }
     }
     
+    //syncEditFields now loads nic from currentUser
     private func syncEditFields() {
         editName         = authViewModel.currentUser?.name ?? ""
         editEmail        = authViewModel.currentUser?.email ?? ""
         editPhone        = authViewModel.currentUser?.telephone
                            ?? authViewModel.currentUser?.phoneNumber
                            ?? ""
-//        editAddress      = authViewModel.currentUser?.address ?? ""
         editRole         = authViewModel.currentUser?.role ?? .patient
         editPharmacistID = authViewModel.currentUser?.pharmacistID ?? ""
-        editNIC          = ""
+        editNIC          = authViewModel.currentUser?.nic ?? ""
     }
     
     private func handleEditSave() {
@@ -336,12 +329,12 @@ struct ProfileView: View {
                     ? nil : editEmail.trimmingCharacters(in: .whitespaces),
                 age: nil,
                 address: nil,
-//                address: editAddress.trimmingCharacters(in: .whitespaces).isEmpty
-//                    ? nil : editAddress.trimmingCharacters(in: .whitespaces),
                 telephone: editPhone.trimmingCharacters(in: .whitespaces).isEmpty
                     ? nil : editPhone.trimmingCharacters(in: .whitespaces),
                 pharmacistID: editPharmacistID.trimmingCharacters(in: .whitespaces).isEmpty
-                    ? nil : editPharmacistID.trimmingCharacters(in: .whitespaces)
+                    ? nil : editPharmacistID.trimmingCharacters(in: .whitespaces),
+                nic: editNIC.trimmingCharacters(in: .whitespaces).isEmpty
+                    ? nil : editNIC.trimmingCharacters(in: .whitespaces)
             ) { success in
                 if success { showSaveSuccess = true }
             }
@@ -357,7 +350,7 @@ struct ProfileView: View {
     }
 }
 
-//Supporting Components (unchanged from original)
+//Supporting Components
 
 enum ValidationState { case none, valid, invalid }
 
