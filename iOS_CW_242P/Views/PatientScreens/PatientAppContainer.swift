@@ -38,7 +38,7 @@ struct PatientAppContainer: View {
                     }
                     .tag(3)
             
-            Text("Profile")
+            ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
