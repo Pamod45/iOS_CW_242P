@@ -177,18 +177,19 @@ struct BookingCard: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "figure.walk")
                                     .font(.subheadline)
-                                    .foregroundColor(.purple)
+                                    .foregroundColor(.white)
+                                    .fontWeight(.medium)
                                 Text("View Journey")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
-                                    .foregroundColor(.purple)
+                                    .foregroundColor(.white)
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
                             .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.purple, lineWidth: 1.5)
+                                Color.blue
                             )
+                            .cornerRadius(10)
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
@@ -199,17 +200,21 @@ struct BookingCard: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "pills.fill")
                                     .font(.subheadline)
-                                    .foregroundColor(.teal)
+                                    .foregroundColor(.blue.opacity(0.6))
                                 Text("Prescription")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
-                                    .foregroundColor(.teal)
+                                    .foregroundColor(.blue.opacity(0.6))
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
                             .background(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.teal, lineWidth: 1.5)
+                                    .fill(Color.blue.opacity(0.06))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.blue.opacity(0.5), lineWidth: 1.5)
                             )
                         }
                         .buttonStyle(PlainButtonStyle())

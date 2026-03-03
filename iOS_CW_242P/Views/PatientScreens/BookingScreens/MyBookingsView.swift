@@ -101,16 +101,16 @@ struct MyBookingsView: View {
                 HStack(spacing: 12) {
                     // Active Filters Summary
                     HStack(spacing: 8) {
-                        Image(systemName: "line.3.horizontal.decrease.circle\(hasActiveFilters ? ".fill" : "")")
+                        Image(systemName: "line.3.horizontal.decrease.circle\((typeFilter != .all || dateRangeFilter != .all) ? ".fill" : "")")
                             .font(.title3)
-                            .foregroundColor(hasActiveFilters ? .blue : .secondary)
+                            .foregroundColor(hasActiveFilters ? .secondary.opacity(0.6) : .secondary)
                         
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Filters")
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                             
-                            if hasActiveFilters {
+                            if typeFilter != .all || dateRangeFilter != .all {
                                 Text(activeFiltersText)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
@@ -125,15 +125,15 @@ struct MyBookingsView: View {
                         Spacer()
                         
                         // Clear All button
-                        if hasActiveFilters {
+                        if typeFilter != .all || dateRangeFilter != .all  {
                             Button(action: clearAllFilters) {
                                 Text("Clear All")
                                     .font(.caption)
                                     .fontWeight(.semibold)
-                                    .foregroundColor(.red)
+                                    .foregroundColor(Color.blue)
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 5)
-                                    .background(Color.red.opacity(0.1))
+                                    .background(Color.blue.opacity(0.1))
                                     .cornerRadius(8)
                             }
                         }
@@ -147,9 +147,9 @@ struct MyBookingsView: View {
                             Image(systemName: showFilters ? "chevron.up" : "chevron.down")
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.blue)
+                                .foregroundColor(.secondary)
                                 .frame(width: 32, height: 32)
-                                .background(Color.blue.opacity(0.1))
+                                .background(.black.opacity(0.05))
                                 .cornerRadius(8)
                         }
                     }
@@ -164,11 +164,8 @@ struct MyBookingsView: View {
                 if showFilters {
                     VStack(spacing: 16) {
                         // Type Filter
-                        VStack(alignment: .leading, spacing: 10) {
+                        VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                Image(systemName: "list.bullet.rectangle")
-                                    .font(.caption)
-                                    .foregroundColor(.blue)
                                 Text("Type")
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
@@ -205,9 +202,6 @@ struct MyBookingsView: View {
                         // Date Range Filter
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
-                                Image(systemName: "calendar")
-                                    .font(.caption)
-                                    .foregroundColor(.purple)
                                 Text("Date Range")
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
@@ -275,16 +269,18 @@ struct MyBookingsView: View {
                                     Text(section)
                                         .font(.headline)
                                     
-                                    Spacer()
+                                    
                                     
                                     Text("\(items.count)")
                                         .font(.caption)
                                         .fontWeight(.bold)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Color.black.opacity(0.6))
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 2)
                                         .background(Color.gray.opacity(0.12))
                                         .cornerRadius(8)
+                                    Spacer()
+                                    
                                 }
                                 .padding(.horizontal)
                                 .padding(.vertical, 8)
@@ -300,28 +296,10 @@ struct MyBookingsView: View {
         .safeAreaInset(edge: .top) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    Image(systemName: "flag")
-                        .font(.caption)
-                        .foregroundColor(.blue)
 
                     Text("Status")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-
-                    Spacer()
-
-                    if statusFilter != .all {
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                statusFilter = .all
-                            }
-                        } label: {
-                            Text("Clear")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.red)
-                        }
-                    }
                 }
                 .padding(.horizontal)
 

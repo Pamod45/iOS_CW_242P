@@ -24,7 +24,7 @@ struct BookingFilterChip: View {
             }
             .foregroundColor(isSelected ? .white : .primary)
             .padding(.horizontal, 16)
-            .padding(.vertical, 10)
+            .padding(.vertical, 8)
             .background(
                 Capsule()
                     .fill(isSelected ? Color.blue : Color(.systemBackground))

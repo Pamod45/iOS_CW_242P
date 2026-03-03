@@ -23,8 +23,8 @@ struct DateRangeChip: View {
                     .fontWeight(isSelected ? .semibold : .regular)
             }
             .foregroundColor(isSelected ? .white : .primary)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 9)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .background(
                 Capsule()
                     .fill(isSelected ? Color.blue : Color(.systemBackground))
