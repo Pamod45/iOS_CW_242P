@@ -20,7 +20,7 @@ struct PatientAppContainer: View {
                 }
                 .tag(0)
             
-            Text("Bookings")
+            CheckInView()
                 .tabItem {
                     Label("Check-In", systemImage: "calendar.badge.plus")
                 }
@@ -37,9 +37,8 @@ struct PatientAppContainer: View {
                         Label("Notifications", systemImage: "bell.fill")
                     }
                     .tag(3)
-//                .badge(2)
             
-            Text("Profile")
+            ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }

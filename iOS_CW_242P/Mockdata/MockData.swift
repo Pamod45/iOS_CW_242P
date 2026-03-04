@@ -25,19 +25,19 @@ struct MockData {
     
     //Sample Sessions data
     static let sessions: [Session] = [
-        Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true, currentQueueNumber: 5),
-        Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 12),
-        Session(id: "3", startTime: "12:00", endTime: "15:00", isAvailable: true, currentQueueNumber: 8),
-        Session(id: "4", startTime: "15:00", endTime: "18:00", isAvailable: true, currentQueueNumber: 3),
-        Session(id: "5", startTime: "18:00", endTime: "21:00", isAvailable: true, currentQueueNumber: 7),
-        Session(id: "6", startTime: "21:00", endTime: "00:00", isAvailable: false, currentQueueNumber: 0),
-        Session(id: "7", startTime: "00:00", endTime: "03:00", isAvailable: false, currentQueueNumber: 0),
-        Session(id: "8", startTime: "03:00", endTime: "06:00", isAvailable: false, currentQueueNumber: 0)
+        Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true, currentQueueNumber: 5, estimatedWaitTime: 25),
+        Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 12, estimatedWaitTime: 60),
+        Session(id: "3", startTime: "12:00", endTime: "15:00", isAvailable: true, currentQueueNumber: 8, estimatedWaitTime: 40),
+        Session(id: "4", startTime: "15:00", endTime: "18:00", isAvailable: true, currentQueueNumber: 3, estimatedWaitTime: 15),
+        Session(id: "5", startTime: "18:00", endTime: "21:00", isAvailable: true, currentQueueNumber: 7, estimatedWaitTime: 35),
+        Session(id: "6", startTime: "21:00", endTime: "00:00", isAvailable: false, currentQueueNumber: 0, estimatedWaitTime: 0),
+        Session(id: "7", startTime: "00:00", endTime: "03:00", isAvailable: false, currentQueueNumber: 0, estimatedWaitTime: 0),
+        Session(id: "8", startTime: "03:00", endTime: "06:00", isAvailable: false, currentQueueNumber: 0, estimatedWaitTime: 0)
     ]
     
     //Sample Bookings data
     static let sampleBookings: [Appointment] = [
-        // 1. Upcoming OPD — Confirmed, paid
+        // 1. Upcoming OPD — Confirmed, paid and upcoming
         Appointment(
             id: "bk-001",
             patientId: "user123",
@@ -45,13 +45,15 @@ struct MockData {
             date: Date(),
             sessionId: "2",
             queueNumber: 12,
-            estimatedWaitTime: 40,
-            reasonForVisit: "Follow-up consultation",
-            doctorRoom: "Room 103",
+            estimatedWaitTime: 60,
+            reasonForVisit: "Annual Checkup",
+            doctorRoom: "Room 101",
             status: .confirmed,
             paymentCompleted: true,
             amount: 1500.00,
-            createdAt: Date().addingTimeInterval(-86400)
+            createdAt: Date().addingTimeInterval(-86400),
+            hasPrescription: false,
+            journeyId: "journey-001"
         ),
         
         // 2. Upcoming OPD — Today, in progress
@@ -60,15 +62,18 @@ struct MockData {
             patientId: "user123",
             type: .opd,
             date: Date(),
-            sessionId: "2",
+            sessionId: "1",
             queueNumber: 5,
-            estimatedWaitTime: 15,
+            estimatedWaitTime: 25,
             reasonForVisit: "Headache and fever",
-            doctorRoom: "Room 101",
+            doctorRoom: "Room 103",
             status: .inProgress,
             paymentCompleted: true,
             amount: 1500.00,
-            createdAt: Date().addingTimeInterval(-3600)
+            createdAt: Date().addingTimeInterval(-3600),
+            hasPrescription: true,
+            prescriptionId: "presc-001",
+            journeyId: "journey-002"
         ),
         
         // 3. Lab — Approved, awaiting payment
@@ -84,7 +89,8 @@ struct MockData {
             createdAt: Date().addingTimeInterval(-172800),
             labTests: [MockData.sampleTests[5]], // MRI Scan
             requiresApproval: true,
-            approvalStatus: .approved
+            approvalStatus: .approved,
+            journeyId: "journey-003"
         ),
         
         // 4. Lab — Pending doctor approval
@@ -118,7 +124,8 @@ struct MockData {
             createdAt: Date().addingTimeInterval(-259200),
             labTests: [MockData.sampleTests[0], MockData.sampleTests[1]], // CBC + Glucose
             requiresApproval: false,
-            approvalStatus: nil
+            approvalStatus: nil,
+            journeyId: "journey-004"
         ),
         
         // 6. OPD — Completed
@@ -134,7 +141,10 @@ struct MockData {
             status: .completed,
             paymentCompleted: true,
             amount: 1500.00,
-            createdAt: Date().addingTimeInterval(-345600)
+            createdAt: Date().addingTimeInterval(-345600),
+            hasPrescription: true,
+            prescriptionId: "presc-002",
+            journeyId: "journey-005"
         ),
         
         // 7. Lab — Completed
@@ -151,7 +161,8 @@ struct MockData {
             createdAt: Date().addingTimeInterval(-518400),
             labTests: [MockData.sampleTests[0]], // CBC
             requiresApproval: false,
-            approvalStatus: nil
+            approvalStatus: nil,
+            journeyId: "journey-006"
         ),
         
         // 8. OPD — Cancelled
@@ -249,7 +260,7 @@ struct MockData {
             duration: 60,
             category: .approvalRequired,
             instructions: "Remove all metal objects. Inform staff of any implants.",
-            preparationRequired: "Doctor referral required"
+            preparationRequired: nil
         ),
         LabTest(
             id: "lab7",
@@ -259,7 +270,7 @@ struct MockData {
             duration: 45,
             category: .approvalRequired,
             instructions: "May require contrast dye. Inform of allergies.",
-            preparationRequired: "Doctor referral required"
+            preparationRequired: nil
         ),
         LabTest(
             id: "lab8",
@@ -269,7 +280,7 @@ struct MockData {
             duration: 90,
             category: .approvalRequired,
             instructions: "Follow specific pre-procedure instructions.",
-            preparationRequired: "Doctor referral required"
+            preparationRequired: nil
         ),
         LabTest(
             id: "lab9",
@@ -279,7 +290,7 @@ struct MockData {
             duration: 60,
             category: .approvalRequired,
             instructions: "Wear comfortable clothing. Avoid caffeine.",
-            preparationRequired: "Doctor referral required"
+            preparationRequired: nil
         ),
         LabTest(
             id: "lab10",
@@ -289,7 +300,7 @@ struct MockData {
             duration: 30,
             category: .approvalRequired,
             instructions: "Best done in the morning. Fasting may be required.",
-            preparationRequired: "Doctor referral required"
+            preparationRequired: nil
         )
     ]
     

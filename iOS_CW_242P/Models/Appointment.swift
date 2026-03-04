@@ -26,19 +26,19 @@ struct Session: Identifiable, Codable {
     let endTime: String
     let isAvailable: Bool
     let currentQueueNumber: Int
-    let averageConsultationTimeInMinutes: Int
+    let estimatedWaitTime: Int // in minutes
     
     var displayTime: String {
         "\(startTime) - \(endTime)"
     }
     
-    init(id: String = UUID().uuidString, startTime: String, endTime: String, isAvailable: Bool, currentQueueNumber: Int, averageConsultationTimeInMinutes: Int = 5) {
+    init(id: String = UUID().uuidString, startTime: String, endTime: String, isAvailable: Bool, currentQueueNumber: Int, estimatedWaitTime: Int = 5) {
             self.id = id
             self.startTime = startTime
             self.endTime = endTime
             self.isAvailable = isAvailable
             self.currentQueueNumber = currentQueueNumber
-            self.averageConsultationTimeInMinutes = averageConsultationTimeInMinutes
+            self.estimatedWaitTime = estimatedWaitTime
         }
 }
 
@@ -63,11 +63,18 @@ struct Appointment: Identifiable, Codable {
     var amount: Double
     var createdAt: Date
     
+    //Lab related appointment details
     var labTests: [LabTest]?
     var requiresApproval: Bool?
     var approvalStatus: ApprovalStatus?
     
-    init(id: String = UUID().uuidString, patientId: String, type: AppointmentType, date: Date, sessionId: String, queueNumber: Int? = nil, estimatedWaitTime: Int? = nil, reasonForVisit: String? = nil, doctorRoom: String? = nil, status: AppointmentStatus = .pending, paymentCompleted: Bool = false, amount: Double = 0, createdAt: Date = Date(), labTests: [LabTest]? = nil, requiresApproval: Bool? = nil, approvalStatus: ApprovalStatus? = nil) {
+    //Has journey and prescription specific details
+    var hasPrescription: Bool?
+    var prescriptionId: String?
+    var journeyId: String?
+    
+    
+    init(id: String = UUID().uuidString, patientId: String, type: AppointmentType, date: Date, sessionId: String, queueNumber: Int? = nil, estimatedWaitTime: Int? = nil, reasonForVisit: String? = nil, doctorRoom: String? = nil, status: AppointmentStatus = .pending, paymentCompleted: Bool = false, amount: Double = 0, createdAt: Date = Date(), labTests: [LabTest]? = nil, requiresApproval: Bool? = nil, approvalStatus: ApprovalStatus? = nil, hasPrescription: Bool? = nil, prescriptionId: String? = nil, journeyId: String? = nil) {
         self.id = id
         self.patientId = patientId
         self.type = type
@@ -84,12 +91,20 @@ struct Appointment: Identifiable, Codable {
         self.labTests = labTests
         self.requiresApproval = requiresApproval
         self.approvalStatus = approvalStatus
+        self.hasPrescription = hasPrescription
+        self.prescriptionId = prescriptionId
+        self.journeyId = journeyId
     }
 }
 
 extension Appointment{
     var isUpcoming: Bool {
-        (status == .confirmed || status == .pending || status == .inProgress) && date >= Calendar.current.startOfDay(for: Date())
+        guard status == .confirmed else { return false }
+        guard date >= Calendar.current.startOfDay(for: Date()) else { return false }
+        if isAwaitingPayment{
+            return false
+        }
+        return true
     }
     
     var isCompleted: Bool {
@@ -97,7 +112,7 @@ extension Appointment{
     }
     
     var isCancelled: Bool {
-        status == .cancelled
+        status == .cancelled || approvalStatus == .rejected
     }
     
     var isPendingApproval: Bool {
@@ -105,7 +120,13 @@ extension Appointment{
     }
     
     var isAwaitingPayment: Bool {
-        !paymentCompleted && (approvalStatus == .approved || (type == .laboratory && requiresApproval == false && status == .pending))
+        guard type == .laboratory else { return false }
+        guard !paymentCompleted else { return false }
+        if requiresApproval == true {
+            return approvalStatus == .approved
+        } else {
+            return status == .confirmed || status == .pending
+        }
     }
     
     var displayDate: String {
