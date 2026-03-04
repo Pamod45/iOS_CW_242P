@@ -26,38 +26,7 @@ struct LabTestSelectionView: View {
             .padding()
             
             HStack(spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
-
-                    TextField("Search lab tests", text: $searchText)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled(true)
-                        .submitLabel(.search)
-
-                    if !searchText.isEmpty {
-                        Button {
-                            searchText = ""
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-                Button {
-                    
-                } label: {
-                    Image(systemName: "line.3.horizontal.decrease")
-                        .font(.title3)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Filters")
+                SearchBar(placeHolder: "Search Lab Tests", searchText: $searchText)
             }
             .padding(.horizontal)
             
@@ -93,6 +62,7 @@ struct LabTestSelectionView: View {
     
     private func getFilteredTests() -> [LabTest] {
         LabTest.filteredTests(by: searchText, in: selectedCategory)
+            .sorted { $0.name < $1.name }
     }
     
     private func toggleTest(_ test: LabTest) {
