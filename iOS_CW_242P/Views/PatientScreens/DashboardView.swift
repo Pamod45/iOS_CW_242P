@@ -143,6 +143,13 @@ struct DashboardView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Home")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showLabCheckIn){
+                LabCheckInFlow(isPresented: $showLabCheckIn)
+                    .environmentObject(authViewModel)
+            }
+            .sheet(isPresented: $showOPDCheckIn){
+                OPDCheckInFlow(isPresented: $showOPDCheckIn)
+            }
         }
     }
     
@@ -181,67 +188,6 @@ struct ShortcutTile: View {
         .background(Color(.systemBackground))
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
-    }
-}
-
-struct WaitTimeTile: View {
-    let department: String
-    let waitMinutes: Int
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(department)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text("~\(waitMinutes)")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                Text("min")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            Text("avg. wait")
-                .font(.caption2)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
-struct HospitalInfoRow: View {
-    let icon: String
-    let label: String
-    let value: String
-    var link: Bool = false
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.subheadline)
-                .foregroundColor(.blue)
-                .frame(width: 28)
-            
-            Text(label)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            Spacer()
-            
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(link ? .blue : .primary)
-                .underline(link)
-                .onTapGesture {
-                    if link, let url = URL(string: "https://www.google.com/maps") {
-                        UIApplication.shared.open(url)
-                    }
-                }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
     }
 }
 
@@ -380,3 +326,5 @@ struct AppointmentCard: View {
     DashboardView()
         .environmentObject(AuthViewModel())
 }
+
+
