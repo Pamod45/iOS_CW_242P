@@ -31,7 +31,7 @@ struct RescheduleSessionCard: View {
                     HStack(spacing: 4) {
                         Image(systemName: "clock.fill")
                             .font(.caption)
-                        Text("~\(session.estimatedWaitTime) min")
+                        Text("~\(session.currentQueueNumber * session.averageConsultationTimeInMinutes) min")
                             .font(.caption)
                     }
                     .foregroundColor(.secondary)

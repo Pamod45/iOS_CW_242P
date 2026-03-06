@@ -26,19 +26,19 @@ struct Session: Identifiable, Codable {
     let endTime: String
     let isAvailable: Bool
     let currentQueueNumber: Int
-    let estimatedWaitTime: Int // in minutes
+    let averageConsultationTimeInMinutes: Int // in minutes
     
     var displayTime: String {
         "\(startTime) - \(endTime)"
     }
     
-    init(id: String = UUID().uuidString, startTime: String, endTime: String, isAvailable: Bool, currentQueueNumber: Int, estimatedWaitTime: Int = 5) {
+    init(id: String = UUID().uuidString, startTime: String, endTime: String, isAvailable: Bool, currentQueueNumber: Int, averageConsultationTimeInMinutes: Int = 5) {
             self.id = id
             self.startTime = startTime
             self.endTime = endTime
             self.isAvailable = isAvailable
             self.currentQueueNumber = currentQueueNumber
-            self.estimatedWaitTime = estimatedWaitTime
+            self.averageConsultationTimeInMinutes = averageConsultationTimeInMinutes
         }
 }
 

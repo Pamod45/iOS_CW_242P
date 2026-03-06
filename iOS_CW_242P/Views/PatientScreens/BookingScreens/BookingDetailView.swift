@@ -219,7 +219,7 @@ struct BookingDetailView: View {
         updated.date = rescheduleDate
         updated.sessionId = newSession.id
         updated.queueNumber = Int.random(in: 1...15)
-        updated.estimatedWaitTime = newSession.estimatedWaitTime
+        updated.estimatedWaitTime = newSession.averageConsultationTimeInMinutes * newSession.currentQueueNumber
         
         // Update parent binding
         booking = updated

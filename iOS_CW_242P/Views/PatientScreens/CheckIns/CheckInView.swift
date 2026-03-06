@@ -99,10 +99,12 @@ struct CheckInView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Check-In")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showOPDCheckIn) {
+            .sheet(isPresented: $showLabCheckIn){
+                LabCheckInFlow(isPresented: $showLabCheckIn)
+                    .environmentObject(authViewModel)
             }
-            .sheet(isPresented: $showLabCheckIn) {
-                
+            .sheet(isPresented: $showOPDCheckIn){
+                OPDCheckInFlow(isPresented: $showOPDCheckIn)
             }
         }
     }

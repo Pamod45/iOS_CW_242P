@@ -93,13 +93,17 @@ struct ProfileView: View {
                     VStack(spacing: 14) {
                         ZStack {
                             Circle()
-                                .fill(Color(hex: "#8B5CF6"))
-                                .frame(width: 56, height: 56)
-                            Text(isEditing
-                                 ? (editName.isEmpty ? "?" : String(editName.prefix(1)).uppercased())
-                                 : avatarLetter)
-                                .font(.system(size: 24, weight: .semibold))
-                                .foregroundColor(.white)
+                                .fill(LinearGradient(
+                                    colors: [.blue, .purple],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ))
+                                .frame(width: 74, height: 74)
+                                .overlay(
+                                    Text(getInitials())
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                )
                         }
                         
                         Text(isEditing
@@ -347,6 +351,16 @@ struct ProfileView: View {
     private func cancelEditing() {
         syncEditFields()
         withAnimation { isEditing = false }
+    }
+    
+    private func getInitials() -> String {
+        let name = authViewModel.currentUser?.name ?? "U"
+        let components = name.split(separator: " ")
+        if components.count >= 2 {
+            return String(components[0].prefix(1) + components[1].prefix(1)).uppercased()
+        } else {
+            return String(name.prefix(1)).uppercased()
+        }
     }
 }
 

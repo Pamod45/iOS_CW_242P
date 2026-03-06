@@ -13,6 +13,7 @@ struct DashboardView: View {
     @State private var showLabCheckIn = false
     
     @State private var hasActiveJourney = true
+    @State private var shouldDismissAfterPayment = false
     
     @State private var todaysAppointments: [Appointment] = Appointment.todaysAppointments
     
@@ -113,7 +114,7 @@ struct DashboardView: View {
 
                                 Spacer()
 
-                                NavigationLink(destination: Text("See all appointments")) {
+                                NavigationLink(destination: MyBookingsView()) {
                                     HStack(spacing: 4){
                                         Text("See All")
                                             .font(.subheadline)
@@ -129,7 +130,11 @@ struct DashboardView: View {
                             
                             
                             ForEach($todaysAppointments) { $appointment in
-                                NavigationLink(destination: Text("Coming soon")) {
+                                NavigationLink(destination: BookingDetailView(
+                                    booking: $appointment,
+                                    shouldDismissAfterPayment: $shouldDismissAfterPayment,
+                                    onPayNow: {}
+                                )) {
                                     AppointmentCard(appointment: appointment)
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -326,5 +331,4 @@ struct AppointmentCard: View {
     DashboardView()
         .environmentObject(AuthViewModel())
 }
-
 
