@@ -19,6 +19,8 @@ struct OPDCheckInFlow: View {
     @State private var reasonForVisit = "Headache"
     @State private var showPaymentSuccess = false
     @State private var showQueueTracking = false
+    @State private var hasUploadedDocuments = false
+    @State private var isVisitFormValid = false
     
     var body: some View {
         NavigationView {
@@ -34,7 +36,7 @@ struct OPDCheckInFlow: View {
                         SessionSelectionView(selectedSession: $selectedSession)
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     } else if currentStep == 3 {
-                        ReasonForVisitView(reasonForVisit: $reasonForVisit, user: authViewModel.currentUser)
+                        ReasonForVisitView(reasonForVisit: $reasonForVisit, user: authViewModel.currentUser, flowType: .opd, hasUploadedDocuments: $hasUploadedDocuments, isFormValid: $isVisitFormValid)
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     } else if currentStep == 4 {
                         PaymentView(
@@ -108,7 +110,7 @@ struct OPDCheckInFlow: View {
         case 2:
             return selectedSession != nil
         case 3:
-            return !reasonForVisit.isEmpty
+            return isVisitFormValid
         case 4:
             return true
         default:

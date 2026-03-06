@@ -8,12 +8,18 @@
 import SwiftUI
 
 struct PaymentView: View {
+    enum PaymentMethod {
+        case cardPayment
+        case applePay
+    }
+
     let selectedDate: Date
     let selectedSession: Session?
     let reasonForVisit: String
     let onPaymentComplete: () -> Void
     
     let consultationFee: Double = 1500.00
+    @State private var selectedPaymentMethod: PaymentMethod = .cardPayment
     
     var body: some View {
         ScrollView {
@@ -70,28 +76,36 @@ struct PaymentView: View {
                 VStack(spacing: 12) {
                     HStack {
                         Text("Consultation Fee")
-                            .font(.headline)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                         Spacer()
                         Text("LKR \(consultationFee, specifier: "%.2f")")
-                            .font(.headline)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary)
                     }
                     
                     Divider()
                     
                     HStack {
-                        Text("Total Amount")
-                            .font(.title3)
-                            .fontWeight(.bold)
+                        Text("Total to Pay")
+                            .font(.headline)
+                            .fontWeight(.semibold)
                         Spacer()
                         Text("LKR \(consultationFee, specifier: "%.2f")")
-                            .font(.title3)
+                            .font(.headline)
                             .fontWeight(.bold)
-                            .foregroundColor(.blue)
+                            .foregroundColor(.primary)
                     }
                 }
                 .padding()
-                .background(Color.blue.opacity(0.1))
-                .cornerRadius(12)
+                .background(Color(.systemBackground))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color(.separator).opacity(0.55), lineWidth: 1)
+                )
+                .cornerRadius(14)
+                .shadow(color: Color.black.opacity(0.06), radius: 10, x: 0, y: 6)
                 .padding(.horizontal)
                 
                 VStack(alignment: .leading, spacing: 12) {
@@ -99,8 +113,21 @@ struct PaymentView: View {
                         .font(.headline)
                         .padding(.horizontal)
                     
-                    PaymentMethodCard(icon: "creditcard.fill", title: "Credit/Debit Card", isSelected: true)
+                    PaymentMethodCard(icon: "creditcard.fill", title: "Credit/Debit Card", isSelected: selectedPaymentMethod == .cardPayment)
                         .padding(.horizontal)
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                selectedPaymentMethod = .cardPayment
+                            }
+                        }
+
+                    PaymentMethodCard(icon: "apple.logo", title: "Apple Pay", isSelected: selectedPaymentMethod == .applePay)
+                        .padding(.horizontal)
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                selectedPaymentMethod = .applePay
+                            }
+                        }
                 }
             }
             .padding(.bottom, 40)

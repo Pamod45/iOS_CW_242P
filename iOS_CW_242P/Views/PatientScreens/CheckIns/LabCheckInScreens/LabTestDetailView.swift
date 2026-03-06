@@ -14,69 +14,84 @@ struct LabTestDetailView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(spacing: 16) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(test.name)
                             .font(.title2)
                             .fontWeight(.bold)
-                        
-                        if test.category == .approvalRequired {
-                            HStack(spacing: 6) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                Text("Doctor Approval Required")
-                            }
-                            .font(.subheadline)
-                            .foregroundColor(.orange)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.orange.opacity(0.1))
-                            .cornerRadius(8)
-                        }
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Description")
-                            .font(.headline)
                         Text(test.description)
-                            .font(.body)
+                            .font(.subheadline)
                             .foregroundColor(.secondary)
+                            .lineSpacing(3)
                     }
-                    
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+                    .padding(.top)
+
                     VStack(spacing: 12) {
-                        LabTestDetailRow(icon: "clock.fill", label: "Duration", value: "\(test.duration) minutes")
-                        LabTestDetailRow(icon: "dollarsign.circle.fill", label: "Price", value: String(format: "LKR %.2f", test.price))
+                        SummaryRow(icon: "clock", label: "Duration", value: "\(test.duration) minutes")
+                        SummaryRow(icon: "creditcard", label: "Price", value: String(format: "LKR %.2f", test.price))
+                        SummaryRow(
+                            icon: test.category == .approvalRequired ? "checkmark.shield" : "checkmark.circle",
+                            label: "Approval",
+                            value: test.category == .approvalRequired ? "Required" : "Not Required"
+                        )
                     }
                     .padding()
-                    .background(Color(.systemGray6))
+                    .frame(maxWidth: .infinity)
+                    .background(Color(.systemBackground))
                     .cornerRadius(12)
-                    
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(.separator).opacity(0.3), lineWidth: 1)
+                    )
+                    .padding(.horizontal)
+
                     if let instructions = test.instructions {
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 10) {
                             Text("Instructions")
                                 .font(.headline)
                             Text(instructions)
-                                .font(.body)
+                                .font(.subheadline)
                                 .foregroundColor(.secondary)
+                                .lineSpacing(3)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color(.separator).opacity(0.3), lineWidth: 1)
+                        )
+                        .padding(.horizontal)
                     }
+
                     if let preparation = test.preparationRequired {
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Image(systemName: "info.circle.fill")
-                                    .foregroundColor(.blue)
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "exclamationmark.circle")
+                                    .foregroundColor(.orange)
                                 Text("Preparation Required")
                                     .font(.headline)
                             }
                             Text(preparation)
-                                .font(.body)
+                                .font(.subheadline)
                                 .foregroundColor(.secondary)
+                                .lineSpacing(3)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
-                        .background(Color.blue.opacity(0.05))
+                        .background(Color(.systemBackground))
                         .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.orange.opacity(0.25), lineWidth: 1)
+                        )
+                        .padding(.horizontal)
                     }
                 }
-                .padding()
+                .padding(.bottom)
             }
             .background(Color(.systemGroupedBackground))
             .navigationBarTitleDisplayMode(.inline)
@@ -85,6 +100,7 @@ struct LabTestDetailView: View {
                     Button("Done") {
                         dismiss()
                     }
+                    .fontWeight(.semibold)
                 }
             }
         }

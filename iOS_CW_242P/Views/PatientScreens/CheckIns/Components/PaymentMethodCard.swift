@@ -9,11 +9,12 @@ struct PaymentMethodCard: View {
     let icon: String
     let title: String
     let isSelected: Bool
+    var color: Color = .blue
     
     var body: some View {
         HStack {
             Image(systemName: icon)
-                .foregroundColor(.blue)
+                .foregroundColor(isSelected ? color : .black)
                 .font(.title3)
             Text(title)
                 .font(.headline)
@@ -28,7 +29,7 @@ struct PaymentMethodCard: View {
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
-        )
+                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 1)
+        ).animation(.easeInOut(duration: 0.4), value: isSelected)
     }
 }
