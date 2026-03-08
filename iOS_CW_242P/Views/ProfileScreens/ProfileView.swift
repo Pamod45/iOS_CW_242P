@@ -14,19 +14,15 @@ struct ProfileView: View {
     @State private var editNIC: String           = ""
     
     //UI State
-    @State private var showLogoutAlert          = false
-    @State private var showSaveSuccess          = false
-    @State private var showProfileChangeAlert   = false
-    
-    @State private var pendingRole: UserRole?        = nil
-    @State private var navigateToPatientDashboard    = false
-    @State private var navigateToPharmacistDashboard = false
+    @State private var showLogoutAlert        = false
+    @State private var showSaveSuccess        = false
+    @State private var showProfileChangeAlert = false
+    @State private var pendingRole: UserRole? = nil
     
     //Computed Properties — always read live from currentUser
     private var displayName: String {
         authViewModel.currentUser?.name.isEmpty == false
-            ? authViewModel.currentUser!.name
-            : "New User"
+            ? authViewModel.currentUser!.name : "New User"
     }
     private var displayEmail: String {
         let email = authViewModel.currentUser?.email
@@ -39,13 +35,11 @@ struct ProfileView: View {
     }
     private var displayPharmacistID: String {
         authViewModel.currentUser?.pharmacistID?.isEmpty == false
-            ? authViewModel.currentUser!.pharmacistID!
-            : "Not Set"
+            ? authViewModel.currentUser!.pharmacistID! : "Not Set"
     }
     private var displayNIC: String {
         authViewModel.currentUser?.nic?.isEmpty == false
-            ? authViewModel.currentUser!.nic!
-            : "Not Set"
+            ? authViewModel.currentUser!.nic! : "Not Set"
     }
     private var avatarLetter: String {
         String(displayName.prefix(1)).uppercased()
@@ -68,7 +62,7 @@ struct ProfileView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     
-                    //Role Picker (above avatar)
+                    // Role Picker (above avatar)
                     if authViewModel.currentUser?.roles.contains(.pharmacist) == true {
                         Picker(
                             "UserRole",
@@ -89,7 +83,7 @@ struct ProfileView: View {
                         .padding(.top, 8)
                     }
                     
-                    //Avatar + Name Row
+                    // Avatar + Name Row
                     VStack(spacing: 14) {
                         ZStack {
                             Circle()
@@ -113,7 +107,7 @@ struct ProfileView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
                     
-                    //Complete Profile Banner
+                    // Complete Profile Banner
                     if !isProfileComplete {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(spacing: 6) {
@@ -123,12 +117,10 @@ struct ProfileView: View {
                                     .font(.system(size: 15, weight: .semibold))
                                     .foregroundColor(Color(hex: "#3B82F6"))
                             }
-                            
                             Text("\(completedFields) OF \(totalFields) COMPLETE")
                                 .font(.system(size: 11, weight: .semibold))
                                 .foregroundColor(Color(hex: "#3B82F6"))
                                 .kerning(0.5)
-                            
                             GeometryReader { geo in
                                 ZStack(alignment: .leading) {
                                     RoundedRectangle(cornerRadius: 4)
@@ -140,7 +132,6 @@ struct ProfileView: View {
                                 }
                             }
                             .frame(height: 6)
-                            
                             Text("Adding the remaining details will help avoid delays during appointments and lab visits.")
                                 .font(.system(size: 12))
                                 .foregroundColor(.gray)
@@ -152,41 +143,16 @@ struct ProfileView: View {
                         .padding(.horizontal, 16)
                     }
                     
-                    //Info Fields
+                    // Info Fields
                     VStack(spacing: 12) {
                         if isEditing {
-                            EditableInfoRow(
-                                icon: "person",
-                                label: "Name",
-                                value: $editName,
-                                keyboardType: .default
-                            )
-                            EditableInfoRow(
-                                icon: "creditcard",
-                                label: "NIC (National Identity Card)",
-                                value: $editNIC,
-                                keyboardType: .default
-                            )
-                            EditableInfoRow(
-                                icon: "envelope",
-                                label: "Email Address",
-                                value: $editEmail,
-                                keyboardType: .emailAddress
-                            )
-                            EditableInfoRow(
-                                icon: "phone",
-                                label: "Telephone",
-                                value: $editPhone,
-                                keyboardType: .phonePad
-                            )
+                            EditableInfoRow(icon: "person",     label: "Name",                         value: $editName,         keyboardType: .default)
+                            EditableInfoRow(icon: "creditcard", label: "NIC (National Identity Card)", value: $editNIC,          keyboardType: .default)
+                            EditableInfoRow(icon: "envelope",   label: "Email Address",                value: $editEmail,        keyboardType: .emailAddress)
+                            EditableInfoRow(icon: "phone",      label: "Telephone",                    value: $editPhone,        keyboardType: .phonePad)
                             if editRole == .pharmacist {
-                                EditableInfoRow(
-                                    icon: "cross.case",
-                                    label: "Pharmacist ID",
-                                    value: $editPharmacistID,
-                                    keyboardType: .default
-                                )
-                                .transition(.opacity.combined(with: .move(edge: .top)))
+                                EditableInfoRow(icon: "cross.case", label: "Pharmacist ID", value: $editPharmacistID, keyboardType: .default)
+                                    .transition(.opacity.combined(with: .move(edge: .top)))
                             }
                         } else {
                             ProfileInfoRow(icon: "person",     label: "Name",                         value: displayName)
@@ -202,15 +168,11 @@ struct ProfileView: View {
                     .padding(.horizontal, 16)
                     .animation(.easeInOut(duration: 0.22), value: isEditing)
                     
-                    //Edit / Save + Cancel Buttons
+                    // Edit / Save + Cancel Buttons
                     if isEditing {
                         HStack(spacing: 12) {
                             SecondaryButton(title: "Cancel", action: cancelEditing)
-                            PrimaryButton(
-                                title: "Save Profile",
-                                action: handleEditSave,
-                                isLoading: authViewModel.isLoading
-                            )
+                            PrimaryButton(title: "Save Profile", action: handleEditSave, isLoading: authViewModel.isLoading)
                         }
                         .padding(.horizontal, 16)
                         .transition(.opacity.combined(with: .move(edge: .top)))
@@ -219,7 +181,7 @@ struct ProfileView: View {
                             .padding(.horizontal, 16)
                     }
                     
-                    //Logout Section
+                    // Logout Section
                     VStack(spacing: 0) {
                         Button(action: { showLogoutAlert = true }) {
                             HStack {
@@ -251,11 +213,10 @@ struct ProfileView: View {
             .onChange(of: authViewModel.currentUser?.telephone)    { _ in syncEditFields() }
             .onChange(of: authViewModel.currentUser?.pharmacistID) { _ in syncEditFields() }
             .onChange(of: authViewModel.currentUser?.nic)          { _ in syncEditFields() }
+            .onChange(of: authViewModel.currentUser?.role)         { _ in syncEditFields() }
             .alert("Logout", isPresented: $showLogoutAlert) {
                 Button("Cancel", role: .cancel) {}
-                Button("Logout", role: .destructive) {
-                    authViewModel.signOut()
-                }
+                Button("Logout", role: .destructive) { authViewModel.signOut() }
             } message: {
                 Text("Are you sure you want to logout?")
             }
@@ -264,20 +225,20 @@ struct ProfileView: View {
             } message: {
                 Text("Your profile has been saved successfully.")
             }
-            .alert("ProfileChanged", isPresented: $showProfileChangeAlert) {
+            // ✅ FIXED: capture role before nil-ing pendingRole, then call switchRole()
+            .alert("Switch Profile", isPresented: $showProfileChangeAlert) {
                 Button("Yes", role: .destructive) {
                     if let role = pendingRole {
-                        editRole = role
                         if role == .patient { editPharmacistID = "" }
-                    }
-                    pendingRole = nil
-                    if pendingRole == .patient {
-                        navigateToPatientDashboard = true
-                    } else {
-                        navigateToPharmacistDashboard = true
+                        editRole = role
+                        pendingRole = nil
+                        // ✅ This updates currentUser.role → AppContainer re-renders
+                        authViewModel.switchRole(to: role)
                     }
                 }
                 Button("No", role: .cancel) {
+                    // ✅ Revert picker back to current role on cancel
+                    editRole = authViewModel.currentUser?.role ?? .patient
                     pendingRole = nil
                 }
             } message: {
@@ -294,26 +255,13 @@ struct ProfileView: View {
                 }
             }
         }
-        .background {
-            NavigationLink(
-                destination: DashboardView(),
-                isActive: $navigateToPatientDashboard
-            ) { EmptyView() }
-            
-            NavigationLink(
-                destination: Text("Pharmacist dashboard not implemented yet"),
-                isActive: $navigateToPharmacistDashboard
-            ) { EmptyView() }
-        }
     }
     
-    //syncEditFields now loads nic from currentUser
     private func syncEditFields() {
         editName         = authViewModel.currentUser?.name ?? ""
         editEmail        = authViewModel.currentUser?.email ?? ""
         editPhone        = authViewModel.currentUser?.telephone
-                           ?? authViewModel.currentUser?.phoneNumber
-                           ?? ""
+                           ?? authViewModel.currentUser?.phoneNumber ?? ""
         editRole         = authViewModel.currentUser?.role ?? .patient
         editPharmacistID = authViewModel.currentUser?.pharmacistID ?? ""
         editNIC          = authViewModel.currentUser?.nic ?? ""
@@ -350,7 +298,7 @@ struct ProfileView: View {
     }
 }
 
-//Supporting Components
+// MARK: - Supporting Components
 
 enum ValidationState { case none, valid, invalid }
 
@@ -368,88 +316,53 @@ struct PasswordField: View {
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(.gray)
                 .padding(.leading, 4)
-            
             HStack(spacing: 12) {
-                Image(systemName: icon)
-                    .foregroundColor(.gray)
-                    .frame(width: 22)
-                
+                Image(systemName: icon).foregroundColor(.gray).frame(width: 22)
                 if isVisible {
                     TextField(placeholder, text: $text)
-                        .font(.system(size: 15))
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
+                        .font(.system(size: 15)).autocapitalization(.none).disableAutocorrection(true)
                 } else {
-                    SecureField(placeholder, text: $text)
-                        .font(.system(size: 15))
+                    SecureField(placeholder, text: $text).font(.system(size: 15))
                 }
-                
                 if validationState != .none {
-                    Image(systemName: validationState == .valid
-                          ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    Image(systemName: validationState == .valid ? "checkmark.circle.fill" : "xmark.circle.fill")
                         .foregroundColor(validationState == .valid ? .green : .red)
                         .font(.system(size: 16))
                 }
-                
                 Button(action: { isVisible.toggle() }) {
                     Image(systemName: isVisible ? "eye.slash" : "eye")
-                        .foregroundColor(.gray)
-                        .font(.system(size: 15))
+                        .foregroundColor(.gray).font(.system(size: 15))
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(Color.white)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(
-                        validationState == .valid   ? Color.green :
-                        validationState == .invalid ? Color.red   : Color.clear,
-                        lineWidth: 1.5
-                    )
-            )
+            .padding(.horizontal, 16).padding(.vertical, 14)
+            .background(Color.white).cornerRadius(12)
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(
+                validationState == .valid ? Color.green : validationState == .invalid ? Color.red : Color.clear,
+                lineWidth: 1.5))
         }
     }
 }
 
 struct RoleToggleRow: View {
     @Binding var selectedRole: UserRole
-
     var body: some View {
         HStack(spacing: 0) {
             roleButton(title: "Patient",    icon: "person.fill",     role: .patient)
             roleButton(title: "Pharmacist", icon: "cross.case.fill", role: .pharmacist)
         }
-        .background(Color(hex: "#F3F4F6"))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(hex: "#3B82F6").opacity(0.3), lineWidth: 1.5)
-        )
+        .background(Color(hex: "#F3F4F6")).cornerRadius(12)
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "#3B82F6").opacity(0.3), lineWidth: 1.5))
     }
-
     @ViewBuilder
     private func roleButton(title: String, icon: String, role: UserRole) -> some View {
-        Button(action: {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                selectedRole = role
-            }
-        }) {
+        Button(action: { withAnimation(.easeInOut(duration: 0.2)) { selectedRole = role } }) {
             HStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.system(size: 13, weight: .medium))
-                Text(title)
-                    .font(.system(size: 14, weight: .semibold))
+                Image(systemName: icon).font(.system(size: 13, weight: .medium))
+                Text(title).font(.system(size: 14, weight: .semibold))
             }
             .foregroundColor(selectedRole == role ? .white : Color(hex: "#3B82F6"))
-            .frame(maxWidth: .infinity)
-            .frame(height: 44)
-            .background(
-                selectedRole == role
-                    ? Color(hex: "#3B82F6")
-                    : Color.clear
-            )
+            .frame(maxWidth: .infinity).frame(height: 44)
+            .background(selectedRole == role ? Color(hex: "#3B82F6") : Color.clear)
             .cornerRadius(selectedRole == role ? 11 : 0)
             .padding(selectedRole == role ? 2 : 0)
         }
@@ -468,19 +381,13 @@ extension Color {
         case 8:  (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
         default: (a, r, g, b) = (255, 0, 0, 0)
         }
-        self.init(
-            .sRGB,
-            red:     Double(r) / 255,
-            green:   Double(g) / 255,
-            blue:    Double(b) / 255,
-            opacity: Double(a) / 255
-        )
+        self.init(.sRGB, red: Double(r)/255, green: Double(g)/255,
+                  blue: Double(b)/255, opacity: Double(a)/255)
     }
 }
 
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
-        ProfileView()
-            .environmentObject(AuthViewModel())
+        ProfileView().environmentObject(AuthViewModel())
     }
 }

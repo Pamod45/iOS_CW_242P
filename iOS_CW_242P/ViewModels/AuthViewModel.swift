@@ -36,20 +36,13 @@ class AuthViewModel: ObservableObject {
     func sendOTP(phoneNumber: String, completion: @escaping (Bool) -> Void) {
         isLoading = true
         errorMessage = nil
-
         guard !phoneNumber.isEmpty else {
-            showErrorMessage("Please enter your phone number")
-            completion(false)
-            return
+            showErrorMessage("Please enter your phone number"); completion(false); return
         }
-
         let cleanedNumber = phoneNumber.replacingOccurrences(of: " ", with: "")
         guard cleanedNumber.count >= 10 else {
-            showErrorMessage("Please enter a valid phone number")
-            completion(false)
-            return
+            showErrorMessage("Please enter a valid phone number"); completion(false); return
         }
-
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
             guard let self = self else { return }
             self.verificationId = UUID().uuidString
@@ -65,48 +58,30 @@ class AuthViewModel: ObservableObject {
         isVerifyingOTP = true
         isLoading = true
         errorMessage = nil
-
         guard !otp.isEmpty else {
-            showErrorMessage("Please enter the OTP code")
-            completion(false)
-            return
+            showErrorMessage("Please enter the OTP code"); completion(false); return
         }
-
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-
             guard otp == self.demoOTPCode else {
                 self.showErrorMessage("Invalid OTP code. Please try again.")
                 self.isVerifyingOTP = false
                 completion(false)
                 return
             }
-
             let cleanedNumber = phoneNumber.replacingOccurrences(of: " ", with: "")
-
             var user: User
             if let demoAccount = self.demoAccounts[cleanedNumber] {
-                user = User(
-                    name: demoAccount.name,
-                    phoneNumber: cleanedNumber,
-                    telephone: cleanedNumber,
-                    role: demoAccount.role,
-                    authProvider: .phone
-                )
+                user = User(name: demoAccount.name, phoneNumber: cleanedNumber,
+                            telephone: cleanedNumber, role: demoAccount.role, authProvider: .phone)
                 if demoAccount.role == .pharmacist {
                     user.role = .patient
                     user.roles.append(.pharmacist)
                 }
             } else {
-                user = User(
-                    name: "New User",
-                    phoneNumber: cleanedNumber,
-                    telephone: cleanedNumber,
-                    role: .patient,
-                    authProvider: .phone
-                )
+                user = User(name: "New User", phoneNumber: cleanedNumber,
+                            telephone: cleanedNumber, role: .patient, authProvider: .phone)
             }
-
             self.currentUser = user
             self.saveUser(user)
             self.isAuthenticated = true
@@ -114,66 +89,48 @@ class AuthViewModel: ObservableObject {
             self.isVerifyingOTP = false
             self.otpSent = false
             self.objectWillChange.send()
-            print("Phone auth successful - Role: \(user.role)")
+            print("✅ Phone auth successful - Role: \(user.role)")
             completion(true)
         }
     }
 
     func resetOTPFlow() {
-        otpSent = false
-        verificationId = nil
-        isVerifyingOTP = false
-        isLoading = false
+        otpSent = false; verificationId = nil; isVerifyingOTP = false; isLoading = false
     }
 
     func signInWithGoogle(completion: @escaping (Bool) -> Void) {
-        isLoading = true
-        errorMessage = nil
-
+        isLoading = true; errorMessage = nil
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
             guard let self = self else { return }
-            let user = User(
-                email: "user@gmail.com",
-                name: "Google User",
-                phoneNumber: nil,
-                role: .patient,
-                authProvider: .google
-            )
+            let user = User(email: "user@gmail.com", name: "Google User",
+                            phoneNumber: nil, role: .patient, authProvider: .google)
             self.currentUser = user
             self.saveUser(user)
             self.isAuthenticated = true
             self.isLoading = false
             self.objectWillChange.send()
-            print("Google Sign-In successful - Role: \(user.role)")
+            print("✅ Google Sign-In successful")
             completion(true)
         }
     }
 
     func handleAppleSignIn(result: Result<ASAuthorization, Error>) {
         isLoading = true
-
         switch result {
         case .success(let authorization):
-            if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-                let fullName = [
-                    appleIDCredential.fullName?.givenName,
-                    appleIDCredential.fullName?.familyName
-                ].compactMap { $0 }.joined(separator: " ")
-
-                let user = User(
-                    email: appleIDCredential.email,
-                    name: fullName.isEmpty ? "Apple User" : fullName,
-                    role: .patient,
-                    authProvider: .apple
-                )
+            if let cred = authorization.credential as? ASAuthorizationAppleIDCredential {
+                let fullName = [cred.fullName?.givenName, cred.fullName?.familyName]
+                    .compactMap { $0 }.joined(separator: " ")
+                let user = User(email: cred.email,
+                                name: fullName.isEmpty ? "Apple User" : fullName,
+                                role: .patient, authProvider: .apple)
                 self.currentUser = user
                 self.saveUser(user)
                 self.isAuthenticated = true
                 self.isLoading = false
                 self.objectWillChange.send()
-                print("Apple Sign-In successful - Name: \(user.name)")
+                print("✅ Apple Sign-In successful")
             }
-
         case .failure(let error):
             self.isLoading = false
             if (error as NSError).code != ASAuthorizationError.canceled.rawValue {
@@ -184,11 +141,8 @@ class AuthViewModel: ObservableObject {
 
     func signOut() {
         isLoading = true
-        currentUser = nil
-        isAuthenticated = false
-        otpSent = false
-        verificationId = nil
-        isVerifyingOTP = false
+        currentUser = nil; isAuthenticated = false; otpSent = false
+        verificationId = nil; isVerifyingOTP = false
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
         objectWillChange.send()
         print("🚪 User logged out successfully")
@@ -198,7 +152,16 @@ class AuthViewModel: ObservableObject {
         }
     }
 
-    //Added nic parameter so NIC is properly saved
+    // ✅ Updates currentUser.role so AppContainer re-renders immediately
+    func switchRole(to role: UserRole) {
+        guard var user = currentUser else { return }
+        user.role = role
+        currentUser = user
+        saveUser(user)
+        objectWillChange.send()
+        print("🔄 Role switched to: \(role.rawValue)")
+    }
+
     func updateProfile(
         name: String,
         email: String?,
@@ -210,38 +173,28 @@ class AuthViewModel: ObservableObject {
         completion: @escaping (Bool) -> Void
     ) {
         guard var user = currentUser else {
-            showErrorMessage("No user logged in")
-            completion(false)
-            return
+            showErrorMessage("No user logged in"); completion(false); return
         }
-
         isLoading = true
-
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             guard let self = self else { return }
-
             user.name         = name
             user.email        = email
             user.address      = address
             user.telephone    = telephone
             user.pharmacistID = pharmacistID
             user.nic          = nic
-
             self.currentUser = user
             self.saveUser(user)
             self.isLoading = false
             self.objectWillChange.send()
-
-            print("Profile updated — Name: \(name), NIC: \(nic ?? "nil"), PharmacistID: \(pharmacistID ?? "nil")")
-
+            print("✅ Profile updated — Name: \(name), NIC: \(nic ?? "nil"), PharmacistID: \(pharmacistID ?? "nil")")
             completion(true)
         }
     }
 
     private func showErrorMessage(_ message: String) {
-        errorMessage = message
-        showError = true
-        isLoading = false
+        errorMessage = message; showError = true; isLoading = false
     }
 
     private func saveUser(_ user: User) {
@@ -251,8 +204,8 @@ class AuthViewModel: ObservableObject {
     }
 
     private func loadUser() {
-        if let userData = UserDefaults.standard.data(forKey: userDefaultsKey),
-           let user = try? JSONDecoder().decode(User.self, from: userData) {
+        if let data = UserDefaults.standard.data(forKey: userDefaultsKey),
+           let user = try? JSONDecoder().decode(User.self, from: data) {
             currentUser = user
             isAuthenticated = true
         }
