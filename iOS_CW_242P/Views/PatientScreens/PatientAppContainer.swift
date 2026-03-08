@@ -27,7 +27,8 @@ struct PatientAppContainer: View {
                 }
                 .tag(1)
             
-            Text("Map View")
+            //Indoor Navigation View
+            IndoorNavigationView()
                 .tabItem {
                     Label("Map", systemImage: "map.fill")
                 }

@@ -379,4 +379,63 @@ struct MockData {
             timestamp: Date().addingTimeInterval(-345600)
         ),
     ]
+    
+    
+    
+    //Sample data for map locations
+    static let sampleLocations: [MapLocation] = [
+        MapLocation(
+            name: "Main Entrance",
+            type: .entrance,
+            floor: 1,
+            coordinates: MapCoordinates(x: 0.50, y: 0.92),
+            description: "Main clinic entrance",
+            qrCode: "QR-ENTRANCE-001"
+        ),
+        
+        MapLocation(
+            name: "Reception",
+            type: .reception,
+            floor: 1,
+            coordinates: MapCoordinates(x: 0.50, y: 0.78),
+            description: "Check-in and information",
+            qrCode: "QR-RECEPTION-001"
+        ),
+        
+        MapLocation(
+            name: "Room 101",
+            type: .doctorRoom,
+            floor: 1,
+            coordinates: MapCoordinates(x: 0.12, y: 0.58),
+            description: "General Physician",
+            qrCode: "QR-ROOM-101"
+        ),
+        
+        MapLocation(
+            name: "Room 102",
+            type: .doctorRoom,
+            floor: 1,
+            coordinates: MapCoordinates(x: 0.12, y: 0.42),
+            description: "General Physician",
+            qrCode: "QR-ROOM-102"
+        ),
+        
+        MapLocation(
+            name: "Pharmacy",
+            type: .pharmacy,
+            floor: 1,
+            coordinates: MapCoordinates(x: 0.65, y: 0.18),
+            description: "Prescription pickup",
+            qrCode: "QR-PHARMACY-001"
+        ),
+        
+        MapLocation(
+            name: "Exit",
+            type: .exit,
+            floor: 1,
+            coordinates: MapCoordinates(x: 0.35, y: 0.08),
+            description: "Rear exit",
+            qrCode: "QR-EXIT-001"
+        )
+    ]
 }
