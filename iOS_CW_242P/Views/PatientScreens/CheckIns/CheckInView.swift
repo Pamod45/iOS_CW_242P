@@ -29,7 +29,7 @@ struct CheckInView: View {
                     .padding(.top, 20)
                     .padding(.horizontal)
                     
-                    NavigationLink(destination: MyBookingsView()) {
+                    NavigationLink(destination: MyBookingsView(directCall: false)) {
                         HStack(spacing: 14) {
                             Image(systemName: "list.clipboard.fill")
                                 .font(.title2)

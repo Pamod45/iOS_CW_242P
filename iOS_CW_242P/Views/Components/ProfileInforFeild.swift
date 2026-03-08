@@ -1,7 +1,6 @@
 
 import SwiftUI
 
-//Profile Info Row (read-only)
 struct ProfileInfoRow: View {
     let icon: String
     let label: String

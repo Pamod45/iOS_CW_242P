@@ -21,7 +21,7 @@ struct PatientAppContainer: View {
                 .tag(0)
             
             // CheckInView()
-            MyBookingsView() // changed becuase checkins view functionality can be performed through dashboard
+            MyBookingsView(directCall: true) // changed becuase checkins view functionality can be performed through dashboard
                 .tabItem {
                     Label("Bookings", systemImage: "calendar.badge.plus")
                 }

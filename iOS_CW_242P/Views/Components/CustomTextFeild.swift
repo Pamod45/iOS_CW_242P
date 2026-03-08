@@ -9,6 +9,7 @@ struct CustomTextField: View {
     var keyboardType: UIKeyboardType = .default
     var disableAutocapitalization: Bool = false
     var disableAutocorrection: Bool = false
+    var backgroundColor = Color(.systemGray6)
     
     @State private var isSecureVisible: Bool = false
     
@@ -48,7 +49,7 @@ struct CustomTextField: View {
                 }
             }
             .padding()
-            .background(Color(.systemGray6))
+            .background(backgroundColor)
             .cornerRadius(10)
         }
     }

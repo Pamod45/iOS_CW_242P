@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MyBookingsView: View {
+    let directCall: Bool
     @State private var bookings = MockData.sampleBookings
     @State private var typeFilter: BookingTypeFilter = .all
     @State private var statusFilter: BookingStatusFilter = .all
@@ -90,231 +91,236 @@ struct MyBookingsView: View {
         }
     }
     
-    var body: some View {
-        NavigationView{
-            VStack(spacing: 20){
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(BookingStatusFilter.allCases, id: \.self) { filter in
-                            FilterChip(
-                                title: filter.rawValue,
-                                isSelected: statusFilter == filter,
-                                count: countForStatus(filter)
-                            ) {
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    statusFilter = filter
-                                }
+    private var myBookingsBody: some View {
+        VStack(spacing: 20){
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(BookingStatusFilter.allCases, id: \.self) { filter in
+                        FilterChip(
+                            title: filter.rawValue,
+                            isSelected: statusFilter == filter,
+                            count: countForStatus(filter)
+                        ) {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                statusFilter = filter
                             }
                         }
                     }
-                    .padding(.horizontal)
                 }
-                HStack(spacing: 12) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "line.3.horizontal.decrease.circle\((typeFilter != .all || dateRangeFilter != .all) ? ".fill" : "")")
-                            .font(.title3)
-                            .foregroundColor(hasActiveFilters ? .secondary.opacity(0.6) : .secondary)
+                .padding(.horizontal)
+            }
+            HStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "line.3.horizontal.decrease.circle\((typeFilter != .all || dateRangeFilter != .all) ? ".fill" : "")")
+                        .font(.title3)
+                        .foregroundColor(hasActiveFilters ? .secondary.opacity(0.6) : .secondary)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Filters")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
                         
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Filters")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                            
-                            if typeFilter != .all || dateRangeFilter != .all {
-                                Text(activeFiltersText)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(1)
-                            } else {
-                                Text("All bookings")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        if typeFilter != .all || dateRangeFilter != .all  {
-                            Button(action: clearAllFilters) {
-                                Text("Clear All")
-                                    .font(.caption)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(Color.blue)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .background(Color.blue.opacity(0.1))
-                                    .cornerRadius(8)
-                            }
-                        }
-                        
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                showFilters.toggle()
-                            }
-                        }) {
-                            Image(systemName: showFilters ? "chevron.up" : "chevron.down")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
+                        if typeFilter != .all || dateRangeFilter != .all {
+                            Text(activeFiltersText)
+                                .font(.caption)
                                 .foregroundColor(.secondary)
-                                .frame(width: 32, height: 32)
-                                .background(.black.opacity(0.05))
+                                .lineLimit(1)
+                        } else {
+                            Text("All bookings")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    if typeFilter != .all || dateRangeFilter != .all  {
+                        Button(action: clearAllFilters) {
+                            Text("Clear All")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color.blue)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Color.blue.opacity(0.1))
                                 .cornerRadius(8)
                         }
                     }
-                    .padding()
-                    .background(Color(.systemBackground))
-                    .cornerRadius(12)
-                    .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
-                }
-                .padding(.horizontal)
-                if showFilters {
-                    VStack(spacing: 16) {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Text("Type")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                Spacer()
-                            }
-                            .padding(.horizontal)
-                            
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 10) {
-                                    ForEach(BookingTypeFilter.allCases, id: \.self) { filter in
-                                        StatusFilterChip(
-                                            title: filter.rawValue,
-                                            isSelected: typeFilter == filter
-                                        ) {
-                                            withAnimation(.easeInOut(duration: 0.2)) {
-                                                typeFilter = filter
-                                            }
-                                        }
-                                    }
-                                }
-                                .padding(.horizontal)
-                            }
+                    
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            showFilters.toggle()
                         }
-                        
-                        Divider()
-                            .padding(.horizontal)
-                        
-                        VStack(alignment: .leading, spacing: 10) {
-                            HStack {
-                                Text("Date Range")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                Spacer()
-                            }
-                            .padding(.horizontal)
-                            
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 10) {
-                                    ForEach(DateRangeFilter.allCases, id: \.self) { filter in
-                                        StatusFilterChip(
-                                            title: filter.rawValue,
-                                            isSelected: dateRangeFilter == filter
-                                        ) {
-                                            withAnimation(.easeInOut(duration: 0.2)) {
-                                                dateRangeFilter = filter
-                                            }
-                                        }
-                                    }
-                                }
-                                .padding(.horizontal)
-                            }
-                        }
+                    }) {
+                        Image(systemName: showFilters ? "chevron.up" : "chevron.down")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.secondary)
+                            .frame(width: 32, height: 32)
+                            .background(.black.opacity(0.05))
+                            .cornerRadius(8)
                     }
-                    .padding(.vertical, 16)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(12)
-                    .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
-                    .padding(.horizontal)
-                    .transition(.asymmetric(
-                        insertion: .scale(scale: 0.95, anchor: .top).combined(with: .opacity),
-                        removal: .scale(scale: 0.95, anchor: .top).combined(with: .opacity)
-                    ))
                 }
-                ScrollView {
-                    VStack(spacing: 20) {
-    //                    BookingSummaryRow(bookings: bookings)
-    //                        .padding(.horizontal)
-
-                        if filteredBookings.isEmpty {
-                            EmptyBookingsView(typeFilter: typeFilter, statusFilter: statusFilter)
-                                .padding(.top, 40)
-                        }else {
-                            LazyVStack(spacing: 20, pinnedViews: [.sectionHeaders]) {
-                                ForEach(groupedBookings, id: \.0) { section, items in
-                                    Section {
-                                        VStack(spacing: 18) {
-                                            ForEach(items) { booking in
-                                                NavigationLink(destination: BookingDetailView(
-                                                    booking: binding(for: booking),
-                                                    shouldDismissAfterPayment: $shouldDismissDetailView,
-                                                    onPayNow: {
-                                                        if let idx = bookings.firstIndex(where: { $0.id == booking.id }) {
-                                                            showLabPaymentFor = bookings[idx]
-                                                        } else {
-                                                            showLabPaymentFor = booking
-                                                        }
-                                                    }
-                                                )) {
-                                                    BookingCard(booking: booking)
-                                                }
-                                            }
-                                        }
-                                        .padding(.horizontal)
-                                    } header: {
-                                        HStack {
-                                            Text(section)
-                                                .font(.headline)
-                                            
-                                            Text("\(items.count)")
-                                                .font(.caption)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(Color.black.opacity(0.6))
-                                                .padding(.horizontal, 8)
-                                                .padding(.vertical, 2)
-                                                .background(Color.gray.opacity(0.12))
-                                                .cornerRadius(8)
-                                            
-                                            Spacer()
-                                            
-                                        }
-                                        .padding(.horizontal)
-                                        .padding(.vertical, 8)
-                                        .background(Color(.systemGroupedBackground))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .padding(.top, 12)
-                    .padding(.bottom, 40)
-                }
+                .padding()
+                .background(Color(.systemBackground))
+                .cornerRadius(12)
+                .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
             }
-            .background(Color(.systemGroupedBackground))
-            .navigationTitle("My Bookings")
-            .navigationBarTitleDisplayMode(.inline)
-            .sheet(item: $showLabPaymentFor) { booking in
-                LabPaymentSheet(booking: booking) {
-                    if let idx = bookings.firstIndex(where: { $0.id == booking.id }) {
-                        var updated = bookings[idx]
-                        updated.paymentCompleted = true
-                        updated.status = .confirmed
-                        if updated.queueNumber == nil {
-                            updated.queueNumber = Int.random(in: 1...15)
-                            updated.estimatedWaitTime = Int.random(in: 15...45)
+            .padding(.horizontal)
+            if showFilters {
+                VStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Type")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            Spacer()
                         }
-                        bookings[idx] = updated
+                        .padding(.horizontal)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(BookingTypeFilter.allCases, id: \.self) { filter in
+                                    StatusFilterChip(
+                                        title: filter.rawValue,
+                                        isSelected: typeFilter == filter
+                                    ) {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            typeFilter = filter
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
                     }
-                    showLabPaymentFor = nil
-                    shouldDismissDetailView = true
+                    
+                    Divider()
+                        .padding(.horizontal)
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Text("Date Range")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(DateRangeFilter.allCases, id: \.self) { filter in
+                                    StatusFilterChip(
+                                        title: filter.rawValue,
+                                        isSelected: dateRangeFilter == filter
+                                    ) {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            dateRangeFilter = filter
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
                 }
+                .padding(.vertical, 16)
+                .background(Color(.systemBackground))
+                .cornerRadius(12)
+                .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+                .padding(.horizontal)
+                .transition(.asymmetric(
+                    insertion: .scale(scale: 0.95, anchor: .top).combined(with: .opacity),
+                    removal: .scale(scale: 0.95, anchor: .top).combined(with: .opacity)
+                ))
+            }
+            ScrollView {
+                VStack(spacing: 20) {
+                    //                    BookingSummaryRow(bookings: bookings)
+                    //                        .padding(.horizontal)
+                    
+                    if filteredBookings.isEmpty {
+                        EmptyBookingsView(typeFilter: typeFilter, statusFilter: statusFilter)
+                            .padding(.top, 40)
+                    }else {
+                        LazyVStack(spacing: 20, pinnedViews: [.sectionHeaders]) {
+                            ForEach(groupedBookings, id: \.0) { section, items in
+                                Section {
+                                    VStack(spacing: 18) {
+                                        ForEach(items) { booking in
+                                            NavigationLink(destination: BookingDetailView(
+                                                booking: binding(for: booking),
+                                                shouldDismissAfterPayment: $shouldDismissDetailView,
+                                                onPayNow: {
+                                                    if let idx = bookings.firstIndex(where: { $0.id == booking.id }) {
+                                                        showLabPaymentFor = bookings[idx]
+                                                    } else {
+                                                        showLabPaymentFor = booking
+                                                    }
+                                                }
+                                            )) {
+                                                BookingCard(booking: booking)
+                                            }
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                } header: {
+                                    HStack {
+                                        Text(section)
+                                            .font(.headline)
+                                        
+                                        Text("\(items.count)")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(Color.black.opacity(0.6))
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 2)
+                                            .background(Color.gray.opacity(0.12))
+                                            .cornerRadius(8)
+                                        
+                                        Spacer()
+                                        
+                                    }
+                                    .padding(.horizontal)
+                                    .padding(.vertical, 8)
+                                    .background(Color(.systemGroupedBackground))
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(.top, 12)
+                .padding(.bottom, 40)
             }
         }
-        
-        
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("My Bookings")
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $showLabPaymentFor) { booking in
+            LabPaymentSheet(booking: booking) {
+                if let idx = bookings.firstIndex(where: { $0.id == booking.id }) {
+                    var updated = bookings[idx]
+                    updated.paymentCompleted = true
+                    updated.status = .confirmed
+                    if updated.queueNumber == nil {
+                        updated.queueNumber = Int.random(in: 1...15)
+                        updated.estimatedWaitTime = Int.random(in: 15...45)
+                    }
+                    bookings[idx] = updated
+                }
+                showLabPaymentFor = nil
+                shouldDismissDetailView = true
+            }
+        }
+    }
+    
+    var body: some View {
+        if directCall {
+            NavigationView{ myBookingsBody }
+        }
+        else {
+            myBookingsBody
+        }
     }
     
     private var hasActiveFilters: Bool {
@@ -378,6 +384,6 @@ struct MyBookingsView: View {
 
 #Preview {
     NavigationView {
-        MyBookingsView()
+        MyBookingsView(directCall: false)
     }
 }

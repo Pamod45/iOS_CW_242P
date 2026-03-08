@@ -15,7 +15,6 @@ struct CompactQueueCard: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            // Queue Number - Larger Display
             VStack(spacing: 8) {
                 Text("Queue Number")
                     .font(.subheadline)
@@ -39,9 +38,7 @@ struct CompactQueueCard: View {
             .background(Color.blue.opacity(0.05))
             .cornerRadius(16)
             
-            // Stats Row - Larger
             HStack(spacing: 16) {
-                // Wait Time
                 VStack(spacing: 8) {
                     Image(systemName: "clock.fill")
                         .font(.title2)
@@ -60,7 +57,6 @@ struct CompactQueueCard: View {
                 .background(Color.orange.opacity(0.08))
                 .cornerRadius(12)
                 
-                // Room/Location
                 VStack(spacing: 8) {
                     Image(systemName: "door.left.hand.open")
                         .font(.title2)

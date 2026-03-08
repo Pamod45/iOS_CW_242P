@@ -114,7 +114,7 @@ struct DashboardView: View {
 
                                 Spacer()
 
-                                NavigationLink(destination: MyBookingsView()) {
+                                NavigationLink(destination: MyBookingsView(directCall: false)) {
                                     HStack(spacing: 4){
                                         Text("See All")
                                             .font(.subheadline)

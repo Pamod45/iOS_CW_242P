@@ -180,7 +180,7 @@ struct BookingCard: View {
                     }
                     
                     if booking.type == .opd && booking.hasPrescription == true {
-                        NavigationLink(destination: Text("Pharmacy Stage, Coming soon")) {
+                        NavigationLink(destination: PrescriptionView()) {
                             HStack(spacing: 6) {
                                 Text("Prescription")
                                     .font(.subheadline)
@@ -206,7 +206,7 @@ struct BookingCard: View {
         .padding(14)
         .background(Color.white)
         .cornerRadius(12)
-//        .shadow(color: booking.type == .opd ? .blue.opacity(0.3) : .green.opacity(0.3), radius: 8, x: 0, y: 4)
+
     }
         
     private var statusDisplayText: String {

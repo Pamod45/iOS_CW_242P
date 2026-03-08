@@ -198,7 +198,6 @@ class AuthViewModel: ObservableObject {
         }
     }
 
-    //Added nic parameter so NIC is properly saved
     func updateProfile(
         name: String,
         email: String?,

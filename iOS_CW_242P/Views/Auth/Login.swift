@@ -90,7 +90,6 @@ struct LoginView: View {
                     }
                     .disabled(authViewModel.isLoading)
                     
-                    // Apple Sign-In
                     Button(action: {
                         triggerAppleSignIn()
                     }) {

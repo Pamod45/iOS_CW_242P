@@ -30,7 +30,8 @@ struct LabCheckInFlow: View {
             VStack(spacing: 0) {
                 ProgressBar(currentStep: currentStep, totalSteps: 5)
                     .padding()
-                ZStack {
+                
+                ZStack{
                     if currentStep == 1 {
                         LabTestSelectionView(selectedTests: $selectedTests)
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
@@ -42,7 +43,8 @@ struct LabCheckInFlow: View {
                     else if currentStep == 3 {
                         SessionSelectionView(selectedSession: $selectedSession)
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-                    } else if currentStep == 4 {
+                    }
+                    else if currentStep == 4 {
                         ReasonForVisitView(
                             reasonForVisit: $reasonForVisit,
                             user: authViewModel.currentUser,

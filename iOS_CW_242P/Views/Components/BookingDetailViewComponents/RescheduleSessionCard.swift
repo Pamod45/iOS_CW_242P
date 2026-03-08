@@ -13,7 +13,6 @@ struct RescheduleSessionCard: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Time
             VStack(alignment: .leading, spacing: 4) {
                 Text(session.displayTime)
                     .font(.headline)
@@ -40,7 +39,6 @@ struct RescheduleSessionCard: View {
             
             Spacer()
             
-            // Selection indicator
             if isSelected {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title3)

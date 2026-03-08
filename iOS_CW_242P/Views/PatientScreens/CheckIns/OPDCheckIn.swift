@@ -105,7 +105,7 @@ struct OPDCheckInFlow: View {
     private var canProceed: Bool {
         switch currentStep {
         case 1:
-            return true // Date is always valid
+            return true
         case 2:
             return selectedSession != nil
         case 3:

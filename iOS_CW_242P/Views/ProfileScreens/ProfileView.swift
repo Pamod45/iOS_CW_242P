@@ -154,24 +154,28 @@ struct ProfileView: View {
                             EditableInfoRow(
                                 icon: "person",
                                 label: "Name",
+                                placeholder: "Enter your name",
                                 value: $editName,
                                 keyboardType: .default
                             )
                             EditableInfoRow(
                                 icon: "creditcard",
                                 label: "NIC (National Identity Card)",
+                                placeholder: "Enter your NIC number",
                                 value: $editNIC,
                                 keyboardType: .default
                             )
                             EditableInfoRow(
                                 icon: "envelope",
                                 label: "Email Address",
+                                placeholder: "Enter your Email Address",
                                 value: $editEmail,
                                 keyboardType: .emailAddress
                             )
                             EditableInfoRow(
                                 icon: "phone",
                                 label: "Telephone",
+                                placeholder: "Enter your telephone number",
                                 value: $editPhone,
                                 keyboardType: .phonePad
                             )
@@ -179,6 +183,7 @@ struct ProfileView: View {
                                 EditableInfoRow(
                                     icon: "cross.case",
                                     label: "Pharmacist ID",
+                                    placeholder: "Enter your Pharmacist ID",
                                     value: $editPharmacistID,
                                     keyboardType: .default
                                 )

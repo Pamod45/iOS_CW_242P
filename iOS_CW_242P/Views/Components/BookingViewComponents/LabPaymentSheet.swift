@@ -33,9 +33,6 @@ struct LabPaymentSheet: View {
             ScrollView {
                 VStack(spacing: 24) {
                     if showSuccess {
-                        // SUCCESS VIEW - Similar to OPD QueueTrackingView
-                        
-                        // Success Icon
                         ZStack {
                             Circle()
                                 .fill(Color.green.opacity(0.1))
@@ -83,7 +80,7 @@ struct LabPaymentSheet: View {
                             .cornerRadius(16)
                             .padding(.horizontal)
                             
-                            // Queue Stats
+
                             HStack(spacing: 20) {
                                 VStack(spacing: 8) {
                                     Image(systemName: "clock.fill")
@@ -177,7 +174,6 @@ struct LabPaymentSheet: View {
                         .cornerRadius(12)
                         .padding(.horizontal)
                         
-                        // Important Information
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 Image(systemName: "info.circle.fill")
@@ -210,9 +206,7 @@ struct LabPaymentSheet: View {
                         .padding(.horizontal)
                         
                     } else {
-                        // PAYMENT VIEW - Original payment form
                         
-                        // Header
                         VStack(spacing: 12) {
                             Image(systemName: "creditcard.fill")
                                 .font(.system(size: 40))
@@ -272,7 +266,6 @@ struct LabPaymentSheet: View {
                         .cornerRadius(12)
                         .padding(.horizontal)
                         
-                        // Date & Session
                         HStack(spacing: 16) {
                             InfoCard(
                                 title: "Date",
@@ -289,7 +282,6 @@ struct LabPaymentSheet: View {
                         }
                         .padding(.horizontal)
                         
-                        // Payment Method Selection
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Select Payment Method")
                                 .font(.headline)
@@ -314,7 +306,6 @@ struct LabPaymentSheet: View {
                         
                         Spacer()
                         
-                        // Pay button
                         PrimaryButton(
                             title: "Pay Rs. \(String(format: "%.2f", booking.amount))",
                             action: {

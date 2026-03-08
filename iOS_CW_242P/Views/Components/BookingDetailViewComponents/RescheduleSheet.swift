@@ -21,7 +21,6 @@ struct RescheduleSheet: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 24) {
-                    // Header
                     VStack(spacing: 12) {
                         Image(systemName: "calendar.badge.clock")
                             .font(.system(size: 40))
@@ -41,7 +40,6 @@ struct RescheduleSheet: View {
                     }
                     .padding(.top)
                     
-                    // Current Booking Info
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Current Booking")
                             .font(.headline)
@@ -69,7 +67,6 @@ struct RescheduleSheet: View {
                     Divider()
                         .padding(.horizontal)
                     
-                    // Date Selection
                     VStack(alignment: .leading, spacing: 12) {
                         Text("New Date")
                             .font(.headline)
@@ -96,7 +93,6 @@ struct RescheduleSheet: View {
                         .padding(.horizontal)
                     }
                     
-                    // Session Selection
                     VStack(alignment: .leading, spacing: 12) {
                         Text("New Session")
                             .font(.headline)
@@ -116,7 +112,6 @@ struct RescheduleSheet: View {
                         .padding(.horizontal)
                     }
                     
-                    // Confirm Button
                     PrimaryButton(
                         title: "Confirm Reschedule",
                         action: {

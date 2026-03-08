@@ -9,7 +9,6 @@ import Foundation
 
 struct MockData {
     
-    //Sample Country Codes data
     static let countryCodes: [CountryCode] = [
         CountryCode(flag: "🇱🇰", code: "+94", name: "Sri Lanka"),
         CountryCode(flag: "🇮🇳", code: "+91", name: "India"),
@@ -23,7 +22,6 @@ struct MockData {
         CountryCode(flag: "🇯🇵", code: "+81", name: "Japan")
     ]
     
-    //Sample Sessions data
     static let sessions: [Session] = [
         Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true, currentQueueNumber: 5, averageConsultationTimeInMinutes: 25),
         Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 12, averageConsultationTimeInMinutes: 60),
@@ -35,9 +33,7 @@ struct MockData {
         Session(id: "8", startTime: "03:00", endTime: "06:00", isAvailable: false, currentQueueNumber: 0, averageConsultationTimeInMinutes: 0)
     ]
     
-    //Sample Bookings data
     static let sampleBookings: [Appointment] = [
-        // 1. Upcoming OPD — Confirmed, paid and upcoming
         Appointment(
             id: "bk-001",
             patientId: "user123",
@@ -56,7 +52,6 @@ struct MockData {
             journeyId: "journey-001"
         ),
         
-        // 2. Upcoming OPD — Today, in progress
         Appointment(
             id: "bk-002",
             patientId: "user123",
@@ -76,7 +71,6 @@ struct MockData {
             journeyId: "journey-002"
         ),
         
-        // 3. Lab — Approved, awaiting payment
         Appointment(
             id: "bk-003",
             patientId: "user123",
@@ -93,7 +87,6 @@ struct MockData {
             journeyId: "journey-003"
         ),
         
-        // 4. Lab — Pending doctor approval
         Appointment(
             id: "bk-004",
             patientId: "user123",
@@ -109,7 +102,6 @@ struct MockData {
             approvalStatus: .pending
         ),
         
-        // 5. Lab — No approval needed, paid, upcoming
         Appointment(
             id: "bk-005",
             patientId: "user123",
@@ -122,13 +114,12 @@ struct MockData {
             paymentCompleted: true,
             amount: 2000.00,
             createdAt: Date().addingTimeInterval(-259200),
-            labTests: [MockData.sampleTests[0], MockData.sampleTests[1]], // CBC + Glucose
+            labTests: [MockData.sampleTests[0], MockData.sampleTests[1]],
             requiresApproval: false,
             approvalStatus: nil,
             journeyId: "journey-004"
         ),
         
-        // 6. OPD — Completed
         Appointment(
             id: "bk-006",
             patientId: "user123",
@@ -147,7 +138,6 @@ struct MockData {
             journeyId: "journey-005"
         ),
         
-        // 7. Lab — Completed
         Appointment(
             id: "bk-007",
             patientId: "user123",
@@ -165,7 +155,6 @@ struct MockData {
             journeyId: "journey-006"
         ),
         
-        // 8. OPD — Cancelled
         Appointment(
             id: "bk-008",
             patientId: "user123",
@@ -180,7 +169,6 @@ struct MockData {
             createdAt: Date().addingTimeInterval(-172800)
         ),
         
-        // 9. Lab — Rejected approval
         Appointment(
             id: "bk-009",
             patientId: "user123",
@@ -191,15 +179,13 @@ struct MockData {
             paymentCompleted: false,
             amount: 5000.00,
             createdAt: Date().addingTimeInterval(-259200),
-            labTests: [MockData.sampleTests[7]], // Biopsy
+            labTests: [MockData.sampleTests[7]],
             requiresApproval: true,
             approvalStatus: .rejected
         ),
     ]
     
-    //Sample Lab Test data
     static let sampleTests: [LabTest] = [
-        // No Approval Required Tests
         LabTest(
             id: "lab1",
             name: "Complete Blood Count (CBC)",
@@ -251,7 +237,6 @@ struct MockData {
             preparationRequired: "Avoid alcohol"
         ),
         
-        // Doctor Approval Required Tests
         LabTest(
             id: "lab6",
             name: "MRI Scan",
@@ -305,9 +290,7 @@ struct MockData {
     ]
     
     
-    //Sample Notifications List
     static let sampleNotifications: [AppNotification] = [
-        // Today notifications
         AppNotification(
             type: .appointmentReminder,
             title: "Appointment in 30 Minutes",
@@ -333,7 +316,6 @@ struct MockData {
             timestamp: Date().addingTimeInterval(-7200)
         ),
         
-        // Yesterday notifications
         AppNotification(
             type: .labReminder,
             title: "Lab Check-In Tomorrow",
@@ -353,7 +335,6 @@ struct MockData {
             timestamp: Date().addingTimeInterval(-100000)
         ),
         
-        // Older notifications
         AppNotification(
             type: .general,
             title: "Welcome to MediQueue",

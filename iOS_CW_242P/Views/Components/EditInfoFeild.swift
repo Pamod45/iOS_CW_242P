@@ -1,9 +1,9 @@
 import SwiftUI
 
-//Editable Info Row (edit)
 struct EditableInfoRow: View {
     let icon: String
     let label: String
+    let placeholder: String
     @Binding var value: String
     var keyboardType: UIKeyboardType = .default
     
@@ -17,7 +17,7 @@ struct EditableInfoRow: View {
                 Text(label)
                     .font(.system(size: 11))
                     .foregroundColor(.gray)
-                TextField("Enter \(label.lowercased())", text: $value)
+                TextField(placeholder, text: $value)
                     .font(.system(size: 15))
                     .foregroundColor(.black)
                     .keyboardType(keyboardType)

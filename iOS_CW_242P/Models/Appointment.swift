@@ -26,7 +26,7 @@ struct Session: Identifiable, Codable {
     let endTime: String
     let isAvailable: Bool
     let currentQueueNumber: Int
-    let averageConsultationTimeInMinutes: Int // in minutes
+    let averageConsultationTimeInMinutes: Int
     
     var displayTime: String {
         "\(startTime) - \(endTime)"
@@ -63,12 +63,10 @@ struct Appointment: Identifiable, Codable {
     var amount: Double
     var createdAt: Date
     
-    //Lab related appointment details
     var labTests: [LabTest]?
     var requiresApproval: Bool?
     var approvalStatus: ApprovalStatus?
     
-    //Has journey and prescription specific details
     var hasPrescription: Bool?
     var prescriptionId: String?
     var journeyId: String?

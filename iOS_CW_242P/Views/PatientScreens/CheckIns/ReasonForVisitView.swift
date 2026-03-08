@@ -23,12 +23,16 @@ struct ReasonForVisitView: View {
     var flowType: CheckInFlowType = .opd
     @Binding var hasUploadedDocuments: Bool
     @Binding var isFormValid: Bool
-
+    
     @State private var personType: CheckInPersonType = .myself
     @State private var name: String = ""
     @State private var nicOrAge: String = ""
     @State private var telephone: String = ""
     @State private var didPrefill = false
+    
+    private var inputBoxBgColor : Color{
+        return .white.opacity(0.6)
+    }
 
     private var approvalTests: [LabTest] {
         if case .lab(let tests) = flowType {
@@ -95,10 +99,6 @@ struct ReasonForVisitView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                                 .padding(.horizontal, 4)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color(.systemGray6))
-                                )
                             }
                         }
                     }
@@ -110,7 +110,8 @@ struct ReasonForVisitView: View {
                         title: "Full Name",
                         placeholder: personType == .child ? "Enter child's name" : "Enter full name",
                         text: $name,
-                        icon: "person"
+                        icon: "person",
+                        backgroundColor: inputBoxBgColor
                     )
 
                     if personType == .child {
@@ -119,7 +120,8 @@ struct ReasonForVisitView: View {
                             placeholder: "Enter child's age",
                             text: $nicOrAge,
                             icon: "person.crop.circle.badge.clock",
-                            keyboardType: .numberPad
+                            keyboardType: .numberPad,
+                            backgroundColor: inputBoxBgColor
                         )
                     } else {
                         CustomTextField(
@@ -128,7 +130,8 @@ struct ReasonForVisitView: View {
                             text: $nicOrAge,
                             icon: "person.text.rectangle",
                             keyboardType: .default,
-                            disableAutocapitalization: true
+                            disableAutocapitalization: true,
+                            backgroundColor: inputBoxBgColor
                         )
                     }
 
@@ -137,8 +140,10 @@ struct ReasonForVisitView: View {
                         placeholder: personType == .child ? "Enter guardian's phone number" : "Enter phone number",
                         text: $telephone,
                         icon: "phone",
-                        keyboardType: .phonePad
+                        keyboardType: .phonePad,
+                        backgroundColor: .white
                     )
+                    
                 }
                 .padding(.horizontal)
 
@@ -232,7 +237,7 @@ struct ReasonForVisitView: View {
                             }
                         }
                         .padding()
-                        .background(Color(.systemGray6))
+                        .background(inputBoxBgColor)
                         .cornerRadius(10)
                     }
                     .padding(.horizontal)
