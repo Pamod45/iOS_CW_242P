@@ -24,7 +24,6 @@ struct NotificationCard: View {
     var body: some View {
         VStack {
             HStack(alignment: .top, spacing: 14) {
-                // Icon
                 Image(systemName: notification.type.icons)
                     .font(.title3)
                     .foregroundColor(iconColor)
@@ -32,7 +31,6 @@ struct NotificationCard: View {
                     .background(iconColor.opacity(0.1))
                     .cornerRadius(12)
                 
-                // Content
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Text(notification.title)
@@ -54,14 +52,13 @@ struct NotificationCard: View {
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
                     
-                    // Type badge
                     Text(notification.type.rawValue)
                         .font(.caption2)
                         .fontWeight(.medium)
-                        .foregroundColor(iconColor)
+                        .foregroundColor(.secondary)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
-                        .background(iconColor.opacity(0.1))
+                        .background(Color.gray.opacity(0.1))
                         .cornerRadius(6)
                 }
             }

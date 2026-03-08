@@ -91,15 +91,25 @@ struct MyBookingsView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                // Summary Cards
-                BookingSummaryRow(bookings: bookings)
+        NavigationView{
+            VStack(spacing: 20){
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(BookingStatusFilter.allCases, id: \.self) { filter in
+                            FilterChip(
+                                title: filter.rawValue,
+                                isSelected: statusFilter == filter,
+                                count: countForStatus(filter)
+                            ) {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    statusFilter = filter
+                                }
+                            }
+                        }
+                    }
                     .padding(.horizontal)
-                
-                // Compact Filter Bar
+                }
                 HStack(spacing: 12) {
-                    // Active Filters Summary
                     HStack(spacing: 8) {
                         Image(systemName: "line.3.horizontal.decrease.circle\((typeFilter != .all || dateRangeFilter != .all) ? ".fill" : "")")
                             .font(.title3)
@@ -124,7 +134,6 @@ struct MyBookingsView: View {
                         
                         Spacer()
                         
-                        // Clear All button
                         if typeFilter != .all || dateRangeFilter != .all  {
                             Button(action: clearAllFilters) {
                                 Text("Clear All")
@@ -138,7 +147,6 @@ struct MyBookingsView: View {
                             }
                         }
                         
-                        // Expand/Collapse button
                         Button(action: {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                 showFilters.toggle()
@@ -159,11 +167,8 @@ struct MyBookingsView: View {
                     .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
                 }
                 .padding(.horizontal)
-
-                // Expandable Filter Panel
                 if showFilters {
                     VStack(spacing: 16) {
-                        // Type Filter
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 Text("Type")
@@ -176,9 +181,8 @@ struct MyBookingsView: View {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 10) {
                                     ForEach(BookingTypeFilter.allCases, id: \.self) { filter in
-                                        BookingFilterChip(
+                                        StatusFilterChip(
                                             title: filter.rawValue,
-                                            icon: iconForType(filter),
                                             isSelected: typeFilter == filter
                                         ) {
                                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -194,12 +198,6 @@ struct MyBookingsView: View {
                         Divider()
                             .padding(.horizontal)
                         
-                        
-                        
-                        Divider()
-                            .padding(.horizontal)
-                        
-                        // Date Range Filter
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
                                 Text("Date Range")
@@ -212,9 +210,8 @@ struct MyBookingsView: View {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 10) {
                                     ForEach(DateRangeFilter.allCases, id: \.self) { filter in
-                                        DateRangeChip(
+                                        StatusFilterChip(
                                             title: filter.rawValue,
-                                            icon: filter.icon,
                                             isSelected: dateRangeFilter == filter
                                         ) {
                                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -237,119 +234,89 @@ struct MyBookingsView: View {
                         removal: .scale(scale: 0.95, anchor: .top).combined(with: .opacity)
                     ))
                 }
-                
-                // Bookings List
-                if filteredBookings.isEmpty {
-                    EmptyBookingsView(typeFilter: typeFilter, statusFilter: statusFilter)
-                        .padding(.top, 40)
-                }else {
-                    LazyVStack(spacing: 20, pinnedViews: [.sectionHeaders]) {
-                        ForEach(groupedBookings, id: \.0) { section, items in
-                            Section {
-                                VStack(spacing: 12) {
-                                    ForEach(items) { booking in
-                                        NavigationLink(destination: BookingDetailView(
-                                            booking: binding(for: booking),
-                                            shouldDismissAfterPayment: $shouldDismissDetailView,
-                                            onPayNow: {
-                                                if let idx = bookings.firstIndex(where: { $0.id == booking.id }) {
-                                                    showLabPaymentFor = bookings[idx]
-                                                } else {
-                                                    showLabPaymentFor = booking
+                ScrollView {
+                    VStack(spacing: 20) {
+    //                    BookingSummaryRow(bookings: bookings)
+    //                        .padding(.horizontal)
+
+                        if filteredBookings.isEmpty {
+                            EmptyBookingsView(typeFilter: typeFilter, statusFilter: statusFilter)
+                                .padding(.top, 40)
+                        }else {
+                            LazyVStack(spacing: 20, pinnedViews: [.sectionHeaders]) {
+                                ForEach(groupedBookings, id: \.0) { section, items in
+                                    Section {
+                                        VStack(spacing: 18) {
+                                            ForEach(items) { booking in
+                                                NavigationLink(destination: BookingDetailView(
+                                                    booking: binding(for: booking),
+                                                    shouldDismissAfterPayment: $shouldDismissDetailView,
+                                                    onPayNow: {
+                                                        if let idx = bookings.firstIndex(where: { $0.id == booking.id }) {
+                                                            showLabPaymentFor = bookings[idx]
+                                                        } else {
+                                                            showLabPaymentFor = booking
+                                                        }
+                                                    }
+                                                )) {
+                                                    BookingCard(booking: booking)
                                                 }
                                             }
-                                        )) {
-                                            BookingCard(booking: booking)
                                         }
+                                        .padding(.horizontal)
+                                    } header: {
+                                        HStack {
+                                            Text(section)
+                                                .font(.headline)
+                                            
+                                            Text("\(items.count)")
+                                                .font(.caption)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(Color.black.opacity(0.6))
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 2)
+                                                .background(Color.gray.opacity(0.12))
+                                                .cornerRadius(8)
+                                            
+                                            Spacer()
+                                            
+                                        }
+                                        .padding(.horizontal)
+                                        .padding(.vertical, 8)
+                                        .background(Color(.systemGroupedBackground))
                                     }
                                 }
-                                .padding(.horizontal)
-                            } header: {
-                                HStack {
-                                    Text(section)
-                                        .font(.headline)
-                                    
-                                    
-                                    
-                                    Text("\(items.count)")
-                                        .font(.caption)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(Color.black.opacity(0.6))
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 2)
-                                        .background(Color.gray.opacity(0.12))
-                                        .cornerRadius(8)
-                                    Spacer()
-                                    
-                                }
-                                .padding(.horizontal)
-                                .padding(.vertical, 8)
-                                .background(Color(.systemGroupedBackground))
                             }
                         }
                     }
+                    .padding(.top, 12)
+                    .padding(.bottom, 40)
                 }
             }
-            .padding(.top, 12)
-            .padding(.bottom, 40)
-        }
-        .safeAreaInset(edge: .top) {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-
-                    Text("Status")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                }
-                .padding(.horizontal)
-
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(BookingStatusFilter.allCases, id: \.self) { filter in
-                            StatusPill(
-                                title: filter.rawValue,
-                                count: countForStatus(filter),
-                                isSelected: statusFilter == filter
-                            ) {
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    statusFilter = filter
-                                }
-                            }
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("My Bookings")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(item: $showLabPaymentFor) { booking in
+                LabPaymentSheet(booking: booking) {
+                    if let idx = bookings.firstIndex(where: { $0.id == booking.id }) {
+                        var updated = bookings[idx]
+                        updated.paymentCompleted = true
+                        updated.status = .confirmed
+                        if updated.queueNumber == nil {
+                            updated.queueNumber = Int.random(in: 1...15)
+                            updated.estimatedWaitTime = Int.random(in: 15...45)
                         }
+                        bookings[idx] = updated
                     }
-                    .padding(.horizontal)
+                    showLabPaymentFor = nil
+                    shouldDismissDetailView = true
                 }
             }
-            .padding(.vertical, 12)
-            .background(Color(.systemBackground))
-            .shadow(color: .black.opacity(0.06), radius: 3, x: 0, y: 2)
         }
-        .background(Color(.systemGroupedBackground))
-        .navigationTitle("My Bookings")
-        .navigationBarTitleDisplayMode(.inline)
-        .sheet(item: $showLabPaymentFor) { booking in
-            LabPaymentSheet(booking: booking) {
-                // Mark as paid and confirmed, and assign queue number
-                if let idx = bookings.firstIndex(where: { $0.id == booking.id }) {
-                    // Create a new copy to force SwiftUI to detect the change
-                    var updated = bookings[idx]
-                    updated.paymentCompleted = true
-                    updated.status = .confirmed
-                    // Assign queue number and wait time if not already set
-                    if updated.queueNumber == nil {
-                        updated.queueNumber = Int.random(in: 1...15)
-                        updated.estimatedWaitTime = Int.random(in: 15...45)
-                    }
-                    bookings[idx] = updated
-                }
-                showLabPaymentFor = nil
-                // Pop BookingDetailView back to this list
-                shouldDismissDetailView = true
-            }
-        }
+        
+        
     }
     
-    //functions and helper methods
     private var hasActiveFilters: Bool {
         typeFilter != .all || statusFilter != .all || dateRangeFilter != .all
     }

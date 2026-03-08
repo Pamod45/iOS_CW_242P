@@ -10,16 +10,15 @@ struct BookingCard: View {
     let booking: Appointment
     
     private var typeColor: Color {
-        booking.type == .opd ? .blue : .green
+//        booking.type == .opd ? .blue : .green
+        return Color.primary.opacity(0.8)
     }
     
     private var statusColor: Color {
-        // Override for awaiting payment
         if booking.isAwaitingPayment {
             return .red
         }
         
-        // Override for cancelled/rejected
         if booking.isCancelled || booking.approvalStatus == .rejected {
             return .gray
         }
@@ -35,12 +34,8 @@ struct BookingCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Top row: type + status
             HStack {
-                // Type badge
                 HStack(spacing: 5) {
-                    Image(systemName: booking.type == .opd ? "stethoscope" : "flask.fill")
-                        .font(.caption2)
                     Text(booking.type.rawValue)
                         .font(.caption)
                         .fontWeight(.semibold)
@@ -53,7 +48,6 @@ struct BookingCard: View {
                 
                 Spacer()
                 
-                // Status badge
                 Text(statusDisplayText)
                     .font(.caption)
                     .fontWeight(.semibold)
@@ -64,9 +58,7 @@ struct BookingCard: View {
                     .cornerRadius(8)
             }
             
-            // Main info
             HStack(spacing: 14) {
-                // Date block
                 VStack(spacing: 2) {
                     Text(dayString)
                         .font(.system(size: 22, weight: .bold))
@@ -115,7 +107,6 @@ struct BookingCard: View {
                     .foregroundColor(.secondary)
             }
             
-            // Action row for awaiting payment - Highly Visible Warning
             if booking.isAwaitingPayment {
                 VStack(spacing: 0) {
                     Divider()
@@ -165,20 +156,14 @@ struct BookingCard: View {
                 }
             }
             
-            // Quick Action Buttons Row - Journey & Prescription
             if booking.journeyId != nil || (booking.type == .opd && booking.hasPrescription == true) {
                 Divider()
                     .padding(.vertical, 4)
                 
                 HStack(spacing: 12) {
-                    // Journey Button - Shows for all bookings with journey
                     if booking.journeyId != nil {
                         NavigationLink(destination: Text("Journey Page, Coming Soon")) {
                             HStack(spacing: 6) {
-                                Image(systemName: "figure.walk")
-                                    .font(.subheadline)
-                                    .foregroundColor(.white)
-                                    .fontWeight(.medium)
                                 Text("View Journey")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
@@ -194,13 +179,9 @@ struct BookingCard: View {
                         .buttonStyle(PlainButtonStyle())
                     }
                     
-                    // Prescription Button - Only for OPD bookings with prescription
                     if booking.type == .opd && booking.hasPrescription == true {
                         NavigationLink(destination: Text("Pharmacy Stage, Coming soon")) {
                             HStack(spacing: 6) {
-                                Image(systemName: "pills.fill")
-                                    .font(.subheadline)
-                                    .foregroundColor(.blue.opacity(0.6))
                                 Text("Prescription")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
@@ -223,13 +204,11 @@ struct BookingCard: View {
             }
         }
         .padding(14)
-        .background(Color(.systemBackground))
+        .background(Color.white)
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+//        .shadow(color: booking.type == .opd ? .blue.opacity(0.3) : .green.opacity(0.3), radius: 8, x: 0, y: 4)
     }
-    
-    // MARK: Helpers
-    
+        
     private var statusDisplayText: String {
         if booking.isPendingApproval { return "Pending Approval" }
         if booking.isAwaitingPayment { return "Awaiting Payment" }

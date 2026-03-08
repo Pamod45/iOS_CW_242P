@@ -213,7 +213,6 @@ struct AppointmentCard: View {
         MockData.sessions.first { $0.id == appointment.sessionId }
     }
     
-    /// Calculates estimated call window from queue number × per-person wait
     private var estimatedCallTime: String? {
         guard let queue = appointment.queueNumber,
               let wait = appointment.estimatedWaitTime,
@@ -309,9 +308,6 @@ struct AppointmentCard: View {
                 
                 if let callTime = estimatedCallTime {
                     HStack(spacing: 5) {
-                        Image(systemName: "clock")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
                         Text("Est. call time  \(callTime)")
                             .font(.caption)
                             .foregroundColor(.secondary)

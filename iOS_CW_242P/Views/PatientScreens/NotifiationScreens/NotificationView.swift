@@ -36,65 +36,63 @@ struct NotificationView : View {
     
     var body : some View {
         NavigationView {
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            // Filter Chips
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 8) {
-                                    ForEach(NotificationFilter.allCases, id: \.self) { filter in
-                                        FilterChip(
-                                            title: filter.rawValue,
-                                            isSelected: selectedFilter == filter,
-                                            count: countForFilter(filter)
-                                        ) {
-                                            withAnimation(.easeInOut(duration: 0.2)) {
-                                                selectedFilter = filter
-                                            }
-                                        }
-                                    }
+            VStack(spacing: 20){
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(NotificationFilter.allCases, id: \.self) { filter in
+                            FilterChip(
+                                title: filter.rawValue,
+                                isSelected: selectedFilter == filter,
+                                count: countForFilter(filter)
+                            ) {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selectedFilter = filter
                                 }
-                                .padding(.horizontal)
                             }
-                            
-                            // Notification Groups
-                            if filteredNotifications.isEmpty {
-                                EmptyNotificationsView(filter: selectedFilter)
-                                    .padding(.top, 40)
-                            } else {
-                                LazyVStack(spacing: 20, pinnedViews: [.sectionHeaders]) {
-                                    ForEach(groupedNotifications, id: \.0) { section, items in
-                                        Section {
-                                            VStack(spacing: 12) {
-                                                ForEach(items) { notification in
-                                                    NotificationCard(notification: notification)
-                                                }
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                ScrollView {
+                    VStack(spacing: 20) {
+                        if filteredNotifications.isEmpty {
+                            EmptyNotificationsView(filter: selectedFilter)
+                                .padding(.top, 40)
+                        } else {
+                            LazyVStack(spacing: 20, pinnedViews: [.sectionHeaders]) {
+                                ForEach(groupedNotifications, id: \.0) { section, items in
+                                    Section {
+                                        VStack(spacing: 12) {
+                                            ForEach(items) { notification in
+                                                NotificationCard(notification: notification)
                                             }
-                                            .padding(.horizontal)
-                                        } header: {
-                                            HStack {
-                                                Text(section)
-                                                    .font(.headline)
-                                                    .foregroundColor(.primary)
-                                                Spacer()
-                                            }
-                                            .padding(.horizontal)
-                                            .padding(.vertical, 8)
-                                            .background(Color(.systemGroupedBackground))
                                         }
+                                        .padding(.horizontal)
+                                    } header: {
+                                        HStack {
+                                            Text(section)
+                                                .font(.headline)
+                                                .foregroundColor(.primary)
+                                            Spacer()
+                                        }
+                                        .padding(.horizontal)
+                                        .padding(.vertical, 8)
+                                        .background(Color(.systemGroupedBackground))
                                     }
                                 }
                             }
                         }
-                        .padding(.top, 12)
-                        .padding(.bottom, 40)
                     }
-                    .background(Color(.systemGroupedBackground))
-                    .navigationTitle("Notifications")
-                    .navigationBarTitleDisplayMode(.inline)
+                    .padding(.top, 12)
+                    .padding(.bottom, 40)
                 }
             }
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("Notifications")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
     
-    //Functions
     private func countForFilter(_ filter: NotificationFilter) -> Int {
         notifications.filter { $0.matchesFilter(filter) }.count
     }

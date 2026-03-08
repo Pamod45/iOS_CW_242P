@@ -11,26 +11,21 @@ struct SummaryMini: View {
     let value: String
     let label: String
     let color: Color
-    let icon: String
     
     var body: some View {
         VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundColor(color)
             
             Text(value)
-                .font(.title2)
+                .font(.title)
                 .fontWeight(.bold)
             
             Text(label)
-                .font(.caption)
+                .font(.subheadline)
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
         .background(Color(.systemBackground))
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
     }
 }

@@ -94,7 +94,6 @@ struct LabTestDetailView: View {
                 .padding(.bottom)
             }
             .background(Color(.systemGroupedBackground))
-            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {

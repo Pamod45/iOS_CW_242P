@@ -14,7 +14,6 @@ struct BookingDetailView: View {
     @State private var localBooking: Appointment
     @Binding var shouldDismissAfterPayment: Bool
     
-    // Reschedule & Cancel states
     @State private var showRescheduleSheet = false
     @State private var showCancelAlert = false
     @State private var rescheduleDate = Date()
@@ -43,21 +42,17 @@ struct BookingDetailView: View {
                         .padding(.horizontal)
                     }
                     
-                    // Booking Info
                     BookingInfoCard(booking: localBooking)
                         .padding(.horizontal)
                     
-                    // Lab Tests (if lab booking)
                     if localBooking.type == .laboratory, let tests = localBooking.labTests {
                         LabTestsCard(tests: tests, approvalStatus: localBooking.approvalStatus)
                             .padding(.horizontal)
                     }
                     
-                    // Payment Section
                     PaymentInfoCard(booking: localBooking)
                         .padding(.horizontal)
                     
-                    // Reschedule & Cancel Buttons
                     if canModifyBooking {
                         HStack(spacing: 12) {
                             Button(action: { showRescheduleSheet = true }) {
@@ -88,7 +83,6 @@ struct BookingDetailView: View {
                         }
                         .padding(.horizontal)
                     } else if !localBooking.isCompleted && !localBooking.isCancelled {
-                        // Show info message why they can't modify
                         HStack(spacing: 12) {
                             Image(systemName: "info.circle.fill")
                                 .foregroundColor(.orange)
@@ -108,25 +102,20 @@ struct BookingDetailView: View {
                         .padding(.horizontal)
                     }
                 } else {
-                    // Status Header
                     BookingStatusHeader(booking: localBooking)
                         .padding(.horizontal)
                     
-                    // Booking Info Card
                     BookingInfoCard(booking: localBooking)
                         .padding(.horizontal)
                     
-                    // Lab Tests (if lab booking)
                     if localBooking.type == .laboratory, let tests = localBooking.labTests {
                         LabTestsCard(tests: tests, approvalStatus: localBooking.approvalStatus)
                             .padding(.horizontal)
                     }
                     
-                    // Payment Section
                     PaymentInfoCard(booking: localBooking)
                         .padding(.horizontal)
                     
-                    // Action Button — only show when genuinely awaiting payment
                     if localBooking.isAwaitingPayment {
                         PrimaryButton(
                             title: "Pay Now — Rs. \(String(format: "%.2f", localBooking.amount))",
@@ -140,20 +129,15 @@ struct BookingDetailView: View {
             .padding(.bottom, 40)
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("Booking Details")
-        .navigationBarTitleDisplayMode(.inline)
-        // Sync localBooking whenever the parent binding changes (e.g. after payment)
         .onChange(of: booking.paymentCompleted) { oldValue, newValue in
             localBooking = booking
         }
-        // Pop back to MyBookingsView after payment is confirmed
         .onChange(of: shouldDismissAfterPayment) { oldValue, newValue in
             if newValue {
                 shouldDismissAfterPayment = false
                 dismiss()
             }
         }
-        // Reschedule Sheet
         .sheet(isPresented: $showRescheduleSheet) {
             RescheduleSheet(
                 booking: localBooking,
@@ -162,7 +146,6 @@ struct BookingDetailView: View {
                 onConfirm: confirmReschedule
             )
         }
-        // Cancel Alert
         .alert("Cancel Booking", isPresented: $showCancelAlert) {
             Button("Cancel Booking", role: .destructive) {
                 cancelBooking()
@@ -171,7 +154,6 @@ struct BookingDetailView: View {
         } message: {
             Text("Are you sure you want to cancel this booking? This action cannot be undone.")
         }
-        // Success Alert
         .alert(successMessage, isPresented: $showSuccessAlert) {
             Button("OK", role: .cancel) {
                 dismiss()
@@ -180,7 +162,6 @@ struct BookingDetailView: View {
     }
         
     
-    //Functions and methods
     private var canModifyBooking: Bool {
         
         guard localBooking.status == .confirmed || localBooking.status == .pending else {
@@ -191,11 +172,9 @@ struct BookingDetailView: View {
             return false
         }
         
-        //Should be before 24 hours to be able to cancel or reschedule
         let calendar = Calendar.current
         let bookingDateTime = calendar.startOfDay(for: localBooking.date)
         
-        // Get session start time
         if let session = MockData.sessions.first(where: { $0.id == localBooking.sessionId }) {
             let components = session.startTime.split(separator: ":")
             if components.count == 2,
@@ -214,33 +193,27 @@ struct BookingDetailView: View {
     private func confirmReschedule() {
         guard let newSession = rescheduleSession else { return }
         
-        // Update the booking
         var updated = localBooking
         updated.date = rescheduleDate
         updated.sessionId = newSession.id
         updated.queueNumber = Int.random(in: 1...15)
         updated.estimatedWaitTime = newSession.averageConsultationTimeInMinutes * newSession.currentQueueNumber
         
-        // Update parent binding
         booking = updated
         localBooking = updated
         
-        // Show success
         successMessage = "Booking rescheduled successfully to \(rescheduleDate.formatted(date: .long, time: .omitted)) at \(newSession.displayTime)"
         showSuccessAlert = true
         showRescheduleSheet = false
     }
     
     private func cancelBooking() {
-        // Update the booking
         var updated = localBooking
         updated.status = .cancelled
         
-        // Update parent binding
         booking = updated
         localBooking = updated
         
-        // Show success and dismiss
         successMessage = "Booking cancelled successfully. You will receive a full refund within 3-5 business days."
         showSuccessAlert = true
     }

@@ -8,10 +8,8 @@
 
 import Foundation
 
-//Notification Content
 enum NotificationType: String, CaseIterable {
     
-    //Badge labels
     case appointmentReminder = "Appointment Reminder"
     case labReminder = "Lab Reminder"
     case labApproval = "Lab Approval"
@@ -19,26 +17,24 @@ enum NotificationType: String, CaseIterable {
     case queueUpdate = "Queue Update"
     case general = "General"
     
-    //Icons for notifications
     var icons: String {
         switch self{
-            case .appointmentReminder: return "stethoscope"
-            case .labReminder: return "flask.fill"
+            case .appointmentReminder: return "clock.fill"
+            case .labReminder: return "clock.fill"
             case .labApproval: return "checkmark.seal.fill"
-            case .pharmacyReady: return "cart.fill"
-            case .queueUpdate: return "person.2.fill"
+            case .pharmacyReady: return "bell.fill"
+            case .queueUpdate: return "bell.fill"
             case .general: return "bell.fill"
         }
     }
     
-    //colors for the badges and icons
     var color: String {
         switch self{
             case .appointmentReminder: return "blue"
-            case .labReminder: return "green"
-            case .labApproval: return "orange"
-            case .pharmacyReady: return "pink"
-            case .queueUpdate: return "purple"
+            case .labReminder: return "blue"
+            case .labApproval: return "green"
+            case .pharmacyReady: return "gray"
+            case .queueUpdate: return "gray"
             case .general: return "gray"
         }
     }
@@ -52,7 +48,6 @@ enum NotificationFilter: String, CaseIterable {
 }
 
 
-//App Notification Bar and the data
 struct AppNotification : Identifiable {
     let id: String
     let type: NotificationType
@@ -61,7 +56,6 @@ struct AppNotification : Identifiable {
     let timestamp: Date
     
     
-    //initialize the app notification
     init(id: String = UUID().uuidString, type: NotificationType, title: String, message: String, timestamp: Date) {
         self.id = id
         self.type = type
@@ -70,7 +64,6 @@ struct AppNotification : Identifiable {
         self.timestamp = timestamp
     }
     
-    //time ago
     var timeAgo: String {
         let interval = Date().timeIntervalSince(timestamp)
         let minutes = Int(interval / 60)
@@ -88,7 +81,6 @@ struct AppNotification : Identifiable {
         return formatter.string(from: timestamp)
     }
     
-    //filter notifications based on the selected filter
     func matchesFilter(_ filter: NotificationFilter) -> Bool {
         switch filter {
         case .all:

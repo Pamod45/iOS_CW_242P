@@ -7,17 +7,14 @@
 
 import SwiftUI
 
-struct BookingFilterChip: View {
+struct StatusFilterChip: View {
     let title: String
-    let icon: String
     let isSelected: Bool
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.caption)
                 Text(title)
                     .font(.subheadline)
                     .fontWeight(isSelected ? .semibold : .regular)
@@ -27,7 +24,7 @@ struct BookingFilterChip: View {
             .padding(.vertical, 8)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.blue : Color(.systemBackground))
+                    .fill(isSelected ? Color.blue.opacity(0.8) : Color(.systemBackground))
             )
             .overlay(
                 Capsule()

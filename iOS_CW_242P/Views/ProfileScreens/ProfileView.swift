@@ -4,7 +4,6 @@ struct ProfileView: View {
     
     @EnvironmentObject var authViewModel: AuthViewModel
     
-    //Edit State
     @State private var isEditing = false
     @State private var editName: String          = ""
     @State private var editEmail: String         = ""
@@ -13,7 +12,6 @@ struct ProfileView: View {
     @State private var editPharmacistID: String  = ""
     @State private var editNIC: String           = ""
     
-    //UI State
     @State private var showLogoutAlert          = false
     @State private var showSaveSuccess          = false
     @State private var showProfileChangeAlert   = false
@@ -22,7 +20,6 @@ struct ProfileView: View {
     @State private var navigateToPatientDashboard    = false
     @State private var navigateToPharmacistDashboard = false
     
-    //Computed Properties — always read live from currentUser
     private var displayName: String {
         authViewModel.currentUser?.name.isEmpty == false
             ? authViewModel.currentUser!.name
@@ -51,7 +48,6 @@ struct ProfileView: View {
         String(displayName.prefix(1)).uppercased()
     }
     
-    // Profile completeness (out of 3: name, email, phone)
     private var completedFields: Int {
         var count = 0
         if !(authViewModel.currentUser?.name.isEmpty ?? true) { count += 1 }
@@ -68,7 +64,6 @@ struct ProfileView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     
-                    //Role Picker (above avatar)
                     if authViewModel.currentUser?.roles.contains(.pharmacist) == true {
                         Picker(
                             "UserRole",
@@ -89,7 +84,6 @@ struct ProfileView: View {
                         .padding(.top, 8)
                     }
                     
-                    //Avatar + Name Row
                     VStack(spacing: 14) {
                         ZStack {
                             Circle()
@@ -117,7 +111,6 @@ struct ProfileView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
                     
-                    //Complete Profile Banner
                     if !isProfileComplete {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(spacing: 6) {
@@ -156,7 +149,6 @@ struct ProfileView: View {
                         .padding(.horizontal, 16)
                     }
                     
-                    //Info Fields
                     VStack(spacing: 12) {
                         if isEditing {
                             EditableInfoRow(
@@ -206,7 +198,6 @@ struct ProfileView: View {
                     .padding(.horizontal, 16)
                     .animation(.easeInOut(duration: 0.22), value: isEditing)
                     
-                    //Edit / Save + Cancel Buttons
                     if isEditing {
                         HStack(spacing: 12) {
                             SecondaryButton(title: "Cancel", action: cancelEditing)
@@ -223,7 +214,6 @@ struct ProfileView: View {
                             .padding(.horizontal, 16)
                     }
                     
-                    //Logout Section
                     VStack(spacing: 0) {
                         Button(action: { showLogoutAlert = true }) {
                             HStack {
@@ -246,8 +236,8 @@ struct ProfileView: View {
                     Spacer(minLength: 40)
                 }
             }
-            .background(Color(hex: "#F3F4F6").ignoresSafeArea())
-            .navigationTitle("Profile")
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("My Profile")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { syncEditFields() }
             .onChange(of: authViewModel.currentUser?.name)         { _ in syncEditFields() }
@@ -311,7 +301,6 @@ struct ProfileView: View {
         }
     }
     
-    //syncEditFields now loads nic from currentUser
     private func syncEditFields() {
         editName         = authViewModel.currentUser?.name ?? ""
         editEmail        = authViewModel.currentUser?.email ?? ""
@@ -363,8 +352,6 @@ struct ProfileView: View {
         }
     }
 }
-
-//Supporting Components
 
 enum ValidationState { case none, valid, invalid }
 

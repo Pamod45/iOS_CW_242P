@@ -16,9 +16,9 @@ struct BookingSummaryRow: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            SummaryMini(value: "\(upcoming)", label: "Upcoming", color: .blue, icon: "calendar")
-            SummaryMini(value: "\(pending)", label: "Pending", color: .orange, icon: "clock")
-            SummaryMini(value: "\(awaitingPay)", label: "To Pay", color: .red, icon: "creditcard")
+            SummaryMini(value: "\(upcoming)", label: "Upcoming", color: .blue)
+            SummaryMini(value: "\(pending)", label: "Pending", color: .orange)
+            SummaryMini(value: "\(awaitingPay)", label: "To Pay", color: .red)
         }
     }
 }

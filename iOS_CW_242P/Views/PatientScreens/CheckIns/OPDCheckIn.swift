@@ -51,7 +51,6 @@ struct OPDCheckInFlow: View {
                     }
                 }
                 
-                // Navigation Buttons
                 HStack(spacing: 16) {
                     if currentStep > 1 {
                         SecondaryButton(title: "Back") {
