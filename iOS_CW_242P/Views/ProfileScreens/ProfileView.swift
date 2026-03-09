@@ -1,7 +1,3 @@
-//
-//  ProfileView.swift
-//  iOS_CW_242P
-//
 import SwiftUI
 
 struct ProfileView: View {
@@ -20,28 +16,26 @@ struct ProfileView: View {
     @State private var showRoleSwitchAlert      = false
     @State private var pendingRole: UserRole?   = nil
 
-    // MARK: - Computed display values
-
     private var displayName: String {
         let n = authViewModel.currentUser?.name ?? ""
         return n.isEmpty ? "New User" : n
     }
     private var displayEmail: String {
         let e = authViewModel.currentUser?.email ?? ""
-        return e.isEmpty ? "Not Set" : e
+        return e.isEmpty ? "No Email" : e
     }
     private var displayPhone: String {
         let p = authViewModel.currentUser?.telephone
              ?? authViewModel.currentUser?.phoneNumber ?? ""
-        return p.isEmpty ? "Not Set" : p
+        return p.isEmpty ? "No Phone Number" : p
     }
     private var displayPharmacistID: String {
         let p = authViewModel.currentUser?.pharmacistID ?? ""
-        return p.isEmpty ? "Not Set" : p
+        return p.isEmpty ? "No Pharmacist ID" : p
     }
     private var displayNIC: String {
         let n = authViewModel.currentUser?.nic ?? ""
-        return n.isEmpty ? "Not Set" : n
+        return n.isEmpty ? "No NIC" : n
     }
 
     private var completedFields: Int {
@@ -88,7 +82,7 @@ struct ProfileView: View {
                         .padding(.top, 8)
                     }
 
-                    // ── Avatar + name + role badge ────────────────────────────
+                    
                     VStack(spacing: 10) {
                         Circle()
                             .fill(LinearGradient(
@@ -117,7 +111,7 @@ struct ProfileView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, 8)
 
-                    // ── Incomplete-profile banner ─────────────────────────────
+                    
                     if !isProfileComplete {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(spacing: 6) {
@@ -156,7 +150,7 @@ struct ProfileView: View {
                         .padding(.horizontal, 16)
                     }
 
-                    // ── Info rows ─────────────────────────────────────────────
+                    
                     VStack(spacing: 12) {
                         if isEditing {
                             EditableInfoRow(icon: "person",     label: "Name",
@@ -192,7 +186,7 @@ struct ProfileView: View {
                     .animation(.easeInOut(duration: 0.22), value: isEditing)
                     .animation(.easeInOut(duration: 0.22), value: authViewModel.activeRole)
 
-                    // ── Save / Edit button ────────────────────────────────────
+                    
                     if isEditing {
                         HStack(spacing: 12) {
                             SecondaryButton(title: "Cancel", action: cancelEditing)
@@ -207,7 +201,7 @@ struct ProfileView: View {
                             .padding(.horizontal, 16)
                     }
 
-                    // ── Logout ────────────────────────────────────────────────
+                    
                     Button(action: { showLogoutAlert = true }) {
                         HStack {
                             Image(systemName: "rectangle.portrait.and.arrow.right")
@@ -266,8 +260,6 @@ struct ProfileView: View {
         }
     }
 
-    // MARK: - Helpers
-
     private func syncEditFields() {
         editName         = authViewModel.currentUser?.name ?? ""
         editEmail        = authViewModel.currentUser?.email ?? ""
@@ -311,13 +303,11 @@ struct ProfileView: View {
     }
 }
 
-// MARK: - String helpers
 private extension String {
     var trimmed: String { trimmingCharacters(in: .whitespaces) }
     var trimmedOrNil: String? { let s = trimmed; return s.isEmpty ? nil : s }
 }
 
-// MARK: - Supporting views (kept from original)
 enum ValidationState { case none, valid, invalid }
 
 struct PasswordField: View {
@@ -371,22 +361,6 @@ struct RoleToggleRow: View {
             .background(selectedRole == role ? Color(hex: "#3B82F6") : Color.clear)
             .cornerRadius(selectedRole == role ? 11 : 0).padding(selectedRole == role ? 2 : 0)
         }
-    }
-}
-
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
-        switch hex.count {
-        case 3:  (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6:  (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8:  (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-        default: (a, r, g, b) = (255, 0, 0, 0)
-        }
-        self.init(.sRGB, red: Double(r)/255, green: Double(g)/255, blue: Double(b)/255, opacity: Double(a)/255)
     }
 }
 

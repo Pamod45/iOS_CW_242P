@@ -1,9 +1,3 @@
-//
-//  AuthViewModel.swift
-//  iOS_CW_242P
-//
-//  Created by Pubudu Perera on 2026-02-23.
-//
 import Foundation
 import SwiftUI
 import Combine
@@ -16,7 +10,6 @@ class AuthViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var showError = false
 
-    /// Drives which container (patient or pharmacist) is shown at the root level.
     @Published var activeRole: UserRole = .patient
 
     @Published var otpSent = false
@@ -32,10 +25,9 @@ class AuthViewModel: ObservableObject {
 
     init() {
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
-        print("🔄 AuthViewModel initialized - UserDefaults cleared")
+        print("AuthViewModel initialized - UserDefaults cleared")
     }
 
-    // MARK: - OTP
 
     func sendOTP(phoneNumber: String, completion: @escaping (Bool) -> Void) {
         isLoading = true
@@ -97,7 +89,7 @@ class AuthViewModel: ObservableObject {
                     role: demo.role,
                     authProvider: .phone
                 )
-                // Dual-role user: primary stored role is .patient, pharmacist is in roles[]
+                
                 if demo.role == .pharmacist {
                     user.role = .patient
                     user.roles.append(.pharmacist)
@@ -123,7 +115,7 @@ class AuthViewModel: ObservableObject {
             self.activeRole = user.roles.contains(.pharmacist) ? .pharmacist : .patient
 
             self.objectWillChange.send()
-            print("✅ Phone auth — activeRole: \(self.activeRole)")
+            print("Phone auth — activeRole: \(self.activeRole)")
             completion(true)
         }
     }
@@ -135,7 +127,6 @@ class AuthViewModel: ObservableObject {
         isLoading = false
     }
 
-    // MARK: - Social sign-in
 
     func signInWithGoogle(completion: @escaping (Bool) -> Void) {
         isLoading = true
@@ -182,7 +173,7 @@ class AuthViewModel: ObservableObject {
                 self.activeRole = .patient
                 self.isLoading = false
                 self.objectWillChange.send()
-                print("✅ Apple Sign-In — name: \(user.name)")
+                print("Apple Sign-In — name: \(user.name)")
             }
 
         case .failure(let error):
@@ -193,20 +184,14 @@ class AuthViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Role switching
-
-    /// Call this from ProfileView to swap the entire app UI.
-    /// Only succeeds if the user actually holds the requested role.
     func switchActiveRole(to role: UserRole) {
         guard let user = currentUser else { return }
         let isPharmacist = user.roles.contains(.pharmacist) || user.role == .pharmacist
         if role == .pharmacist && !isPharmacist { return }
         activeRole = role
         objectWillChange.send()
-        print("🔀 activeRole → \(role)")
+        print("activeRole → \(role)")
     }
-
-    // MARK: - Sign out
 
     func signOut() {
         isLoading = true
@@ -218,14 +203,12 @@ class AuthViewModel: ObservableObject {
         isVerifyingOTP = false
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
         objectWillChange.send()
-        print("🚪 User logged out")
+        print("User logged out")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
             self?.isLoading = false
             self?.objectWillChange.send()
         }
     }
-
-    // MARK: - Profile update
 
     func updateProfile(
         name: String,
@@ -258,12 +241,11 @@ class AuthViewModel: ObservableObject {
             self.saveUser(user)
             self.isLoading = false
             self.objectWillChange.send()
-            print("📝 Profile updated — \(name)")
+            print("Profile updated — \(name)")
             completion(true)
         }
     }
 
-    // MARK: - Private helpers
 
     private func showErrorMessage(_ message: String) {
         errorMessage = message

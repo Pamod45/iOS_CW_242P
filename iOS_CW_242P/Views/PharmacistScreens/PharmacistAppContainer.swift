@@ -12,11 +12,9 @@ struct PharmacistAppContainer: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            NavigationView {
-                PharmacistDashboardView()
-            }
-            .tabItem { Label("Home", systemImage: "house.fill") }
-            .tag(0)
+            PharmacistDashboardView()
+                 .tabItem { Label("Home", systemImage: "house.fill") }
+                 .tag(0)
 
             ProfileView()
                 .tabItem { Label("Profile", systemImage: "person.fill") }
