@@ -90,7 +90,6 @@ struct LoginView: View {
                     }
                     .disabled(authViewModel.isLoading)
                     
-                    // Apple Sign-In
                     Button(action: {
                         triggerAppleSignIn()
                     }) {
@@ -157,6 +156,9 @@ struct LoginView: View {
                         .frame(height: 50)
                         .background(Color(.systemGray6))
                         .cornerRadius(10)
+                        .onChange(of: phoneNumber) { oldValue, newValue in
+                            phoneNumber = formatPhoneNumber(newValue)
+                        }
                 }
             }
             .padding(.horizontal)
@@ -275,6 +277,21 @@ struct LoginView: View {
         controller.delegate = coordinator
         controller.presentationContextProvider = coordinator
         controller.performRequests()
+    }
+    
+    private func formatPhoneNumber(_ number: String) -> String {
+        let digits = number.replacingOccurrences(of: " ", with: "")
+        
+        var formatted = ""
+        
+        for (index, char) in digits.enumerated() {
+            if index == 2 || index == 5 {
+                formatted += " "
+            }
+            formatted.append(char)
+        }
+        
+        return String(formatted.prefix(11))
     }
 }
 

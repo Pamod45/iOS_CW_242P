@@ -19,7 +19,7 @@ struct iOS_CW_242PApp: App {
                     case .patient:
                         PatientAppContainer().environmentObject(authViewModel)
                     case .pharmacist:
-                        let _ = print("   Directing to Pharmacist dashboard")
+                        let _ = print("Directing to Pharmacist dashboard")
                 }
             } else {
                 let _ = print("   Not authenticated directing to LoginView")

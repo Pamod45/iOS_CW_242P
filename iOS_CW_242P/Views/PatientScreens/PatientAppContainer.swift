@@ -20,9 +20,10 @@ struct PatientAppContainer: View {
                 }
                 .tag(0)
             
-            Text("Bookings")
+            // CheckInView()
+            MyBookingsView(directCall: true) // changed becuase checkins view functionality can be performed through dashboard
                 .tabItem {
-                    Label("Check-In", systemImage: "calendar.badge.plus")
+                    Label("Bookings", systemImage: "calendar.badge.plus")
                 }
                 .tag(1)
             
@@ -37,17 +38,15 @@ struct PatientAppContainer: View {
                         Label("Notifications", systemImage: "bell.fill")
                     }
                     .tag(3)
-//                .badge(2)
             
-            Text("Profile")
+            ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
                 .tag(4)
         }
         .environmentObject(authViewModel)
-        .accentColor(.blue)
-    }
+        .accentColor(.blue)}
 }
 
 #Preview {

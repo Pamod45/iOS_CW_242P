@@ -9,7 +9,6 @@ import Foundation
 
 struct MockData {
     
-    //Sample Country Codes data
     static let countryCodes: [CountryCode] = [
         CountryCode(flag: "🇱🇰", code: "+94", name: "Sri Lanka"),
         CountryCode(flag: "🇮🇳", code: "+91", name: "India"),
@@ -23,21 +22,18 @@ struct MockData {
         CountryCode(flag: "🇯🇵", code: "+81", name: "Japan")
     ]
     
-    //Sample Sessions data
     static let sessions: [Session] = [
-        Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true, currentQueueNumber: 5),
-        Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 12),
-        Session(id: "3", startTime: "12:00", endTime: "15:00", isAvailable: true, currentQueueNumber: 8),
-        Session(id: "4", startTime: "15:00", endTime: "18:00", isAvailable: true, currentQueueNumber: 3),
-        Session(id: "5", startTime: "18:00", endTime: "21:00", isAvailable: true, currentQueueNumber: 7),
-        Session(id: "6", startTime: "21:00", endTime: "00:00", isAvailable: false, currentQueueNumber: 0),
-        Session(id: "7", startTime: "00:00", endTime: "03:00", isAvailable: false, currentQueueNumber: 0),
-        Session(id: "8", startTime: "03:00", endTime: "06:00", isAvailable: false, currentQueueNumber: 0)
+        Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true, currentQueueNumber: 5, averageConsultationTimeInMinutes: 25),
+        Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 12, averageConsultationTimeInMinutes: 60),
+        Session(id: "3", startTime: "12:00", endTime: "15:00", isAvailable: true, currentQueueNumber: 8, averageConsultationTimeInMinutes: 40),
+        Session(id: "4", startTime: "15:00", endTime: "18:00", isAvailable: true, currentQueueNumber: 3, averageConsultationTimeInMinutes: 15),
+        Session(id: "5", startTime: "18:00", endTime: "21:00", isAvailable: true, currentQueueNumber: 7, averageConsultationTimeInMinutes: 35),
+        Session(id: "6", startTime: "21:00", endTime: "00:00", isAvailable: false, currentQueueNumber: 0, averageConsultationTimeInMinutes: 0),
+        Session(id: "7", startTime: "00:00", endTime: "03:00", isAvailable: false, currentQueueNumber: 0, averageConsultationTimeInMinutes: 0),
+        Session(id: "8", startTime: "03:00", endTime: "06:00", isAvailable: false, currentQueueNumber: 0, averageConsultationTimeInMinutes: 0)
     ]
     
-    //Sample Bookings data
     static let sampleBookings: [Appointment] = [
-        // 1. Upcoming OPD — Confirmed, paid
         Appointment(
             id: "bk-001",
             patientId: "user123",
@@ -45,33 +41,36 @@ struct MockData {
             date: Date(),
             sessionId: "2",
             queueNumber: 12,
-            estimatedWaitTime: 40,
-            reasonForVisit: "Follow-up consultation",
-            doctorRoom: "Room 103",
+            estimatedWaitTime: 60,
+            reasonForVisit: "Annual Checkup",
+            doctorRoom: "Room 101",
             status: .confirmed,
             paymentCompleted: true,
             amount: 1500.00,
-            createdAt: Date().addingTimeInterval(-86400)
+            createdAt: Date().addingTimeInterval(-86400),
+            hasPrescription: false,
+            journeyId: "journey-001"
         ),
         
-        // 2. Upcoming OPD — Today, in progress
         Appointment(
             id: "bk-002",
             patientId: "user123",
             type: .opd,
             date: Date(),
-            sessionId: "2",
+            sessionId: "1",
             queueNumber: 5,
-            estimatedWaitTime: 15,
+            estimatedWaitTime: 25,
             reasonForVisit: "Headache and fever",
-            doctorRoom: "Room 101",
+            doctorRoom: "Room 103",
             status: .inProgress,
             paymentCompleted: true,
             amount: 1500.00,
-            createdAt: Date().addingTimeInterval(-3600)
+            createdAt: Date().addingTimeInterval(-3600),
+            hasPrescription: true,
+            prescriptionId: "presc-001",
+            journeyId: "journey-002"
         ),
         
-        // 3. Lab — Approved, awaiting payment
         Appointment(
             id: "bk-003",
             patientId: "user123",
@@ -84,10 +83,10 @@ struct MockData {
             createdAt: Date().addingTimeInterval(-172800),
             labTests: [MockData.sampleTests[5]], // MRI Scan
             requiresApproval: true,
-            approvalStatus: .approved
+            approvalStatus: .approved,
+            journeyId: "journey-003"
         ),
         
-        // 4. Lab — Pending doctor approval
         Appointment(
             id: "bk-004",
             patientId: "user123",
@@ -103,7 +102,6 @@ struct MockData {
             approvalStatus: .pending
         ),
         
-        // 5. Lab — No approval needed, paid, upcoming
         Appointment(
             id: "bk-005",
             patientId: "user123",
@@ -116,12 +114,12 @@ struct MockData {
             paymentCompleted: true,
             amount: 2000.00,
             createdAt: Date().addingTimeInterval(-259200),
-            labTests: [MockData.sampleTests[0], MockData.sampleTests[1]], // CBC + Glucose
+            labTests: [MockData.sampleTests[0], MockData.sampleTests[1]],
             requiresApproval: false,
-            approvalStatus: nil
+            approvalStatus: nil,
+            journeyId: "journey-004"
         ),
         
-        // 6. OPD — Completed
         Appointment(
             id: "bk-006",
             patientId: "user123",
@@ -134,10 +132,12 @@ struct MockData {
             status: .completed,
             paymentCompleted: true,
             amount: 1500.00,
-            createdAt: Date().addingTimeInterval(-345600)
+            createdAt: Date().addingTimeInterval(-345600),
+            hasPrescription: true,
+            prescriptionId: "presc-002",
+            journeyId: "journey-005"
         ),
         
-        // 7. Lab — Completed
         Appointment(
             id: "bk-007",
             patientId: "user123",
@@ -151,10 +151,10 @@ struct MockData {
             createdAt: Date().addingTimeInterval(-518400),
             labTests: [MockData.sampleTests[0]], // CBC
             requiresApproval: false,
-            approvalStatus: nil
+            approvalStatus: nil,
+            journeyId: "journey-006"
         ),
         
-        // 8. OPD — Cancelled
         Appointment(
             id: "bk-008",
             patientId: "user123",
@@ -169,7 +169,6 @@ struct MockData {
             createdAt: Date().addingTimeInterval(-172800)
         ),
         
-        // 9. Lab — Rejected approval
         Appointment(
             id: "bk-009",
             patientId: "user123",
@@ -180,15 +179,13 @@ struct MockData {
             paymentCompleted: false,
             amount: 5000.00,
             createdAt: Date().addingTimeInterval(-259200),
-            labTests: [MockData.sampleTests[7]], // Biopsy
+            labTests: [MockData.sampleTests[7]],
             requiresApproval: true,
             approvalStatus: .rejected
         ),
     ]
     
-    //Sample Lab Test data
     static let sampleTests: [LabTest] = [
-        // No Approval Required Tests
         LabTest(
             id: "lab1",
             name: "Complete Blood Count (CBC)",
@@ -240,7 +237,6 @@ struct MockData {
             preparationRequired: "Avoid alcohol"
         ),
         
-        // Doctor Approval Required Tests
         LabTest(
             id: "lab6",
             name: "MRI Scan",
@@ -249,7 +245,7 @@ struct MockData {
             duration: 60,
             category: .approvalRequired,
             instructions: "Remove all metal objects. Inform staff of any implants.",
-            preparationRequired: "Doctor referral required"
+            preparationRequired: nil
         ),
         LabTest(
             id: "lab7",
@@ -259,7 +255,7 @@ struct MockData {
             duration: 45,
             category: .approvalRequired,
             instructions: "May require contrast dye. Inform of allergies.",
-            preparationRequired: "Doctor referral required"
+            preparationRequired: nil
         ),
         LabTest(
             id: "lab8",
@@ -269,7 +265,7 @@ struct MockData {
             duration: 90,
             category: .approvalRequired,
             instructions: "Follow specific pre-procedure instructions.",
-            preparationRequired: "Doctor referral required"
+            preparationRequired: nil
         ),
         LabTest(
             id: "lab9",
@@ -279,7 +275,7 @@ struct MockData {
             duration: 60,
             category: .approvalRequired,
             instructions: "Wear comfortable clothing. Avoid caffeine.",
-            preparationRequired: "Doctor referral required"
+            preparationRequired: nil
         ),
         LabTest(
             id: "lab10",
@@ -289,14 +285,12 @@ struct MockData {
             duration: 30,
             category: .approvalRequired,
             instructions: "Best done in the morning. Fasting may be required.",
-            preparationRequired: "Doctor referral required"
+            preparationRequired: nil
         )
     ]
     
     
-    //Sample Notifications List
     static let sampleNotifications: [AppNotification] = [
-        // Today notifications
         AppNotification(
             type: .appointmentReminder,
             title: "Appointment in 30 Minutes",
@@ -322,7 +316,6 @@ struct MockData {
             timestamp: Date().addingTimeInterval(-7200)
         ),
         
-        // Yesterday notifications
         AppNotification(
             type: .labReminder,
             title: "Lab Check-In Tomorrow",
@@ -342,7 +335,6 @@ struct MockData {
             timestamp: Date().addingTimeInterval(-100000)
         ),
         
-        // Older notifications
         AppNotification(
             type: .general,
             title: "Welcome to MediQueue",

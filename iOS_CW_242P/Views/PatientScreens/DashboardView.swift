@@ -13,6 +13,7 @@ struct DashboardView: View {
     @State private var showLabCheckIn = false
     
     @State private var hasActiveJourney = true
+    @State private var shouldDismissAfterPayment = false
     
     @State private var todaysAppointments: [Appointment] = Appointment.todaysAppointments
     
@@ -113,7 +114,7 @@ struct DashboardView: View {
 
                                 Spacer()
 
-                                NavigationLink(destination: Text("See all appointments")) {
+                                NavigationLink(destination: MyBookingsView(directCall: false)) {
                                     HStack(spacing: 4){
                                         Text("See All")
                                             .font(.subheadline)
@@ -129,7 +130,11 @@ struct DashboardView: View {
                             
                             
                             ForEach($todaysAppointments) { $appointment in
-                                NavigationLink(destination: Text("Coming soon")) {
+                                NavigationLink(destination: BookingDetailView(
+                                    booking: $appointment,
+                                    shouldDismissAfterPayment: $shouldDismissAfterPayment,
+                                    onPayNow: {}
+                                )) {
                                     AppointmentCard(appointment: appointment)
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -143,6 +148,13 @@ struct DashboardView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Home")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showLabCheckIn){
+                LabCheckInFlow(isPresented: $showLabCheckIn)
+                    .environmentObject(authViewModel)
+            }
+            .sheet(isPresented: $showOPDCheckIn){
+                OPDCheckInFlow(isPresented: $showOPDCheckIn)
+            }
         }
     }
     
@@ -184,67 +196,6 @@ struct ShortcutTile: View {
     }
 }
 
-struct WaitTimeTile: View {
-    let department: String
-    let waitMinutes: Int
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(department)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text("~\(waitMinutes)")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                Text("min")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            Text("avg. wait")
-                .font(.caption2)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
-struct HospitalInfoRow: View {
-    let icon: String
-    let label: String
-    let value: String
-    var link: Bool = false
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.subheadline)
-                .foregroundColor(.blue)
-                .frame(width: 28)
-            
-            Text(label)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            Spacer()
-            
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(link ? .blue : .primary)
-                .underline(link)
-                .onTapGesture {
-                    if link, let url = URL(string: "https://www.google.com/maps") {
-                        UIApplication.shared.open(url)
-                    }
-                }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-    }
-}
-
 struct AppointmentCard: View {
     let appointment: Appointment
     
@@ -262,7 +213,6 @@ struct AppointmentCard: View {
         MockData.sessions.first { $0.id == appointment.sessionId }
     }
     
-    /// Calculates estimated call window from queue number × per-person wait
     private var estimatedCallTime: String? {
         guard let queue = appointment.queueNumber,
               let wait = appointment.estimatedWaitTime,
@@ -358,9 +308,6 @@ struct AppointmentCard: View {
                 
                 if let callTime = estimatedCallTime {
                     HStack(spacing: 5) {
-                        Image(systemName: "clock")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
                         Text("Est. call time  \(callTime)")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -380,3 +327,4 @@ struct AppointmentCard: View {
     DashboardView()
         .environmentObject(AuthViewModel())
 }
+

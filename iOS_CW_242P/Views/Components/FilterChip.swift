@@ -38,11 +38,7 @@ struct FilterChip: View {
                 Capsule()
                     .fill(isSelected ? Color.blue : Color(.systemBackground))
             )
-            .overlay(
-                Capsule()
-                    .stroke(isSelected ? Color.clear : Color.gray.opacity(0.2), lineWidth: 1)
-            )
-            .shadow(color: isSelected ? Color.blue.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
+            
         }
     }
 }
