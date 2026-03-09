@@ -384,6 +384,8 @@ struct MockData {
     
     //Sample data for map locations
     static let sampleLocations: [MapLocation] = [
+        // ── Floor 1 ─────────────────────────────────
+        // Bottom – entrance lobby
         MapLocation(
             name: "Main Entrance",
             type: .entrance,
@@ -392,7 +394,6 @@ struct MockData {
             description: "Main clinic entrance",
             qrCode: "QR-ENTRANCE-001"
         ),
-        
         MapLocation(
             name: "Reception",
             type: .reception,
@@ -402,6 +403,7 @@ struct MockData {
             qrCode: "QR-RECEPTION-001"
         ),
         
+        // Left wing – doctor rooms
         MapLocation(
             name: "Room 101",
             type: .doctorRoom,
@@ -410,7 +412,6 @@ struct MockData {
             description: "General Physician",
             qrCode: "QR-ROOM-101"
         ),
-        
         MapLocation(
             name: "Room 102",
             type: .doctorRoom,
@@ -420,6 +421,41 @@ struct MockData {
             qrCode: "QR-ROOM-102"
         ),
         
+        // Centre – corridor intersection area
+        MapLocation(
+            name: "Room 103",
+            type: .doctorRoom,
+            floor: 1,
+            coordinates: MapCoordinates(x: 0.42, y: 0.55),
+            description: "Cardiologist",
+            qrCode: "QR-ROOM-103"
+        ),
+        MapLocation(
+            name: "Room 104",
+            type: .doctorRoom,
+            floor: 1,
+            coordinates: MapCoordinates(x: 0.60, y: 0.55),
+            description: "Dermatologist",
+            qrCode: "QR-ROOM-104"
+        ),
+        
+        // Right wing – labs
+        MapLocation(
+            name: "Lab Room 1",
+            type: .laboratory, floor: 1,
+            coordinates: MapCoordinates(x: 0.88, y: 0.58),
+            description: "Blood tests",
+            qrCode: "QR-LAB-001"
+        ),
+        MapLocation(
+            name: "Lab Room 2",
+            type: .laboratory, floor: 1,
+            coordinates: MapCoordinates(x: 0.88, y: 0.42),
+            description: "Imaging",
+            qrCode: "QR-LAB-002"
+        ),
+        
+        // Top area – pharmacy & exit
         MapLocation(
             name: "Pharmacy",
             type: .pharmacy,
@@ -428,7 +464,6 @@ struct MockData {
             description: "Prescription pickup",
             qrCode: "QR-PHARMACY-001"
         ),
-        
         MapLocation(
             name: "Exit",
             type: .exit,
@@ -436,6 +471,409 @@ struct MockData {
             coordinates: MapCoordinates(x: 0.35, y: 0.08),
             description: "Rear exit",
             qrCode: "QR-EXIT-001"
+        ),
+        
+        // Utilities scattered
+        MapLocation(
+            name: "Restroom",
+            type: .restroom,
+            floor: 1,
+            coordinates: MapCoordinates(x: 0.78, y: 0.78),
+            qrCode: "QR-RESTROOM-F1"
+        ),
+        
+        MapLocation(
+            name: "Elevator",
+            type: .elevator,
+            floor: 1,
+            coordinates: MapCoordinates(x: 0.28, y: 0.35),
+            qrCode: "QR-ELEVATOR-F1"
+        ),
+        MapLocation(
+            name: "Stairs",
+            type: .stairs,
+            floor: 1,
+            coordinates: MapCoordinates(x: 0.72, y: 0.35),
+            qrCode: "QR-STAIRS-F1"
+        ),
+        
+        // ── Floor 2 ─────────────────────────────────
+        MapLocation(
+            name: "Room 201",
+            type: .doctorRoom,
+            floor: 2,
+            coordinates: MapCoordinates(x: 0.15, y: 0.55),
+            description: "Pediatrician",
+            qrCode: "QR-ROOM-201"
+        ),
+        MapLocation(
+            name: "Room 202",
+            type: .doctorRoom,
+            floor: 2,
+            coordinates: MapCoordinates(x: 0.40, y: 0.55),
+            description: "ENT Specialist",
+            qrCode: "QR-ROOM-202"
+        ),
+        MapLocation(
+            name: "Room 203",
+            type: .doctorRoom,
+            floor: 2,
+            coordinates: MapCoordinates(x: 0.65, y: 0.55),
+            description: "Ophthalmologist",
+            qrCode: "QR-ROOM-203"
+        ),
+        MapLocation(
+            name: "Lab Room 3",
+            type: .laboratory,
+            floor: 2,
+            coordinates: MapCoordinates(x: 0.85, y: 0.40),
+            description: "Advanced diagnostics",
+            qrCode: "QR-LAB-003"
+        ),
+        MapLocation(
+            name: "Elevator",
+            type: .elevator,
+            floor: 2,
+            coordinates: MapCoordinates(x: 0.28, y: 0.35),
+            qrCode: "QR-ELEVATOR-F2"
+        ),
+        MapLocation(
+            name: "Stairs",
+            type: .stairs,
+            floor: 2,
+            coordinates: MapCoordinates(x: 0.72, y: 0.35),
+            qrCode: "QR-STAIRS-F2"
+        ),
+        MapLocation(
+            name: "Restroom",
+            type: .restroom,
+            floor: 2,
+            coordinates: MapCoordinates(x: 0.50, y: 0.80),
+            qrCode: "QR-RESTROOM-F2"
         )
     ]
+    
+    
+    //sample data for predefined routes
+    static let sampleRoutes: [Routes] = [
+        Routes(
+            sourceName: "Main Entrance",
+            destinationName: "Room 101",
+            floor: 1,
+            directionPoints: [
+                CGPoint(x: 0.50, y: 0.92),
+                CGPoint(x: 0.50, y: 0.78),
+                CGPoint(x: 0.50, y: 0.68),
+                CGPoint(x: 0.18, y: 0.68),
+                CGPoint(x: 0.18, y: 0.58),
+                CGPoint(x: 0.12, y: 0.58)
+            ],
+            directions: [
+                "Head inside through the main entrance doors.",
+                "Walk straight ahead past the reception desk.",
+                "Continue along the main corridor until you reach the central junction.",
+                "Turn left at the junction — you'll see a row of consultation rooms.",
+                "Head down the left corridor until you see Room 101 on your left.",
+                "You've arrived at Room 101. Check in with the receptionist."
+            ]
+        ),
+        
+        Routes(
+            sourceName: "Room 101",
+            destinationName: "Main Entrance",
+            floor: 1,
+            directionPoints: [
+                CGPoint(x: 0.12, y: 0.58),
+                CGPoint(x: 0.18, y: 0.58),
+                CGPoint(x: 0.18, y: 0.68),
+                CGPoint(x: 0.50, y: 0.68),
+                CGPoint(x: 0.50, y: 0.78),
+                CGPoint(x: 0.50, y: 0.92),
+            ],
+            directions: [
+                "Head outside the room and turn right.",
+                "Walk straight and turn left.",
+                "Continue along the main corridor until you reach the central junction.",
+                "Turn right at the junction — you will see the reception far ahead.",
+                "Head down the corridor until you see reception and pass it.",
+                "You have passed the reception. The main entrance will be up ahead. Exit through the main doors to leave the clinic."
+            ]
+        ),
+        
+        
+        Routes(
+            sourceName: "Main Entrance",
+            destinationName: "Pharmacy",
+            floor: 1,
+            directionPoints: [
+                CGPoint(x: 0.50, y: 0.92),
+                CGPoint(x: 0.50, y: 0.78),
+                CGPoint(x: 0.50, y: 0.68),
+                CGPoint(x: 0.50, y: 0.50),
+                CGPoint(x: 0.50, y: 0.35),
+                CGPoint(x: 0.50, y: 0.25),
+                CGPoint(x: 0.65, y: 0.25),
+                CGPoint(x: 0.65, y: 0.18)
+            ],
+            directions: [
+                "Head inside through the main entrance doors.",
+                "Walk straight ahead past the reception desk.",
+                "Continue forward along the central corridor.",
+                "Keep walking straight — you'll pass the consultation rooms on both sides.",
+                "Continue ahead until you reach the upper corridor junction.",
+                "Turn right toward the pharmacy section.",
+                "The pharmacy counter is just ahead on your right.",
+                "You've arrived at the pharmacy. Show your prescription and wait to be called."
+            ]
+        ),
+        
+        Routes(
+            sourceName: "Reception",
+            destinationName: "Lab Room 1",
+            floor: 1,
+            directionPoints: [
+                CGPoint(x: 0.50, y: 0.78),
+                CGPoint(x: 0.50, y: 0.68),
+                CGPoint(x: 0.82, y: 0.68),
+                CGPoint(x: 0.82, y: 0.58),
+                CGPoint(x: 0.88, y: 0.58)
+            ],
+            directions: [
+                "From reception, face the main corridor ahead.",
+                "Walk to the central junction where the corridors meet.",
+                "Turn right and follow the corridor toward the laboratory section.",
+                "You'll see the lab entrance with glass partitions ahead.",
+                "Enter Lab Room 1 and present your test request form to the technician."
+            ]
+        ),
+        
+        Routes(
+            sourceName: "Room 101",
+            destinationName: "Room 102",
+            floor: 1,
+            directionPoints: [
+                CGPoint(x: 0.12, y: 0.58),
+                CGPoint(x: 0.18, y: 0.58),
+                CGPoint(x: 0.18, y: 0.50),
+                CGPoint(x: 0.18, y: 0.42),
+                CGPoint(x: 0.12, y: 0.42)
+            ],
+            directions: [
+                "Step out of Room 101 and face the corridor.",
+                "Walk down the left wing corridor.",
+                "Continue along the corridor past the waiting area.",
+                "Room 102 is the next door on your left.",
+                "You've arrived at Room 102. Please check in with the nurse."
+            ]
+        ),
+        
+        Routes(
+            sourceName: "Room 103",
+            destinationName: "Lab Room 2",
+            floor: 1,
+            directionPoints: [
+                CGPoint(x: 0.42, y: 0.55),
+                CGPoint(x: 0.42, y: 0.68),
+                CGPoint(x: 0.82, y: 0.68),
+                CGPoint(x: 0.82, y: 0.50),  
+                CGPoint(x: 0.82, y: 0.42),
+                CGPoint(x: 0.88, y: 0.42)
+            ],
+            directions: [
+                "Exit Room 103 and turn toward the main corridor.",
+                "Walk to the central junction.",
+                "Turn right and head down the corridor toward the laboratory wing.",
+                "Continue along the right corridor.",
+                "Lab Room 2 is ahead on your right — look for the imaging lab sign.",
+                "You've arrived at Lab Room 2. Hand your form to the lab staff."
+            ]
+        ),
+        
+        Routes(
+            sourceName: "Lab Room 1",
+            destinationName: "Pharmacy",
+            floor: 1,
+            directionPoints: [
+                CGPoint(x: 0.88, y: 0.58),
+                CGPoint(x: 0.82, y: 0.58),
+                CGPoint(x: 0.82, y: 0.68),
+                CGPoint(x: 0.50, y: 0.68),
+                CGPoint(x: 0.50, y: 0.35),
+                CGPoint(x: 0.50, y: 0.25),
+                CGPoint(x: 0.65, y: 0.25),
+                CGPoint(x: 0.65, y: 0.18)
+            ],
+            directions: [
+                "Exit Lab Room 1 and turn left into the corridor.",
+                "Walk toward the main corridor junction.",
+                "Turn left at the junction and head toward the center.",
+                "Continue straight along the central corridor.",
+                "Keep walking ahead until you reach the upper corridor.",
+                "Turn right toward the pharmacy section.",
+                "The pharmacy counter is just ahead.",
+                "You've arrived at the pharmacy. Show your prescription and wait."
+            ]
+        ),
+        
+        Routes(
+            sourceName: "Room 104",
+            destinationName: "Exit",
+            floor: 1,
+            directionPoints: [
+                CGPoint(x: 0.60, y: 0.55),
+                CGPoint(x: 0.60, y: 0.68),
+                CGPoint(x: 0.50, y: 0.68),
+                CGPoint(x: 0.50, y: 0.50),
+                CGPoint(x: 0.50, y: 0.35),
+                CGPoint(x: 0.50, y: 0.25),
+                CGPoint(x: 0.35, y: 0.25),
+                CGPoint(x: 0.35, y: 0.08)
+            ],
+            directions: [
+                "Exit Room 104 and face the main corridor.",
+                "Walk toward the central junction.",
+                "Continue straight along the central corridor.",
+                "Keep walking forward through the middle of the building.",
+                "Continue ahead toward the upper level.",
+                "Turn left at the upper corridor.",
+                "Follow the corridor toward the rear exit.",
+                "You've reached the exit. The doors are directly ahead."
+            ]
+        ),
+        
+        
+        Routes(
+            sourceName: "Main Entrance",
+            destinationName: "Elevator",
+            floor: 1,
+            directionPoints: [
+                CGPoint(x: 0.50, y: 0.92),
+                CGPoint(x: 0.50, y: 0.78),
+                CGPoint(x: 0.50, y: 0.68),
+                CGPoint(x: 0.50, y: 0.50),
+                CGPoint(x: 0.50, y: 0.35),
+                CGPoint(x: 0.35, y: 0.35),
+                CGPoint(x: 0.28, y: 0.35)
+            ],
+            directions: [
+                "Head inside through the main entrance doors.",
+                "Walk straight past the reception desk.",
+                "Continue along the central corridor.",
+                "Keep walking forward through the main corridor.",
+                "Continue ahead — you'll pass the consultation rooms.",
+                "Turn left toward the elevator area.",
+                "The elevator is just ahead on your left. Press the call button and wait.",
+                "Take the elevator to Floor 2."
+            ]
+        ),
+        
+        Routes(
+            sourceName: "Elevator",
+            destinationName: "Room 201",
+            floor: 2,
+            directionPoints: [
+                CGPoint(x: 0.28, y: 0.35),
+                CGPoint(x: 0.50, y: 0.35),
+                CGPoint(x: 0.50, y: 0.50),
+                CGPoint(x: 0.50, y: 0.65),
+                CGPoint(x: 0.15, y: 0.65),
+                CGPoint(x: 0.15, y: 0.55)
+            ],
+            directions: [
+                "Exit the elevator on Floor 2 and look for the signage ahead.",
+                "Turn right and walk toward the central corridor.",
+                "Continue straight along the center corridor.",
+                "Walk ahead until you reach the main corridor junction.",
+                "Turn left along the main corridor — you'll see the pediatrics section.",
+                "Room 201 is on your left. Check in with the receptionist."
+            ]
+        ),
+        
+        Routes(
+            sourceName: "Main Entrance",
+            destinationName: "Stairs",
+            floor: 1,
+            directionPoints: [
+                CGPoint(x: 0.50, y: 0.92),
+                CGPoint(x: 0.50, y: 0.78),
+                CGPoint(x: 0.50, y: 0.68),
+                CGPoint(x: 0.50, y: 0.50),
+                CGPoint(x: 0.50, y: 0.35),
+                CGPoint(x: 0.72, y: 0.35)
+            ],
+            directions: [
+                "Head inside through the main entrance doors.",
+                "Walk straight past the reception desk.",
+                "Continue along the central corridor.",
+                "Keep walking forward through the main corridor.",
+                "Continue ahead — you'll pass the consultation rooms.",
+                "Turn right and you'll see the staircase ahead. Look for the stairs sign.",
+                "Take the stairs up to Floor 2."
+            ]
+        ),
+        
+        Routes(
+            sourceName: "Stairs",
+            destinationName: "Room 203",
+            floor: 2,
+            directionPoints: [
+                CGPoint(x: 0.72, y: 0.35),
+                CGPoint(x: 0.50, y: 0.35),
+                CGPoint(x: 0.50, y: 0.50),
+                CGPoint(x: 0.50, y: 0.65),
+                CGPoint(x: 0.65, y: 0.65),
+                CGPoint(x: 0.65, y: 0.55)
+            ],
+            directions: [
+                "Exit the staircase on Floor 2 and look for directional signs.",
+                "Turn left and walk toward the central corridor.",
+                "Continue straight along the center corridor.",
+                "Walk ahead until you reach the main corridor junction.",
+                "Turn right along the main corridor — you'll see the ophthalmology section.",
+                "Room 203 is on your right. Check in with the receptionist."
+            ]
+        )
+    ]
+            
+    private static let main: CGFloat = 20
+    private static let side: CGFloat = 14
+    private static let small: CGFloat = 10
+    
+    static let allCorridors: [CorridorSegment] = floor1Corridors + floor2Corridors
+    
+    static let floor1Corridors: [CorridorSegment] = [
+        CorridorSegment(start: .init(x: 0.50, y: 0.95), end: .init(x: 0.50, y: 0.68), width: main, isMainCorridor: true, floor: 1),
+        CorridorSegment(start: .init(x: 0.08, y: 0.68), end: .init(x: 0.92, y: 0.68), width: main, isMainCorridor: true, floor: 1),
+        CorridorSegment(start: .init(x: 0.18, y: 0.68), end: .init(x: 0.18, y: 0.38), width: side, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.08, y: 0.50), end: .init(x: 0.18, y: 0.50), width: small, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.82, y: 0.68), end: .init(x: 0.82, y: 0.38), width: side, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.82, y: 0.50), end: .init(x: 0.92, y: 0.50), width: small, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.50, y: 0.68), end: .init(x: 0.50, y: 0.25), width: side, isMainCorridor: true, floor: 1),
+        CorridorSegment(start: .init(x: 0.22, y: 0.25), end: .init(x: 0.80, y: 0.25), width: side, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.65, y: 0.25), end: .init(x: 0.65, y: 0.14), width: small, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.35, y: 0.25), end: .init(x: 0.35, y: 0.06), width: small, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.08, y: 0.58), end: .init(x: 0.18, y: 0.58), width: small, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.08, y: 0.42), end: .init(x: 0.18, y: 0.42), width: small, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.42, y: 0.68), end: .init(x: 0.42, y: 0.52), width: small, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.60, y: 0.68), end: .init(x: 0.60, y: 0.52), width: small, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.50, y: 0.80), end: .init(x: 0.78, y: 0.80), width: small, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.22, y: 0.35), end: .init(x: 0.50, y: 0.35), width: small, isMainCorridor: false, floor: 1),
+        CorridorSegment(start: .init(x: 0.50, y: 0.35), end: .init(x: 0.80, y: 0.35), width: small, isMainCorridor: false, floor: 1)
+    ]
+    
+    static let floor2Corridors: [CorridorSegment] = [
+        CorridorSegment(start: .init(x: 0.50, y: 0.85), end: .init(x: 0.50, y: 0.25), width: main, isMainCorridor: true, floor: 2),
+        CorridorSegment(start: .init(x: 0.10, y: 0.65), end: .init(x: 0.90, y: 0.65), width: main, isMainCorridor: true, floor: 2),
+        CorridorSegment(start: .init(x: 0.15, y: 0.65), end: .init(x: 0.15, y: 0.50), width: side, isMainCorridor: false, floor: 2),
+        CorridorSegment(start: .init(x: 0.40, y: 0.65), end: .init(x: 0.40, y: 0.50), width: small, isMainCorridor: false, floor: 2),
+        CorridorSegment(start: .init(x: 0.65, y: 0.65), end: .init(x: 0.65, y: 0.50), width: small, isMainCorridor: false, floor: 2),
+        CorridorSegment(start: .init(x: 0.22, y: 0.35), end: .init(x: 0.80, y: 0.35), width: side, isMainCorridor: false, floor: 2),
+        CorridorSegment(start: .init(x: 0.80, y: 0.45), end: .init(x: 0.90, y: 0.45), width: small, isMainCorridor: false, floor: 2),
+        CorridorSegment(start: .init(x: 0.80, y: 0.35), end: .init(x: 0.80, y: 0.45), width: small, isMainCorridor: false, floor: 2),
+        CorridorSegment(start: .init(x: 0.50, y: 0.78), end: .init(x: 0.50, y: 0.85), width: small, isMainCorridor: false, floor: 2)
+    ]
+    
+    static func corridors(for floor: Int) -> [CorridorSegment] {
+        return floor == 1 ? floor1Corridors : floor2Corridors
+    }
 }

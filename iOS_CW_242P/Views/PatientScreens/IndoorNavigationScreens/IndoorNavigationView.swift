@@ -13,20 +13,45 @@ struct IndoorNavigationView: View {
     @State private var sourceLocation: MapLocation?
     @State private var destinationLocation: MapLocation?
     @State private var selectedFloor = 1
+    @State private var showLocationSheet = false
+    @State private var showQRScanner = false
+    @State private var showDirectionsList = false
+    @State private var showARNavigation = false
+    @State private var isEditingSource = true
+    @State private var currentDirectionStep = 0
+
     
     var body: some View {
         ZStack {
-            VStack {
-//                Text("Search Bar is in here")
+            EnhancedIndoorMapView(
+                sourceLocation: sourceLocation,
+                destinationLocation: destinationLocation,
+                selectedFloor: selectedFloor
+            )
+            .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
                 GoogleMapsStyleSearchBar(
                     sourceLocation: sourceLocation,
                     destinationLocation: destinationLocation,
-                    onSourceTap: {},
-                    onDestinationTap: {},
+                    onSourceTap: {
+                        isEditingSource = true
+                        showLocationSheet = true
+                    },
+                    onDestinationTap: {
+                        isEditingSource = false
+                        showLocationSheet = true
+                    },
                     onSwapLocations: swapLocations,
+                    onQRScan: {
+                        showQRScanner = true
+                    },
                     onClose: clearRoute
                 )
-                .padding()
+                .padding(.horizontal)
+                .padding(.top, 8)
+                
+                Spacer()
             }
         }
     }
@@ -42,4 +67,12 @@ struct IndoorNavigationView: View {
         sourceLocation = nil
         destinationLocation = nil
     }
+}
+
+#Preview {
+    IndoorNavigationView(
+//        sourceLocation: MockData.sampleLocations.first,
+//        destinationLocation: MockData.sampleLocations.last,
+//        selectedFloor: 1
+    )
 }
