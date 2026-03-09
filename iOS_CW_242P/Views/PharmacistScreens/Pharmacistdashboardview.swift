@@ -1,65 +1,19 @@
 import SwiftUI
 
-// MARK: - Models
-
-enum QueueStatus: String {
-    case pending    = "Pending"
-    case preparing  = "Preparing"
-    case ready      = "Ready"
-    case collected  = "Collected"
-
-    var color: Color {
-        switch self {
-        case .pending:   return Color(hex: "#F97316")
-        case .preparing: return Color(hex: "#3B82F6")
-        case .ready:     return Color(hex: "#22C55E")
-        case .collected: return Color(hex: "#9CA3AF")
-        }
-    }
-}
-
-struct QueueMedicine: Identifiable {
-    let id = UUID()
-    let name: String
-    let dose: String
-}
-
-struct QueueItem: Identifiable {
-    let id = UUID()
-    let queueNumber: Int
-    let patientName: String
-    var status: QueueStatus
-    let medicines: [QueueMedicine]
-    let doctorName: String
-    let timeAgo: String
-}
-
 // MARK: - Pharmacist Dashboard View
 
 struct PharmacistDashboardView: View {
 
     @EnvironmentObject var authViewModel: AuthViewModel
 
-    @State private var queueItems: [QueueItem] = [
-        QueueItem(queueNumber: 1, patientName: "Amal Perera",     status: .pending,
-                  medicines: [QueueMedicine(name: "Paracetamol", dose: "500 mg"),
-                               QueueMedicine(name: "Amoxicillin",  dose: "250 mg")],
-                  doctorName: "Dr. Sarah Wilson", timeAgo: "1h ago"),
-        QueueItem(queueNumber: 2, patientName: "Nimal Silva",     status: .preparing,
-                  medicines: [QueueMedicine(name: "Ibuprofen", dose: "400 mg")],
-                  doctorName: "Dr. Sarah Wilson", timeAgo: "30min ago"),
-        QueueItem(queueNumber: 3, patientName: "Liviru Navaratna", status: .collected,
-                  medicines: [QueueMedicine(name: "Paracetamol", dose: "500 mg"),
-                               QueueMedicine(name: "Amoxicillin",  dose: "250 mg")],
-                  doctorName: "Dr. Sarah Wilson", timeAgo: "30min ago")
-    ]
+    // Seeded from MockData.sampleQueueItems — models & data now live in sessions.swift
+    @State private var queueItems: [QueueItem] = MockData.sampleQueueItems
 
     private var pendingCount:   Int { queueItems.filter { $0.status == .pending   }.count }
     private var preparingCount: Int { queueItems.filter { $0.status == .preparing }.count }
     private var readyCount:     Int { queueItems.filter { $0.status == .ready     }.count }
 
     var body: some View {
-        // ✅ No NavigationView — provided by AppContainer's TabView
         ScrollView {
             VStack(spacing: 16) {
 
@@ -206,7 +160,7 @@ struct StatusBadge: View {
     }
 }
 
-// MARK: - Queue Action Button (renamed to avoid conflict with patient ActionButton)
+// MARK: - Queue Action Button
 
 struct QueueActionButton: View {
     let title: String

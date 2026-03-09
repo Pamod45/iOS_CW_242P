@@ -6,33 +6,132 @@
 //
 
 import Foundation
+import SwiftUI
+
+// MARK: - Pharmacy Queue Models
+
+enum QueueStatus: String {
+    case pending    = "Pending"
+    case preparing  = "Preparing"
+    case ready      = "Ready"
+    case collected  = "Collected"
+
+    var color: Color {
+        switch self {
+        case .pending:   return Color(hex: "#F97316")
+        case .preparing: return Color(hex: "#3B82F6")
+        case .ready:     return Color(hex: "#22C55E")
+        case .collected: return Color(hex: "#9CA3AF")
+        }
+    }
+}
+
+struct QueueMedicine: Identifiable {
+    let id = UUID()
+    let name: String
+    let dose: String
+}
+
+struct QueueItem: Identifiable {
+    let id = UUID()
+    let queueNumber: Int
+    let patientName: String
+    var status: QueueStatus
+    let medicines: [QueueMedicine]
+    let doctorName: String
+    let timeAgo: String
+}
+
+// MARK: - Mock Data
 
 struct MockData {
-    
+
     static let countryCodes: [CountryCode] = [
-        CountryCode(flag: "🇱🇰", code: "+94", name: "Sri Lanka"),
-        CountryCode(flag: "🇮🇳", code: "+91", name: "India"),
-        CountryCode(flag: "🇺🇸", code: "+1", name: "United States"),
-        CountryCode(flag: "🇬🇧", code: "+44", name: "United Kingdom"),
-        CountryCode(flag: "🇦🇺", code: "+61", name: "Australia"),
-        CountryCode(flag: "🇸🇬", code: "+65", name: "Singapore"),
+        CountryCode(flag: "🇱🇰", code: "+94",  name: "Sri Lanka"),
+        CountryCode(flag: "🇮🇳", code: "+91",  name: "India"),
+        CountryCode(flag: "🇺🇸", code: "+1",   name: "United States"),
+        CountryCode(flag: "🇬🇧", code: "+44",  name: "United Kingdom"),
+        CountryCode(flag: "🇦🇺", code: "+61",  name: "Australia"),
+        CountryCode(flag: "🇸🇬", code: "+65",  name: "Singapore"),
         CountryCode(flag: "🇦🇪", code: "+971", name: "UAE"),
-        CountryCode(flag: "🇨🇦", code: "+1", name: "Canada"),
-        CountryCode(flag: "🇩🇪", code: "+49", name: "Germany"),
-        CountryCode(flag: "🇯🇵", code: "+81", name: "Japan")
+        CountryCode(flag: "🇨🇦", code: "+1",   name: "Canada"),
+        CountryCode(flag: "🇩🇪", code: "+49",  name: "Germany"),
+        CountryCode(flag: "🇯🇵", code: "+81",  name: "Japan")
     ]
-    
+
     static let sessions: [Session] = [
-        Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true, currentQueueNumber: 5, averageConsultationTimeInMinutes: 25),
-        Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 12, averageConsultationTimeInMinutes: 60),
-        Session(id: "3", startTime: "12:00", endTime: "15:00", isAvailable: true, currentQueueNumber: 8, averageConsultationTimeInMinutes: 40),
-        Session(id: "4", startTime: "15:00", endTime: "18:00", isAvailable: true, currentQueueNumber: 3, averageConsultationTimeInMinutes: 15),
-        Session(id: "5", startTime: "18:00", endTime: "21:00", isAvailable: true, currentQueueNumber: 7, averageConsultationTimeInMinutes: 35),
-        Session(id: "6", startTime: "21:00", endTime: "00:00", isAvailable: false, currentQueueNumber: 0, averageConsultationTimeInMinutes: 0),
-        Session(id: "7", startTime: "00:00", endTime: "03:00", isAvailable: false, currentQueueNumber: 0, averageConsultationTimeInMinutes: 0),
-        Session(id: "8", startTime: "03:00", endTime: "06:00", isAvailable: false, currentQueueNumber: 0, averageConsultationTimeInMinutes: 0)
+        Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true,  currentQueueNumber: 5,  averageConsultationTimeInMinutes: 25),
+        Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true,  currentQueueNumber: 12, averageConsultationTimeInMinutes: 60),
+        Session(id: "3", startTime: "12:00", endTime: "15:00", isAvailable: true,  currentQueueNumber: 8,  averageConsultationTimeInMinutes: 40),
+        Session(id: "4", startTime: "15:00", endTime: "18:00", isAvailable: true,  currentQueueNumber: 3,  averageConsultationTimeInMinutes: 15),
+        Session(id: "5", startTime: "18:00", endTime: "21:00", isAvailable: true,  currentQueueNumber: 7,  averageConsultationTimeInMinutes: 35),
+        Session(id: "6", startTime: "21:00", endTime: "00:00", isAvailable: false, currentQueueNumber: 0,  averageConsultationTimeInMinutes: 0),
+        Session(id: "7", startTime: "00:00", endTime: "03:00", isAvailable: false, currentQueueNumber: 0,  averageConsultationTimeInMinutes: 0),
+        Session(id: "8", startTime: "03:00", endTime: "06:00", isAvailable: false, currentQueueNumber: 0,  averageConsultationTimeInMinutes: 0)
     ]
-    
+
+    // MARK: Pharmacy Queue Items
+
+    static let sampleQueueItems: [QueueItem] = [
+        QueueItem(
+            queueNumber: 1,
+            patientName: "Amal Perera",
+            status: .pending,
+            medicines: [
+                QueueMedicine(name: "Paracetamol", dose: "500 mg"),
+                QueueMedicine(name: "Amoxicillin",  dose: "250 mg")
+            ],
+            doctorName: "Dr. Sarah Wilson",
+            timeAgo: "1h ago"
+        ),
+        QueueItem(
+            queueNumber: 2,
+            patientName: "Nimal Silva",
+            status: .preparing,
+            medicines: [
+                QueueMedicine(name: "Ibuprofen", dose: "400 mg")
+            ],
+            doctorName: "Dr. Sarah Wilson",
+            timeAgo: "30min ago"
+        ),
+        QueueItem(
+            queueNumber: 3,
+            patientName: "Liviru Navaratna",
+            status: .collected,
+            medicines: [
+                QueueMedicine(name: "Paracetamol", dose: "500 mg"),
+                QueueMedicine(name: "Amoxicillin",  dose: "250 mg")
+            ],
+            doctorName: "Dr. Sarah Wilson",
+            timeAgo: "30min ago"
+        ),
+        QueueItem(
+            queueNumber: 4,
+            patientName: "Kasun Rajapaksa",
+            status: .ready,
+            medicines: [
+                QueueMedicine(name: "Metformin",   dose: "500 mg"),
+                QueueMedicine(name: "Atorvastatin", dose: "10 mg")
+            ],
+            doctorName: "Dr. Priya Fernando",
+            timeAgo: "45min ago"
+        ),
+        QueueItem(
+            queueNumber: 5,
+            patientName: "Dilani Wijesinghe",
+            status: .pending,
+            medicines: [
+                QueueMedicine(name: "Cetirizine",  dose: "10 mg"),
+                QueueMedicine(name: "Prednisolone", dose: "5 mg"),
+                QueueMedicine(name: "Omeprazole",  dose: "20 mg")
+            ],
+            doctorName: "Dr. Rajan Mendis",
+            timeAgo: "10min ago"
+        )
+    ]
+
+    // MARK: Appointments
+
     static let sampleBookings: [Appointment] = [
         Appointment(
             id: "bk-001",
@@ -51,7 +150,6 @@ struct MockData {
             hasPrescription: false,
             journeyId: "journey-001"
         ),
-        
         Appointment(
             id: "bk-002",
             patientId: "user123",
@@ -70,7 +168,6 @@ struct MockData {
             prescriptionId: "presc-001",
             journeyId: "journey-002"
         ),
-        
         Appointment(
             id: "bk-003",
             patientId: "user123",
@@ -81,12 +178,11 @@ struct MockData {
             paymentCompleted: false,
             amount: 15000.00,
             createdAt: Date().addingTimeInterval(-172800),
-            labTests: [MockData.sampleTests[5]], // MRI Scan
+            labTests: [MockData.sampleTests[5]],
             requiresApproval: true,
             approvalStatus: .approved,
             journeyId: "journey-003"
         ),
-        
         Appointment(
             id: "bk-004",
             patientId: "user123",
@@ -97,11 +193,10 @@ struct MockData {
             paymentCompleted: false,
             amount: 8000.00,
             createdAt: Date().addingTimeInterval(-43200),
-            labTests: [MockData.sampleTests[6]], // CT Scan
+            labTests: [MockData.sampleTests[6]],
             requiresApproval: true,
             approvalStatus: .pending
         ),
-        
         Appointment(
             id: "bk-005",
             patientId: "user123",
@@ -119,7 +214,6 @@ struct MockData {
             approvalStatus: nil,
             journeyId: "journey-004"
         ),
-        
         Appointment(
             id: "bk-006",
             patientId: "user123",
@@ -137,7 +231,6 @@ struct MockData {
             prescriptionId: "presc-002",
             journeyId: "journey-005"
         ),
-        
         Appointment(
             id: "bk-007",
             patientId: "user123",
@@ -149,12 +242,11 @@ struct MockData {
             paymentCompleted: true,
             amount: 800.00,
             createdAt: Date().addingTimeInterval(-518400),
-            labTests: [MockData.sampleTests[0]], // CBC
+            labTests: [MockData.sampleTests[0]],
             requiresApproval: false,
             approvalStatus: nil,
             journeyId: "journey-006"
         ),
-        
         Appointment(
             id: "bk-008",
             patientId: "user123",
@@ -168,7 +260,6 @@ struct MockData {
             amount: 1500.00,
             createdAt: Date().addingTimeInterval(-172800)
         ),
-        
         Appointment(
             id: "bk-009",
             patientId: "user123",
@@ -184,7 +275,9 @@ struct MockData {
             approvalStatus: .rejected
         ),
     ]
-    
+
+    // MARK: Lab Tests
+
     static let sampleTests: [LabTest] = [
         LabTest(
             id: "lab1",
@@ -236,7 +329,6 @@ struct MockData {
             instructions: "Avoid alcohol 24 hours before test.",
             preparationRequired: "Avoid alcohol"
         ),
-        
         LabTest(
             id: "lab6",
             name: "MRI Scan",
@@ -288,8 +380,9 @@ struct MockData {
             preparationRequired: nil
         )
     ]
-    
-    
+
+    // MARK: Notifications
+
     static let sampleNotifications: [AppNotification] = [
         AppNotification(
             type: .appointmentReminder,
@@ -315,7 +408,6 @@ struct MockData {
             message: "Your prescription is ready for pickup at Pharmacy Counter 1. Token: PH-042.",
             timestamp: Date().addingTimeInterval(-7200)
         ),
-        
         AppNotification(
             type: .labReminder,
             title: "Lab Check-In Tomorrow",
@@ -334,7 +426,6 @@ struct MockData {
             message: "Your X-Ray Chest test requires doctor approval. We have notified Dr. Silva. You will be updated once approved.",
             timestamp: Date().addingTimeInterval(-100000)
         ),
-        
         AppNotification(
             type: .general,
             title: "Welcome to MediQueue",
