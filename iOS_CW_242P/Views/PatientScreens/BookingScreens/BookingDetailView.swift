@@ -20,6 +20,9 @@ struct BookingDetailView: View {
     @State private var rescheduleSession: Session? = nil
     @State private var showSuccessAlert = false
     @State private var successMessage = ""
+    
+    @State var showDownloadSuccessAlert: Bool = false
+    
 
     init(booking: Binding<Appointment>, shouldDismissAfterPayment: Binding<Bool>, onPayNow: @escaping () -> Void) {
         self._booking = booking
@@ -42,7 +45,7 @@ struct BookingDetailView: View {
                         .padding(.horizontal)
                     }
                     
-                    BookingInfoCard(booking: localBooking)
+                    BookingInfoCard(booking: localBooking,showCancelConfirmation:$showDownloadSuccessAlert )
                         .padding(.horizontal)
                     
                     if localBooking.type == .laboratory, let tests = localBooking.labTests {
@@ -105,7 +108,7 @@ struct BookingDetailView: View {
                     BookingStatusHeader(booking: localBooking)
                         .padding(.horizontal)
                     
-                    BookingInfoCard(booking: localBooking)
+                    BookingInfoCard(booking: localBooking, showCancelConfirmation:$showDownloadSuccessAlert)
                         .padding(.horizontal)
                     
                     if localBooking.type == .laboratory, let tests = localBooking.labTests {
@@ -158,6 +161,10 @@ struct BookingDetailView: View {
             Button("OK", role: .cancel) {
                 dismiss()
             }
+        }.alert("Download Complete", isPresented: $showDownloadSuccessAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Your file has been downloaded.")
         }
     }
         

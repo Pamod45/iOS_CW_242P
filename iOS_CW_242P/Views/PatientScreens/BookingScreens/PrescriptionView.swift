@@ -12,6 +12,8 @@ struct PrescriptionView: View {
     let appointment: Appointment
     let appointmentMedications: [Medication]
     
+    let importantNotes: [String] = ["Take medications at the same time each day","Don't skip doses","Complete the full course","Consult doctor in case of side effects"]
+    
     init() {
         self.appointment = MockData.sampleBookings[0]
         self.appointmentMedications = [
@@ -24,7 +26,7 @@ struct PrescriptionView: View {
             ScrollView{
                 VStack(spacing: 16){
                     VStack(spacing: 8){
-                        InformationRaw(label: "Prescribed By", value: "Dr. Smith Ray")
+                        InformationRaw(label: "Prescribed By", value: "Dr. Nihal Ambawatta")
                         
                         Divider().padding(.vertical,4)
                         
@@ -46,38 +48,25 @@ struct PrescriptionView: View {
                          .padding(.top)
                         
                         VStack(alignment: .leading, spacing: 4){
-                            HStack(alignment: .center, spacing: 16 ){
-                                Circle().frame(width: 8, height: 8).foregroundColor(.blue)
-                                Text("Take medications at the same time each day").font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            HStack(alignment: .center, spacing: 16 ){
-                                Circle().frame(width: 8, height: 8).foregroundColor(.blue)
-                                Text("Don't skip doses").font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            HStack(alignment: .center, spacing: 16 ){
-                                Circle().frame(width: 8, height: 8).foregroundColor(.blue)
-                                Text("Complete the full course").font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            HStack(alignment: .center, spacing: 16 ){
-                                Circle().frame(width: 8, height: 8).foregroundColor(.blue)
-                                Text("Consult doctor in case of side effects").font(.subheadline)
-                                    .foregroundColor(.secondary)
+                            ForEach(importantNotes, id: \.self){note in
+                                ImportantNoteRow(importantNote: note)
                             }
                         }.padding(.horizontal).padding(.bottom)
                     }
                     .background(.orange.opacity(0.1))
                     .cornerRadius(16)
                     .padding(.vertical)
-                    ForEach(appointmentMedications){ med in
-                        MedicationCard(medication: med.name, dosage: med.dosage,
-                                       dailyFrequency: med.dailyFrequency, durationInDays: med.durationInDays)
-                    }
+                    VStack(alignment:.leading, spacing: 16){
+                        HStack{
+                            Image(systemName: "pill.fill").foregroundColor(Color.gray)
+                            Text("Medication List").font(.headline)
+                        }
+                        ForEach(appointmentMedications){ med in
+                            MedicationCard(medication: med.name, dosage: med.dosage,
+                                           dailyFrequency: med.dailyFrequency, durationInDays: med.durationInDays)
+                        }
+                    }.padding(.all, 16).background(.white).cornerRadius(16)
+                    
  
                 }.padding(.horizontal).padding(.top)
                 
@@ -86,6 +75,17 @@ struct PrescriptionView: View {
             .navigationTitle("Prescription Details")
             .navigationBarTitleDisplayMode(.inline)
         
+    }
+}
+
+private struct ImportantNoteRow: View{
+    let importantNote: String
+    var body: some View {
+        HStack(alignment: .center, spacing: 16 ){
+            Circle().frame(width: 8, height: 8).foregroundColor(.gray)
+            Text(importantNote).font(.subheadline)
+                .foregroundColor(.secondary)
+        }
     }
 }
 

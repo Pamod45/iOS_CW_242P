@@ -233,9 +233,6 @@ struct LabPaymentSheet: View {
                             if let tests = booking.labTests {
                                 ForEach(tests) { test in
                                     HStack {
-                                        Image(systemName: "flask.fill")
-                                            .foregroundColor(.green)
-                                            .font(.caption)
                                         
                                         Text(test.name)
                                             .font(.subheadline)
@@ -271,13 +268,13 @@ struct LabPaymentSheet: View {
                                 title: "Date",
                                 value: booking.displayDate,
                                 icon: "calendar",
-                                iconColor: .blue
+                                iconColor: .gray
                             )
                             InfoCard(
                                 title: "Session",
                                 value: booking.sessionDisplay,
                                 icon: "clock",
-                                iconColor: .purple
+                                iconColor: .gray
                             )
                         }
                         .padding(.horizontal)

@@ -146,8 +146,8 @@ struct LabPaymentView: View {
                             )
                             SummaryRow(icon: "clock", label: "Session", value: session.displayTime)
                             SummaryRow(icon: "number", label: "Current Queue", value: "\(session.currentQueueNumber)")
-                            SummaryRow(icon: "hourglass", label: "Expected Duration", value: "\(longestDuration) minutes")
-                            SummaryRow(icon: "mappin", label: "Location", value: "Lab Room 1")
+                            SummaryRow(icon: "hourglass", label: "Estimated Wait Time", value: "\(longestDuration) minutes")
+                            SummaryRow(icon: "mappin", label: "Location", value: "Lab Room")
                         }
                     }
                     .padding()

@@ -12,7 +12,8 @@ struct BookingInfoRow: View {
     let label: String
     let value: String
     let color: Color
-    
+        
+    @Binding var showCancelConfirmation: Bool
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
@@ -25,11 +26,17 @@ struct BookingInfoRow: View {
                 .foregroundColor(.secondary)
             
             Spacer()
-            
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .lineLimit(1)
+            if icon == "note" {
+                Button("Download") {
+                    showCancelConfirmation = true
+                }
+                .font(.footnote)
+            } else {
+                Text(value)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
+            }
         }
     }
 }

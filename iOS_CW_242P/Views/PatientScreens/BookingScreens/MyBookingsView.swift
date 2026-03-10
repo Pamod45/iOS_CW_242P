@@ -259,7 +259,13 @@ struct MyBookingsView: View {
                                                     }
                                                 }
                                             )) {
-                                                BookingCard(booking: booking)
+                                                BookingCard(booking: booking,onPayNow: {
+                                                    if let idx = bookings.firstIndex(where: { $0.id == booking.id }) {
+                                                        showLabPaymentFor = bookings[idx]
+                                                    } else {
+                                                        showLabPaymentFor = booking
+                                                    }
+                                                })
                                             }
                                         }
                                     }

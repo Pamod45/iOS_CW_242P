@@ -121,6 +121,34 @@ struct JourneyView: View {
                         Text("Confirmed").font(.caption).fontWeight(.semibold).foregroundColor(.green).padding(.all,8).background(.green.opacity(0.1)).cornerRadius(8)
                         
                     }.padding()
+                    Divider().padding(.horizontal)
+                    HStack(alignment: .top, spacing: 16){
+                        Image(systemName: "circle.fill")
+                            .font(.footnote)
+                            .foregroundColor(.blue)
+                            .padding(.all,10)
+                            .background(.blue.opacity(0.2))
+                            .fontWeight(.bold)
+                            .clipShape(Circle())
+                        
+                        VStack(alignment: .leading, spacing: 6){
+                            HStack(spacing: 8){
+                                Image(systemName: "flask").foregroundColor(.blue).font(.headline)
+                                Text("Laboratory").font(.headline).foregroundColor(.secondary)
+                            }
+                            
+                            Text("Complete lab tests").font(.subheadline).foregroundColor(.secondary)
+                            HStack(spacing: 6){
+                                Image(systemName: "info.circle").font(.caption).foregroundColor(.blue)
+                                Text("Lab Room").font(.footnote).foregroundColor(.blue)
+                            }
+                            Text("CBC, Blood Glucose").font(.footnote).foregroundColor(.gray).padding(.all,8).background(Color(.systemGray6)).cornerRadius(8)
+                            
+                        }.frame(maxWidth:.infinity, alignment: .leading)
+                        
+                        Text("In Progress").font(.caption).fontWeight(.semibold).foregroundColor(.blue).padding(.all,8).background(.blue.opacity(0.1)).cornerRadius(8)
+                        
+                    }.padding()
                 }.background().cornerRadius(16)
             }.padding(.vertical)
              .padding(.horizontal)

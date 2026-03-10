@@ -128,7 +128,7 @@ struct LabCheckInFlow: View {
                 PaymentSuccessView(
                     queueNumber: 8,
                     estimatedWaitTime: 30,
-                    doctorRoom: "Lab Room 1",
+                    doctorRoom: "Lab Room",
                     dismissEntireFlow: {
                         showPaymentSuccess = false
                         isPresented = false

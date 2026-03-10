@@ -57,7 +57,7 @@ struct PaymentView: View {
                         
                         SummaryRow(
                             icon: "hourglass",
-                            label: "Estimated Wait",
+                            label: "Estimated Wait Time",
                             value: "~\(session.averageConsultationTimeInMinutes * session.currentQueueNumber) minutes"
                         )
                     }

@@ -8,6 +8,7 @@ import SwiftUI
 
 struct BookingCard: View {
     let booking: Appointment
+    let onPayNow: () -> Void
     
     private var typeColor: Color {
 //        booking.type == .opd ? .blue : .green
@@ -153,6 +154,9 @@ struct BookingCard: View {
                     )
                     .cornerRadius(10)
                     .shadow(color: .red.opacity(0.4), radius: 6, x: 0, y: 3)
+                }
+                .onTapGesture {
+                    onPayNow()
                 }
             }
             

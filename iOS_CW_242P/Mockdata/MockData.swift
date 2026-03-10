@@ -23,14 +23,11 @@ struct MockData {
     ]
     
     static let sessions: [Session] = [
-        Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true, currentQueueNumber: 5, averageConsultationTimeInMinutes: 25),
-        Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 12, averageConsultationTimeInMinutes: 60),
-        Session(id: "3", startTime: "12:00", endTime: "15:00", isAvailable: true, currentQueueNumber: 8, averageConsultationTimeInMinutes: 40),
-        Session(id: "4", startTime: "15:00", endTime: "18:00", isAvailable: true, currentQueueNumber: 3, averageConsultationTimeInMinutes: 15),
-        Session(id: "5", startTime: "18:00", endTime: "21:00", isAvailable: true, currentQueueNumber: 7, averageConsultationTimeInMinutes: 35),
-        Session(id: "6", startTime: "21:00", endTime: "00:00", isAvailable: false, currentQueueNumber: 0, averageConsultationTimeInMinutes: 0),
-        Session(id: "7", startTime: "00:00", endTime: "03:00", isAvailable: false, currentQueueNumber: 0, averageConsultationTimeInMinutes: 0),
-        Session(id: "8", startTime: "03:00", endTime: "06:00", isAvailable: false, currentQueueNumber: 0, averageConsultationTimeInMinutes: 0)
+        Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true, currentQueueNumber: 1, averageConsultationTimeInMinutes: 15),
+        Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 3, averageConsultationTimeInMinutes: 15),
+        Session(id: "3", startTime: "12:00", endTime: "15:00", isAvailable: true, currentQueueNumber: 2, averageConsultationTimeInMinutes: 15),
+        Session(id: "4", startTime: "15:00", endTime: "18:00", isAvailable: true, currentQueueNumber: 1, averageConsultationTimeInMinutes: 15),
+        Session(id: "5", startTime: "18:00", endTime: "21:00", isAvailable: true, currentQueueNumber: 4, averageConsultationTimeInMinutes: 15)
     ]
     
     static let sampleBookings: [Appointment] = [
@@ -39,7 +36,7 @@ struct MockData {
             patientId: "user123",
             type: .opd,
             date: Date(),
-            sessionId: "2",
+            sessionId: "3",
             queueNumber: 12,
             estimatedWaitTime: 60,
             reasonForVisit: "Annual Checkup",
@@ -106,7 +103,7 @@ struct MockData {
             id: "bk-005",
             patientId: "user123",
             type: .laboratory,
-            date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
+            date: Calendar.current.date(byAdding: .day, value: 2, to: Date())!,
             sessionId: "1",
             queueNumber: 3,
             estimatedWaitTime: 20,

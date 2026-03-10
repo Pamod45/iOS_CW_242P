@@ -88,7 +88,7 @@ struct OPDCheckInFlow: View {
                 }
             }
             .sheet(isPresented: $showPaymentSuccess) {
-                QueueTrackingView(
+                PaymentSuccessView(
                     queueNumber: 15,
                     estimatedWaitTime: 45,
                     doctorRoom: "Room 105",
