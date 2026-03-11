@@ -441,18 +441,18 @@ struct MockData {
         
         // Right wing – labs
         MapLocation(
-            name: "Lab Room 1",
+            name: "Lab Room",
             type: .laboratory, floor: 1,
             coordinates: MapCoordinates(x: 0.88, y: 0.58),
             description: "Blood tests",
             qrCode: "QR-LAB-001"
         ),
         MapLocation(
-            name: "Lab Room 2",
-            type: .laboratory, floor: 1,
+            name: "Restroom",
+            type: .restroom, floor: 1,
             coordinates: MapCoordinates(x: 0.88, y: 0.42),
             description: "Imaging",
-            qrCode: "QR-LAB-002"
+            qrCode: "QR-RESTROOM-001-F1"
         ),
         
         // Top area – pharmacy & exit
@@ -479,7 +479,7 @@ struct MockData {
             type: .restroom,
             floor: 1,
             coordinates: MapCoordinates(x: 0.78, y: 0.78),
-            qrCode: "QR-RESTROOM-F1"
+            qrCode: "QR-RESTROOM-002-F1"
         ),
         
         MapLocation(
@@ -523,14 +523,6 @@ struct MockData {
             qrCode: "QR-ROOM-203"
         ),
         MapLocation(
-            name: "Lab Room 3",
-            type: .laboratory,
-            floor: 2,
-            coordinates: MapCoordinates(x: 0.85, y: 0.40),
-            description: "Advanced diagnostics",
-            qrCode: "QR-LAB-003"
-        ),
-        MapLocation(
             name: "Elevator",
             type: .elevator,
             floor: 2,
@@ -572,9 +564,9 @@ struct MockData {
                 "Head inside through the main entrance doors.",
                 "Walk straight ahead past the reception desk.",
                 "Continue along the main corridor until you reach the central junction.",
-                "Turn left at the junction — you'll see a row of consultation rooms.",
-                "Head down the left corridor until you see Room 101 on your left.",
-                "You've arrived at Room 101. Check in with the receptionist."
+                "Turn left at the junction and go past the first lane you see on the right",
+                "Turn right at the next lane",
+                "You have arrived at your destination which will be the first room on the left hand side!"
             ]
         ),
         
@@ -628,211 +620,237 @@ struct MockData {
         ),
         
         Routes(
-            sourceName: "Reception",
-            destinationName: "Lab Room 1",
+            sourceName: "Pharmacy",
+            destinationName: "Main Entrance",
             floor: 1,
             directionPoints: [
-                CGPoint(x: 0.50, y: 0.78),
-                CGPoint(x: 0.50, y: 0.68),
-                CGPoint(x: 0.82, y: 0.68),
-                CGPoint(x: 0.82, y: 0.58),
-                CGPoint(x: 0.88, y: 0.58)
-            ],
-            directions: [
-                "From reception, face the main corridor ahead.",
-                "Walk to the central junction where the corridors meet.",
-                "Turn right and follow the corridor toward the laboratory section.",
-                "You'll see the lab entrance with glass partitions ahead.",
-                "Enter Lab Room 1 and present your test request form to the technician."
-            ]
-        ),
-        
-        Routes(
-            sourceName: "Room 101",
-            destinationName: "Room 102",
-            floor: 1,
-            directionPoints: [
-                CGPoint(x: 0.12, y: 0.58),
-                CGPoint(x: 0.18, y: 0.58),
-                CGPoint(x: 0.18, y: 0.50),
-                CGPoint(x: 0.18, y: 0.42),
-                CGPoint(x: 0.12, y: 0.42)
-            ],
-            directions: [
-                "Step out of Room 101 and face the corridor.",
-                "Walk down the left wing corridor.",
-                "Continue along the corridor past the waiting area.",
-                "Room 102 is the next door on your left.",
-                "You've arrived at Room 102. Please check in with the nurse."
-            ]
-        ),
-        
-        Routes(
-            sourceName: "Room 103",
-            destinationName: "Lab Room 2",
-            floor: 1,
-            directionPoints: [
-                CGPoint(x: 0.42, y: 0.55),
-                CGPoint(x: 0.42, y: 0.68),
-                CGPoint(x: 0.82, y: 0.68),
-                CGPoint(x: 0.82, y: 0.50),  
-                CGPoint(x: 0.82, y: 0.42),
-                CGPoint(x: 0.88, y: 0.42)
-            ],
-            directions: [
-                "Exit Room 103 and turn toward the main corridor.",
-                "Walk to the central junction.",
-                "Turn right and head down the corridor toward the laboratory wing.",
-                "Continue along the right corridor.",
-                "Lab Room 2 is ahead on your right — look for the imaging lab sign.",
-                "You've arrived at Lab Room 2. Hand your form to the lab staff."
-            ]
-        ),
-        
-        Routes(
-            sourceName: "Lab Room 1",
-            destinationName: "Pharmacy",
-            floor: 1,
-            directionPoints: [
-                CGPoint(x: 0.88, y: 0.58),
-                CGPoint(x: 0.82, y: 0.58),
-                CGPoint(x: 0.82, y: 0.68),
-                CGPoint(x: 0.50, y: 0.68),
-                CGPoint(x: 0.50, y: 0.35),
-                CGPoint(x: 0.50, y: 0.25),
+                CGPoint(x: 0.65, y: 0.18),
                 CGPoint(x: 0.65, y: 0.25),
-                CGPoint(x: 0.65, y: 0.18)
-            ],
-            directions: [
-                "Exit Lab Room 1 and turn left into the corridor.",
-                "Walk toward the main corridor junction.",
-                "Turn left at the junction and head toward the center.",
-                "Continue straight along the central corridor.",
-                "Keep walking ahead until you reach the upper corridor.",
-                "Turn right toward the pharmacy section.",
-                "The pharmacy counter is just ahead.",
-                "You've arrived at the pharmacy. Show your prescription and wait."
-            ]
-        ),
-        
-        Routes(
-            sourceName: "Room 104",
-            destinationName: "Exit",
-            floor: 1,
-            directionPoints: [
-                CGPoint(x: 0.60, y: 0.55),
-                CGPoint(x: 0.60, y: 0.68),
-                CGPoint(x: 0.50, y: 0.68),
-                CGPoint(x: 0.50, y: 0.50),
-                CGPoint(x: 0.50, y: 0.35),
                 CGPoint(x: 0.50, y: 0.25),
-                CGPoint(x: 0.35, y: 0.25),
-                CGPoint(x: 0.35, y: 0.08)
-            ],
-            directions: [
-                "Exit Room 104 and face the main corridor.",
-                "Walk toward the central junction.",
-                "Continue straight along the central corridor.",
-                "Keep walking forward through the middle of the building.",
-                "Continue ahead toward the upper level.",
-                "Turn left at the upper corridor.",
-                "Follow the corridor toward the rear exit.",
-                "You've reached the exit. The doors are directly ahead."
-            ]
-        ),
-        
-        
-        Routes(
-            sourceName: "Main Entrance",
-            destinationName: "Elevator",
-            floor: 1,
-            directionPoints: [
-                CGPoint(x: 0.50, y: 0.92),
-                CGPoint(x: 0.50, y: 0.78),
-                CGPoint(x: 0.50, y: 0.68),
-                CGPoint(x: 0.50, y: 0.50),
                 CGPoint(x: 0.50, y: 0.35),
-                CGPoint(x: 0.35, y: 0.35),
-                CGPoint(x: 0.28, y: 0.35)
+                CGPoint(x: 0.50, y: 0.50),
+                CGPoint(x: 0.50, y: 0.68),
+                CGPoint(x: 0.50, y: 0.78),
+                CGPoint(x: 0.50, y: 0.92)
             ],
             directions: [
                 "Head inside through the main entrance doors.",
-                "Walk straight past the reception desk.",
-                "Continue along the central corridor.",
-                "Keep walking forward through the main corridor.",
-                "Continue ahead — you'll pass the consultation rooms.",
-                "Turn left toward the elevator area.",
-                "The elevator is just ahead on your left. Press the call button and wait.",
-                "Take the elevator to Floor 2."
+                "Walk straight ahead past the reception desk.",
+                "Continue forward along the central corridor.",
+                "Keep walking straight — you'll pass the consultation rooms on both sides.",
+                "Continue ahead until you reach the upper corridor junction.",
+                "Turn right toward the pharmacy section.",
+                "The pharmacy counter is just ahead on your right.",
+                "You've arrived at the pharmacy. Show your prescription and wait to be called."
             ]
         ),
         
-        Routes(
-            sourceName: "Elevator",
-            destinationName: "Room 201",
-            floor: 2,
-            directionPoints: [
-                CGPoint(x: 0.28, y: 0.35),
-                CGPoint(x: 0.50, y: 0.35),
-                CGPoint(x: 0.50, y: 0.50),
-                CGPoint(x: 0.50, y: 0.65),
-                CGPoint(x: 0.15, y: 0.65),
-                CGPoint(x: 0.15, y: 0.55)
-            ],
-            directions: [
-                "Exit the elevator on Floor 2 and look for the signage ahead.",
-                "Turn right and walk toward the central corridor.",
-                "Continue straight along the center corridor.",
-                "Walk ahead until you reach the main corridor junction.",
-                "Turn left along the main corridor — you'll see the pediatrics section.",
-                "Room 201 is on your left. Check in with the receptionist."
-            ]
-        ),
+//        Routes(
+//            sourceName: "Reception",
+//            destinationName: "Lab Room 1",
+//            floor: 1,
+//            directionPoints: [
+//                CGPoint(x: 0.50, y: 0.78),
+//                CGPoint(x: 0.50, y: 0.68),
+//                CGPoint(x: 0.82, y: 0.68),
+//                CGPoint(x: 0.82, y: 0.58),
+//                CGPoint(x: 0.88, y: 0.58)
+//            ],
+//            directions: [
+//                "From reception, face the main corridor ahead.",
+//                "Walk to the central junction where the corridors meet.",
+//                "Turn right and follow the corridor toward the laboratory section.",
+//                "You'll see the lab entrance with glass partitions ahead.",
+//                "Enter Lab Room 1 and present your test request form to the technician."
+//            ]
+//        ),
         
-        Routes(
-            sourceName: "Main Entrance",
-            destinationName: "Stairs",
-            floor: 1,
-            directionPoints: [
-                CGPoint(x: 0.50, y: 0.92),
-                CGPoint(x: 0.50, y: 0.78),
-                CGPoint(x: 0.50, y: 0.68),
-                CGPoint(x: 0.50, y: 0.50),
-                CGPoint(x: 0.50, y: 0.35),
-                CGPoint(x: 0.72, y: 0.35)
-            ],
-            directions: [
-                "Head inside through the main entrance doors.",
-                "Walk straight past the reception desk.",
-                "Continue along the central corridor.",
-                "Keep walking forward through the main corridor.",
-                "Continue ahead — you'll pass the consultation rooms.",
-                "Turn right and you'll see the staircase ahead. Look for the stairs sign.",
-                "Take the stairs up to Floor 2."
-            ]
-        ),
+//        Routes(
+//            sourceName: "Room 101",
+//            destinationName: "Room 102",
+//            floor: 1,
+//            directionPoints: [
+//                CGPoint(x: 0.12, y: 0.58),
+//                CGPoint(x: 0.18, y: 0.58),
+//                CGPoint(x: 0.18, y: 0.50),
+//                CGPoint(x: 0.18, y: 0.42),
+//                CGPoint(x: 0.12, y: 0.42)
+//            ],
+//            directions: [
+//                "Step out of Room 101 and face the corridor.",
+//                "Walk down the left wing corridor.",
+//                "Continue along the corridor past the waiting area.",
+//                "Room 102 is the next door on your left.",
+//                "You've arrived at Room 102. Please check in with the nurse."
+//            ]
+//        ),
         
-        Routes(
-            sourceName: "Stairs",
-            destinationName: "Room 203",
-            floor: 2,
-            directionPoints: [
-                CGPoint(x: 0.72, y: 0.35),
-                CGPoint(x: 0.50, y: 0.35),
-                CGPoint(x: 0.50, y: 0.50),
-                CGPoint(x: 0.50, y: 0.65),
-                CGPoint(x: 0.65, y: 0.65),
-                CGPoint(x: 0.65, y: 0.55)
-            ],
-            directions: [
-                "Exit the staircase on Floor 2 and look for directional signs.",
-                "Turn left and walk toward the central corridor.",
-                "Continue straight along the center corridor.",
-                "Walk ahead until you reach the main corridor junction.",
-                "Turn right along the main corridor — you'll see the ophthalmology section.",
-                "Room 203 is on your right. Check in with the receptionist."
-            ]
-        )
+//        Routes(
+//            sourceName: "Room 103",
+//            destinationName: "Lab Room 2",
+//            floor: 1,
+//            directionPoints: [
+//                CGPoint(x: 0.42, y: 0.55),
+//                CGPoint(x: 0.42, y: 0.68),
+//                CGPoint(x: 0.82, y: 0.68),
+//                CGPoint(x: 0.82, y: 0.50),  
+//                CGPoint(x: 0.82, y: 0.42),
+//                CGPoint(x: 0.88, y: 0.42)
+//            ],
+//            directions: [
+//                "Exit Room 103 and turn toward the main corridor.",
+//                "Walk to the central junction.",
+//                "Turn right and head down the corridor toward the laboratory wing.",
+//                "Continue along the right corridor.",
+//                "Lab Room 2 is ahead on your right — look for the imaging lab sign.",
+//                "You've arrived at Lab Room 2. Hand your form to the lab staff."
+//            ]
+//        ),
+//        
+//        Routes(
+//            sourceName: "Lab Room 1",
+//            destinationName: "Pharmacy",
+//            floor: 1,
+//            directionPoints: [
+//                CGPoint(x: 0.88, y: 0.58),
+//                CGPoint(x: 0.82, y: 0.58),
+//                CGPoint(x: 0.82, y: 0.68),
+//                CGPoint(x: 0.50, y: 0.68),
+//                CGPoint(x: 0.50, y: 0.35),
+//                CGPoint(x: 0.50, y: 0.25),
+//                CGPoint(x: 0.65, y: 0.25),
+//                CGPoint(x: 0.65, y: 0.18)
+//            ],
+//            directions: [
+//                "Exit Lab Room 1 and turn left into the corridor.",
+//                "Walk toward the main corridor junction.",
+//                "Turn left at the junction and head toward the center.",
+//                "Continue straight along the central corridor.",
+//                "Keep walking ahead until you reach the upper corridor.",
+//                "Turn right toward the pharmacy section.",
+//                "The pharmacy counter is just ahead.",
+//                "You've arrived at the pharmacy. Show your prescription and wait."
+//            ]
+//        ),
+//        
+//        Routes(
+//            sourceName: "Room 104",
+//            destinationName: "Exit",
+//            floor: 1,
+//            directionPoints: [
+//                CGPoint(x: 0.60, y: 0.55),
+//                CGPoint(x: 0.60, y: 0.68),
+//                CGPoint(x: 0.50, y: 0.68),
+//                CGPoint(x: 0.50, y: 0.50),
+//                CGPoint(x: 0.50, y: 0.35),
+//                CGPoint(x: 0.50, y: 0.25),
+//                CGPoint(x: 0.35, y: 0.25),
+//                CGPoint(x: 0.35, y: 0.08)
+//            ],
+//            directions: [
+//                "Exit Room 104 and face the main corridor.",
+//                "Walk toward the central junction.",
+//                "Continue straight along the central corridor.",
+//                "Keep walking forward through the middle of the building.",
+//                "Continue ahead toward the upper level.",
+//                "Turn left at the upper corridor.",
+//                "Follow the corridor toward the rear exit.",
+//                "You've reached the exit. The doors are directly ahead."
+//            ]
+//        ),
+//        
+//        
+//        Routes(
+//            sourceName: "Main Entrance",
+//            destinationName: "Elevator",
+//            floor: 1,
+//            directionPoints: [
+//                CGPoint(x: 0.50, y: 0.92),
+//                CGPoint(x: 0.50, y: 0.78),
+//                CGPoint(x: 0.50, y: 0.68),
+//                CGPoint(x: 0.50, y: 0.50),
+//                CGPoint(x: 0.50, y: 0.35),
+//                CGPoint(x: 0.35, y: 0.35),
+//                CGPoint(x: 0.28, y: 0.35)
+//            ],
+//            directions: [
+//                "Head inside through the main entrance doors.",
+//                "Walk straight past the reception desk.",
+//                "Continue along the central corridor.",
+//                "Keep walking forward through the main corridor.",
+//                "Continue ahead — you'll pass the consultation rooms.",
+//                "Turn left toward the elevator area.",
+//                "The elevator is just ahead on your left. Press the call button and wait.",
+//                "Take the elevator to Floor 2."
+//            ]
+//        ),
+//        
+//        Routes(
+//            sourceName: "Elevator",
+//            destinationName: "Room 201",
+//            floor: 2,
+//            directionPoints: [
+//                CGPoint(x: 0.28, y: 0.35),
+//                CGPoint(x: 0.50, y: 0.35),
+//                CGPoint(x: 0.50, y: 0.50),
+//                CGPoint(x: 0.50, y: 0.65),
+//                CGPoint(x: 0.15, y: 0.65),
+//                CGPoint(x: 0.15, y: 0.55)
+//            ],
+//            directions: [
+//                "Exit the elevator on Floor 2 and look for the signage ahead.",
+//                "Turn right and walk toward the central corridor.",
+//                "Continue straight along the center corridor.",
+//                "Walk ahead until you reach the main corridor junction.",
+//                "Turn left along the main corridor — you'll see the pediatrics section.",
+//                "Room 201 is on your left. Check in with the receptionist."
+//            ]
+//        ),
+//        
+//        Routes(
+//            sourceName: "Main Entrance",
+//            destinationName: "Stairs",
+//            floor: 1,
+//            directionPoints: [
+//                CGPoint(x: 0.50, y: 0.92),
+//                CGPoint(x: 0.50, y: 0.78),
+//                CGPoint(x: 0.50, y: 0.68),
+//                CGPoint(x: 0.50, y: 0.50),
+//                CGPoint(x: 0.50, y: 0.35),
+//                CGPoint(x: 0.72, y: 0.35)
+//            ],
+//            directions: [
+//                "Head inside through the main entrance doors.",
+//                "Walk straight past the reception desk.",
+//                "Continue along the central corridor.",
+//                "Keep walking forward through the main corridor.",
+//                "Continue ahead — you'll pass the consultation rooms.",
+//                "Turn right and you'll see the staircase ahead. Look for the stairs sign.",
+//                "Take the stairs up to Floor 2."
+//            ]
+//        ),
+//        
+//        Routes(
+//            sourceName: "Stairs",
+//            destinationName: "Room 203",
+//            floor: 2,
+//            directionPoints: [
+//                CGPoint(x: 0.72, y: 0.35),
+//                CGPoint(x: 0.50, y: 0.35),
+//                CGPoint(x: 0.50, y: 0.50),
+//                CGPoint(x: 0.50, y: 0.65),
+//                CGPoint(x: 0.65, y: 0.65),
+//                CGPoint(x: 0.65, y: 0.55)
+//            ],
+//            directions: [
+//                "Exit the staircase on Floor 2 and look for directional signs.",
+//                "Turn left and walk toward the central corridor.",
+//                "Continue straight along the center corridor.",
+//                "Walk ahead until you reach the main corridor junction.",
+//                "Turn right along the main corridor — you'll see the ophthalmology section.",
+//                "Room 203 is on your right. Check in with the receptionist."
+//            ]
+//        )
     ]
             
     private static let main: CGFloat = 20

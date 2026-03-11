@@ -11,7 +11,7 @@ struct MapMarkerView: View {
     let isActive: Bool
     
     private var color: Color{
-        if(isActive){
+        if(isActive == true){
             return .blue
         }
         switch location.type{
@@ -27,16 +27,19 @@ struct MapMarkerView: View {
     
     var body: some View {
         VStack{
-            
             Image(systemName: location.type.icon)
-                .font(.system(size: isActive ? 22 : 15, weight: .semibold))
+                .font(.system(size: isActive ? 22 : 20, weight: .semibold))
                 .foregroundColor(color)
                 .shadow(color: color.opacity(0.45), radius: 4, x: 0, y: 2)
             Text(location.name)
-                .font(.system(size: isActive ? 10 : 8, weight: .semibold))
+                .font(.system(size: isActive ? 14 : 12, weight: .semibold))
                 .foregroundColor(color.opacity(0.85))
-                .lineLimit(1)
-                .fixedSize()
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
         }
+        .padding(isActive ? 8 : 0)
+        .frame(width: 80, height: .infinity)
+        .background(isActive ? .white : .clear)
+        .cornerRadius(isActive ? 12 : 0)
     }
 }

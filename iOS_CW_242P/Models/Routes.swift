@@ -34,12 +34,5 @@ struct Routes: Identifiable, Codable {
     
         return MockData.sampleRoutes.first
     }
-    
-    static func getDirections(from source: String, to destination: String, floor: Int) -> [String] {
-        if let route = getRoute(from: source, to: destination, floor: floor) {
-            return route.directions
-        }
-        return []
-    }
 }
 
