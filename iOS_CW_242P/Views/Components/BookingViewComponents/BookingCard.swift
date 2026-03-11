@@ -160,13 +160,13 @@ struct BookingCard: View {
                 }
             }
             
-            if booking.journeyId != nil || (booking.type == .opd && booking.hasPrescription == true) {
+            if booking.journeyId != nil || (booking.type == .opd && booking.hasPrescription == true && booking.status == .completed) {
                 Divider()
                     .padding(.vertical, 4)
                 
                 HStack(spacing: 12) {
-                    if booking.journeyId != nil {
-                        NavigationLink(destination: Text("Journey Page, Coming Soon")) {
+                    if let journeyId = booking.journeyId {
+                        NavigationLink(destination: JourneyView(journeyId: journeyId)) {
                             HStack(spacing: 6) {
                                 Text("View Journey")
                                     .font(.subheadline)
@@ -183,7 +183,7 @@ struct BookingCard: View {
                         .buttonStyle(PlainButtonStyle())
                     }
                     
-                    if booking.type == .opd && booking.hasPrescription == true {
+                    if booking.type == .opd && booking.hasPrescription == true && booking.status == .completed {
                         NavigationLink(destination: PrescriptionView()) {
                             HStack(spacing: 6) {
                                 Text("Prescription")
