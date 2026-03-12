@@ -1,9 +1,3 @@
-//
-//  AuthViewModel.swift
-//  iOS_CW_242P
-//
-//  Created by Pubudu Perera on 2026-02-23.
-//
 import Foundation
 import SwiftUI
 import Combine
@@ -16,22 +10,24 @@ class AuthViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var showError = false
 
+    @Published var activeRole: UserRole = .patient
+
     @Published var otpSent = false
     @Published var isVerifyingOTP = false
     @Published var verificationId: String?
 
     private let userDefaultsKey = "currentUser"
-
     private let demoOTPCode = "123456"
     private let demoAccounts: [String: (name: String, role: UserRole, specialization: String?)] = [
-        "+94711111111": ("Pubudu Perera", .patient, nil),
+        "+94711111111": ("Pubudu Perera",    .patient,    nil),
         "+94722222222": ("Liviru Navaratna", .pharmacist, nil)
     ]
 
     init() {
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
-        print("🔄 AuthViewModel initialized - UserDefaults cleared")
+        print("AuthViewModel initialized - UserDefaults cleared")
     }
+
 
     func sendOTP(phoneNumber: String, completion: @escaping (Bool) -> Void) {
         isLoading = true
@@ -51,7 +47,7 @@ class AuthViewModel: ObservableObject {
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             self.verificationId = UUID().uuidString
             self.otpSent = true
             self.isLoading = false
@@ -73,7 +69,7 @@ class AuthViewModel: ObservableObject {
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
 
             guard otp == self.demoOTPCode else {
                 self.showErrorMessage("Invalid OTP code. Please try again.")
@@ -83,17 +79,18 @@ class AuthViewModel: ObservableObject {
             }
 
             let cleanedNumber = phoneNumber.replacingOccurrences(of: " ", with: "")
-
             var user: User
-            if let demoAccount = self.demoAccounts[cleanedNumber] {
+
+            if let demo = self.demoAccounts[cleanedNumber] {
                 user = User(
-                    name: demoAccount.name,
+                    name: demo.name,
                     phoneNumber: cleanedNumber,
                     telephone: cleanedNumber,
-                    role: demoAccount.role,
+                    role: demo.role,
                     authProvider: .phone
                 )
-                if demoAccount.role == .pharmacist {
+                
+                if demo.role == .pharmacist {
                     user.role = .patient
                     user.roles.append(.pharmacist)
                 }
@@ -113,8 +110,11 @@ class AuthViewModel: ObservableObject {
             self.isLoading = false
             self.isVerifyingOTP = false
             self.otpSent = false
+
+            self.activeRole = user.roles.contains(.pharmacist) ? .pharmacist : .patient
+
             self.objectWillChange.send()
-            print("Phone auth successful - Role: \(user.role)")
+            print("Phone auth — activeRole: \(self.activeRole)")
             completion(true)
         }
     }
@@ -126,12 +126,13 @@ class AuthViewModel: ObservableObject {
         isLoading = false
     }
 
+
     func signInWithGoogle(completion: @escaping (Bool) -> Void) {
         isLoading = true
         errorMessage = nil
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             let user = User(
                 email: "user@gmail.com",
                 name: "Google User",
@@ -142,9 +143,10 @@ class AuthViewModel: ObservableObject {
             self.currentUser = user
             self.saveUser(user)
             self.isAuthenticated = true
+            self.activeRole = .patient
             self.isLoading = false
             self.objectWillChange.send()
-            print("Google Sign-In successful - Role: \(user.role)")
+            print("✅ Google Sign-In — role: \(user.role)")
             completion(true)
         }
     }
@@ -154,14 +156,12 @@ class AuthViewModel: ObservableObject {
 
         switch result {
         case .success(let authorization):
-            if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-                let fullName = [
-                    appleIDCredential.fullName?.givenName,
-                    appleIDCredential.fullName?.familyName
-                ].compactMap { $0 }.joined(separator: " ")
+            if let cred = authorization.credential as? ASAuthorizationAppleIDCredential {
+                let fullName = [cred.fullName?.givenName, cred.fullName?.familyName]
+                    .compactMap { $0 }.joined(separator: " ")
 
                 let user = User(
-                    email: appleIDCredential.email,
+                    email: cred.email,
                     name: fullName.isEmpty ? "Apple User" : fullName,
                     role: .patient,
                     authProvider: .apple
@@ -169,9 +169,10 @@ class AuthViewModel: ObservableObject {
                 self.currentUser = user
                 self.saveUser(user)
                 self.isAuthenticated = true
+                self.activeRole = .patient
                 self.isLoading = false
                 self.objectWillChange.send()
-                print("Apple Sign-In successful - Name: \(user.name)")
+                print("Apple Sign-In — name: \(user.name)")
             }
 
         case .failure(let error):
@@ -182,16 +183,26 @@ class AuthViewModel: ObservableObject {
         }
     }
 
+    func switchActiveRole(to role: UserRole) {
+        guard let user = currentUser else { return }
+        let isPharmacist = user.roles.contains(.pharmacist) || user.role == .pharmacist
+        if role == .pharmacist && !isPharmacist { return }
+        activeRole = role
+        objectWillChange.send()
+        print("activeRole → \(role)")
+    }
+
     func signOut() {
         isLoading = true
         currentUser = nil
         isAuthenticated = false
+        activeRole = .patient
         otpSent = false
         verificationId = nil
         isVerifyingOTP = false
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
         objectWillChange.send()
-        print("🚪 User logged out successfully")
+        print("User logged out")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
             self?.isLoading = false
             self?.objectWillChange.send()
@@ -217,8 +228,7 @@ class AuthViewModel: ObservableObject {
         isLoading = true
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let self = self else { return }
-
+            guard let self else { return }
             user.name         = name
             user.email        = email
             user.address      = address
@@ -230,12 +240,11 @@ class AuthViewModel: ObservableObject {
             self.saveUser(user)
             self.isLoading = false
             self.objectWillChange.send()
-
-            print("Profile updated — Name: \(name), NIC: \(nic ?? "nil"), PharmacistID: \(pharmacistID ?? "nil")")
-
+            print("Profile updated — \(name)")
             completion(true)
         }
     }
+
 
     private func showErrorMessage(_ message: String) {
         errorMessage = message
@@ -250,10 +259,11 @@ class AuthViewModel: ObservableObject {
     }
 
     private func loadUser() {
-        if let userData = UserDefaults.standard.data(forKey: userDefaultsKey),
-           let user = try? JSONDecoder().decode(User.self, from: userData) {
+        if let data = UserDefaults.standard.data(forKey: userDefaultsKey),
+           let user = try? JSONDecoder().decode(User.self, from: data) {
             currentUser = user
             isAuthenticated = true
+            activeRole = user.roles.contains(.pharmacist) ? .pharmacist : .patient
         }
     }
 }
