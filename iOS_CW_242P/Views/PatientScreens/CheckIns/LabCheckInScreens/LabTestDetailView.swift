@@ -67,7 +67,8 @@ struct LabTestDetailView: View {
                         .padding(.horizontal)
                     }
 
-                    if let preparation = test.preparationRequired {
+                    if let preparation = test.preparationRequired
+                    {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack(spacing: 6) {
                                 Image(systemName: "exclamationmark.circle")
@@ -84,10 +85,6 @@ struct LabTestDetailView: View {
                         .padding()
                         .background(Color(.systemBackground))
                         .cornerRadius(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.orange.opacity(0.25), lineWidth: 1)
-                        )
                         .padding(.horizontal)
                     }
                 }

@@ -19,9 +19,12 @@ struct PatientAppContainer: View {
             MyBookingsView(directCall: true)
                 .tabItem { Label("Bookings", systemImage: "calendar.badge.plus") }
                 .tag(1)
-
-            Text("Map View")
-                .tabItem { Label("Map", systemImage: "map.fill") }
+            
+            //Indoor Navigation View
+            IndoorNavigationView()
+                .tabItem {
+                    Label("Map", systemImage: "map.fill")
+                }
                 .tag(2)
 
             NotificationView()

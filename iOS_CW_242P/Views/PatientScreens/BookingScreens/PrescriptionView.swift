@@ -10,29 +10,59 @@ import Foundation
 
 struct PrescriptionView: View {
     let appointment: Appointment
-    let appointmentMedications: [Medication]
     
-    init() {
-        self.appointment = MockData.sampleBookings[0]
-        self.appointmentMedications = [
-            Medication("Paracetamol","500mg",4,5),
-            Medication("Amoxicillin","250mg",3,3)
-        ]
+    @State private var showDownloadAlert = false
+    
+    private var appointmentMedications: [Medication] {
+        appointment.medications ?? []
+    }
+    
+    private var prescribedLabTests: [LabTest] {
+        appointment.prescribedLabTests ?? []
+    }
+    
+    let importantNotes: [String] = ["Take medications at the same time each day","Don't skip doses","Complete the full course","Consult doctor in case of side effects"]
+    
+    init(appointment: Appointment) {
+        self.appointment = appointment
     }
     
     var body: some View {
             ScrollView{
                 VStack(spacing: 16){
                     VStack(spacing: 8){
-                        InformationRaw(label: "Prescribed By", value: "Dr. Smith Ray")
+                        InformationRaw(label: "Prescribed By", value: appointment.doctorName ?? "N/A")
                         
                         Divider().padding(.vertical,4)
                         
-                        InformationRaw(label: "Issued Date", value: Date().formatted(date: .long, time: .omitted))
+                        InformationRaw(label: "Issued Date", value: appointment.date.formatted(date: .long, time: .omitted))
                         
                         Divider().padding(.vertical,4)
                         
                         InformationRaw(label: "Number of medications", value: "\(appointmentMedications.count)")
+                        
+                        Divider().padding(.vertical,4)
+                        
+                        InformationRaw(label: "Number of lab tests", value: "\(prescribedLabTests.count)")
+                        
+                        Divider().padding(.vertical,4)
+                        
+                        HStack(spacing: 12) {
+                            Text("Download Medical Report")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                showDownloadAlert = true
+                            }) {
+                                Text("Download")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.blue)
+                            }
+                        }
                         
                     }.padding().background(.white).cornerRadius(16)
                     
@@ -46,46 +76,60 @@ struct PrescriptionView: View {
                          .padding(.top)
                         
                         VStack(alignment: .leading, spacing: 4){
-                            HStack(alignment: .center, spacing: 16 ){
-                                Circle().frame(width: 8, height: 8).foregroundColor(.blue)
-                                Text("Take medications at the same time each day").font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            HStack(alignment: .center, spacing: 16 ){
-                                Circle().frame(width: 8, height: 8).foregroundColor(.blue)
-                                Text("Don't skip doses").font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            HStack(alignment: .center, spacing: 16 ){
-                                Circle().frame(width: 8, height: 8).foregroundColor(.blue)
-                                Text("Complete the full course").font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            HStack(alignment: .center, spacing: 16 ){
-                                Circle().frame(width: 8, height: 8).foregroundColor(.blue)
-                                Text("Consult doctor in case of side effects").font(.subheadline)
-                                    .foregroundColor(.secondary)
+                            ForEach(importantNotes, id: \.self){note in
+                                ImportantNoteRow(importantNote: note)
                             }
                         }.padding(.horizontal).padding(.bottom)
                     }
                     .background(.orange.opacity(0.1))
                     .cornerRadius(16)
                     .padding(.vertical)
-                    ForEach(appointmentMedications){ med in
-                        MedicationCard(medication: med.name, dosage: med.dosage,
-                                       dailyFrequency: med.dailyFrequency, durationInDays: med.durationInDays)
+                    VStack(alignment:.leading, spacing: 16){
+                        HStack{
+                            Image(systemName: "pill.fill").foregroundColor(Color.gray)
+                            Text("Medication List").font(.headline)
+                        }
+                        ForEach(appointmentMedications){ med in
+                            MedicationCard(medication: med.name, dosage: med.dosage,
+                                           dailyFrequency: med.dailyFrequency, durationInDays: med.durationInDays)
+                        }
+                    }.padding(.all, 16).background(.white).cornerRadius(16)
+                    
+                    if !prescribedLabTests.isEmpty {
+                        VStack(alignment:.leading, spacing: 16){
+                            HStack{
+                                Image(systemName: "flask.fill").foregroundColor(Color.gray)
+                                Text("Prescribed Lab Tests").font(.headline)
+                            }
+                            ForEach(prescribedLabTests){ test in
+                                PrescribedLabTestCard(labTest: test)
+                            }
+                        }.padding(.all, 16).background(.white).cornerRadius(16)
                     }
  
                 }.padding(.horizontal).padding(.top)
                 
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Prescription Details")
+            .navigationTitle("Medical Report")
             .navigationBarTitleDisplayMode(.inline)
+            .alert("Download Complete", isPresented: $showDownloadAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Medical report has been downloaded successfully.")
+            }
         
+    }
+}
+
+private struct ImportantNoteRow: View{
+    let importantNote: String
+    var body: some View {
+        HStack(alignment: .center, spacing: 16 ){
+            Circle().frame(width: 8, height: 8).foregroundColor(.gray)
+            Text(importantNote).font(.subheadline)
+                .foregroundColor(.secondary)
+        }
     }
 }
 
@@ -171,6 +215,48 @@ struct MedicationCard: View {
     }
 }
 
+struct PrescribedLabTestCard: View {
+    let labTest: LabTest
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(labTest.name)
+                        .font(.headline)
+                    Text(labTest.description)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Rs. \(String(format: "%.2f", labTest.price))")
+                        .font(.headline)
+                        .foregroundColor(.blue)
+                    Text("\(labTest.duration) min")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            if let instructions = labTest.instructions {
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "info.circle.fill")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    Text(instructions)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemGray5))
+        .cornerRadius(16)
+    }
+}
+
 #Preview {
-    PrescriptionView()
+    PrescriptionView(appointment: MockData.sampleBookings[5])
 }

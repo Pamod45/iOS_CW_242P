@@ -41,7 +41,7 @@ struct LabCheckInFlow: View {
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     }
                     else if currentStep == 3 {
-                        SessionSelectionView(selectedSession: $selectedSession)
+                        SessionSelectionView(selectedSession: $selectedSession, selectedDate: selectedDate)
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     }
                     else if currentStep == 4 {
@@ -128,12 +128,18 @@ struct LabCheckInFlow: View {
                 PaymentSuccessView(
                     queueNumber: 8,
                     estimatedWaitTime: 30,
-                    doctorRoom: "Lab Room 1",
+                    doctorRoom: "Lab Room",
                     dismissEntireFlow: {
                         showPaymentSuccess = false
                         isPresented = false
                     }
                 )
+            }
+            .onChange(of: selectedDate) { oldValue, newValue in
+                // Clear selected session if it has passed for the new date
+                if let session = selectedSession, session.hasPassed(for: newValue) {
+                    selectedSession = nil
+                }
             }
         }
         .interactiveDismissDisabled(showPaymentSuccess)

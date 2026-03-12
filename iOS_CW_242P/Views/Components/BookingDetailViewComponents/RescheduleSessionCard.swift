@@ -18,6 +18,16 @@ struct RescheduleSessionCard: View {
                     .font(.headline)
                     .foregroundColor(isSelected ? .blue : .primary)
                 
+                if let doctorName = session.doctorName {
+                    HStack(spacing: 4) {
+                        Image(systemName: "stethoscope")
+                            .font(.caption)
+                        Text(doctorName)
+                            .font(.caption)
+                    }
+                    .foregroundColor(.secondary)
+                }
+                
                 HStack(spacing: 12) {
                     HStack(spacing: 4) {
                         Image(systemName: "person.2.fill")

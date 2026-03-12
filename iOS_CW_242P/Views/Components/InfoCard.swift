@@ -52,13 +52,7 @@ struct ServiceCard: View {
             VStack(spacing: 14) {
                 ZStack {
                     Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [color, color.opacity(0.7)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .fill(color)
                         .frame(width: 56, height: 56)
                     
                     Image(systemName: icon)
@@ -79,9 +73,6 @@ struct ServiceCard: View {
                 
                 HStack(spacing: 4) {
                     Text("Tap to book")
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                    Image(systemName: "arrow.right")
                         .font(.caption2)
                         .fontWeight(.semibold)
                 }

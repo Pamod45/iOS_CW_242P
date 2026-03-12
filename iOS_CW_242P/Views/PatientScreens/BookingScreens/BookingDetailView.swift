@@ -20,6 +20,9 @@ struct BookingDetailView: View {
     @State private var rescheduleSession: Session? = nil
     @State private var showSuccessAlert = false
     @State private var successMessage = ""
+    
+    @State var showDownloadSuccessAlert: Bool = false
+    
 
     init(booking: Binding<Appointment>, shouldDismissAfterPayment: Binding<Bool>, onPayNow: @escaping () -> Void) {
         self._booking = booking
@@ -36,13 +39,13 @@ struct BookingDetailView: View {
                         CompactQueueCard(
                             queueNumber: queue,
                             estimatedWait: wait,
-                            room: localBooking.doctorRoom ?? (localBooking.type == .opd ? "Room 101" : "Lab Room 1"),
+                            room: localBooking.doctorRoom ?? (localBooking.type == .opd ? "Room 101" : "Lab Room"),
                             appointmentType: localBooking.type
                         )
                         .padding(.horizontal)
                     }
                     
-                    BookingInfoCard(booking: localBooking)
+                    BookingInfoCard(booking: localBooking,showCancelConfirmation:$showDownloadSuccessAlert )
                         .padding(.horizontal)
                     
                     if localBooking.type == .laboratory, let tests = localBooking.labTests {
@@ -105,7 +108,7 @@ struct BookingDetailView: View {
                     BookingStatusHeader(booking: localBooking)
                         .padding(.horizontal)
                     
-                    BookingInfoCard(booking: localBooking)
+                    BookingInfoCard(booking: localBooking, showCancelConfirmation:$showDownloadSuccessAlert)
                         .padding(.horizontal)
                     
                     if localBooking.type == .laboratory, let tests = localBooking.labTests {
@@ -158,6 +161,10 @@ struct BookingDetailView: View {
             Button("OK", role: .cancel) {
                 dismiss()
             }
+        }.alert("Download Complete", isPresented: $showDownloadSuccessAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Your file has been downloaded.")
         }
     }
         

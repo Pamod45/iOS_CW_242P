@@ -1,14 +1,14 @@
 //
-//  QueueTrackingView.swift
+//  PaymentSuccessView.swift
 //  iOS_CW_242P
 //
-//  Created by Pubudu Perera on 2026-03-01.
+//  Created by Pubudu Perera on 2026-02-28.
 //
 
 
 import SwiftUI
 
-struct QueueTrackingView: View {
+struct PaymentSuccessView: View {
     @Environment(\.dismiss) private var dismiss
     let queueNumber: Int
     let estimatedWaitTime: Int
@@ -17,6 +17,14 @@ struct QueueTrackingView: View {
     
     @State private var currentPosition = 3
     @State private var totalInQueue = 18
+    
+    let appointmentInstructions: [String] = [
+        "Please arrive at least 10 minutes before your turn","Wait near the designated areas","You ‘ll receive a notification when it’s almost your turn","Keep your queue number for reference"
+    ]
+    
+    let preTestInstructions: [String]  = [
+        "Bring your uploaded doctor note","Follow any pre-test instructions (fasting, medication restrictions, timing, etc.)","Inform the laboratory staff about allergies, medical conditions, or pregnancy","Avoid eating, drinking, or medications unless instructed","Arrive on time and wear appropriate clothing (easy access for blood draw if needed)"
+    ]
     
     var body: some View {
         NavigationView {
@@ -71,7 +79,7 @@ struct QueueTrackingView: View {
                         HStack(spacing: 20) {
                             QueueStatCard(
                                 icon: "person.2.fill",
-                                title: "Position",
+                                title: "Live queue position",
                                 value: "\(currentPosition)/\(totalInQueue)",
                                 color: .blue
                             )
@@ -104,58 +112,48 @@ struct QueueTrackingView: View {
                     
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            Text("Queue Progress")
-                                .font(.headline)
-                            Spacer()
-                            Text("\(Int((Double(totalInQueue - currentPosition) / Double(totalInQueue)) * 100))%")
-                                .font(.headline)
-                                .foregroundColor(.blue)
-                        }
-                        
-                        GeometryReader { geometry in
-                            ZStack(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.gray.opacity(0.2))
-                                    .frame(height: 8)
-                                
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.blue)
-                                    .frame(width: geometry.size.width * (Double(totalInQueue - currentPosition) / Double(totalInQueue)), height: 8)
-                            }
-                        }
-                        .frame(height: 8)
-                    }
-                    .padding()
-                    .background(Color(.systemBackground))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
                             Image(systemName: "info.circle.fill")
                                 .foregroundColor(.blue)
-                            Text("Important Information")
-                                .font(.headline)
+                            if doctorRoom == "Lab Room"{
+                                Text("Pre test instructions")
+                                    .font(.headline)
+                            } else {
+                                Text("Appointment Instructions")
+                                    .font(.headline)
+                            }
                         }
                         
                         VStack(alignment: .leading, spacing: 8) {
-                            InfoBullet(text: "Please arrive at least 10 minutes before your turn")
-                            InfoBullet(text: "Wait near the designated room")
-                            InfoBullet(text: "You'll receive a notification when it's almost your turn")
-                            InfoBullet(text: "Keep your queue number for reference")
+                            
+                            if doctorRoom == "Lab Room" {
+                                ForEach(preTestInstructions, id: \.self){ instruction in
+                                    InfoBullet(text: instruction)
+                                }
+                                
+                            } else {
+                                ForEach(appointmentInstructions, id: \.self){ instruction in
+                                    InfoBullet(text: instruction)
+                                }
+                            }
                         }
                     }
                     .padding()
                     .background(Color.blue.opacity(0.05))
                     .cornerRadius(12)
-                    .padding(.horizontal)
                     
                     VStack(spacing: 12) {
                         NavigationLink(destination: Text("Indoor Navigation")) {
                             HStack {
                                 Image(systemName: "location.fill")
-                                Text("Navigate to Doctor's Room")
-                                    .fontWeight(.semibold)
+                                if doctorRoom == "Lab Room" {
+                                    Text("Navigate to Lab Room")
+                                        .fontWeight(.semibold)
+                                }
+                                else {
+                                    Text("Navigate to Doctor's Room")
+                                        .fontWeight(.semibold)
+                                }
+                                
                             }
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
@@ -197,5 +195,5 @@ struct QueueTrackingView: View {
 }
 
 #Preview {
-    QueueTrackingView(queueNumber: 15, estimatedWaitTime: 45, doctorRoom: "Room 105", dismissEntireFlow: {})
+    PaymentSuccessView(queueNumber: 15, estimatedWaitTime: 45, doctorRoom: "Room 105", dismissEntireFlow: {})
 }
