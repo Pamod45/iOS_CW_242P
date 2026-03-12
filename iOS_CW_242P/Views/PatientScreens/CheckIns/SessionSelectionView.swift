@@ -9,8 +9,13 @@ import SwiftUI
 
 struct SessionSelectionView: View {
     @Binding var selectedSession: Session?
+    var selectedDate: Date = Date()
     
-    let sessions = MockData.sessions.filter { $0.isAvailable }
+    var availableSessions: [Session] {
+        MockData.sessions.filter { session in
+            session.isAvailable && !session.hasPassed(for: selectedDate)
+        }
+    }
     
     var body: some View {
         ScrollView {
@@ -27,13 +32,29 @@ struct SessionSelectionView: View {
                 .padding(.top)
                 
                 VStack(spacing: 12) {
-                    ForEach(sessions) { session in
+                    ForEach(availableSessions) { session in
                         SessionCard(
                             session: session,
                             isSelected: selectedSession?.id == session.id
                         ) {
                             selectedSession = session
                         }
+                    }
+                    
+                    if availableSessions.isEmpty {
+                        VStack(spacing: 12) {
+                            Image(systemName: "clock.badge.exclamationmark")
+                                .font(.system(size: 48))
+                                .foregroundColor(.gray)
+                            Text("No Available Sessions")
+                                .font(.headline)
+                            Text("All sessions for today have passed. Please select a future date.")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 40)
                     }
                 }
                 .padding(.horizontal)
@@ -58,6 +79,17 @@ struct SessionCard: View {
                         Text(session.displayTime)
                             .font(.headline)
                             .foregroundColor(.primary)
+                    }
+                    
+                    if let doctorName = session.doctorName {
+                        HStack {
+                            Image(systemName: "stethoscope")
+                                .foregroundColor(.blue)
+                                .font(.caption)
+                            Text(doctorName)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
                     }
                     
                     HStack(spacing: 20) {

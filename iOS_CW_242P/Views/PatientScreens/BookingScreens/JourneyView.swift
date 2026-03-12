@@ -9,76 +9,69 @@ import SwiftUI
 struct JourneyView: View {
     let journeyId: String
     @State var journey: Journey
-    @State private var showOPDSelection = false
-    @State private var showLabSelection = false
     
     init(journeyId: String) {
         self.journeyId = journeyId
         if let foundJourney = MockData.sampleJourneys.first(where: { $0.id == journeyId }) {
-            self._journey = State(initialValue: foundJourney)
+            var journey = foundJourney
+            let displaySteps = journey.steps.filter { $0.type != .opdCheckIn }
+            let allCompleted = !displaySteps.isEmpty && displaySteps.allSatisfy {
+                $0.computedStatus == .completed || $0.computedStatus == .skipped
+            }
+            if allCompleted && journey.status != .completed {
+                journey.status = .completed
+                if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+                    MockData.sampleJourneys[journeyIndex].status = .completed
+                }
+            }
+            if journey.steps.filter { $0.type == .checkout }.isEmpty {
+                let maxSequence = journey.steps.map { $0.sequence }.max() ?? 0
+                journey.steps.append(JourneyStep(
+                    id: UUID().uuidString,
+                    type: .checkout,
+                    bookingID: "",
+                    sequence: maxSequence + 1,
+                    status: .pending
+                ))
+            }
+            self._journey = State(initialValue: journey)
         } else {
             self._journey = State(initialValue: Journey(patientID: "user123", date: Date()))
         }
     }
-    
+
     private var completionPercentage: Double {
         let displaySteps = journey.steps.filter { $0.type != .opdCheckIn }
         let completedCount = displaySteps.filter { $0.computedStatus == .completed }.count
         let totalCount = displaySteps.filter { $0.computedStatus != .skipped }.count
         return totalCount > 0 ? Double(completedCount) / Double(totalCount) : 0
     }
-    
+
     private var currentStep: JourneyStep? {
         journey.steps.filter { $0.type != .opdCheckIn }.first { $0.computedStatus == .inProgress }
     }
-    
+
     private var displaySteps: [JourneyStep] {
-        journey.steps.filter { $0.type != .opdCheckIn }
+        journey.steps.sorted { $0.sequence < $1.sequence }
     }
-    
+
     private var isJourneyEditable: Bool {
-        Calendar.current.isDateInToday(journey.date)
+        journey.status != .completed && Calendar.current.isDateInToday(journey.date)
     }
     
-    private var availableOPDBookings: [Appointment] {
-        MockData.sampleBookings.filter { booking in
-            booking.type == .opd &&
-            Calendar.current.isDate(booking.date, inSameDayAs: journey.date) &&
-            !journey.steps.contains { $0.bookingID == booking.id }
-        }
-    }
-    
-    private var availableLabBookings: [Appointment] {
-        MockData.sampleBookings.filter { booking in
-            booking.type == .laboratory &&
-            Calendar.current.isDate(booking.date, inSameDayAs: journey.date) &&
-            !journey.steps.contains { $0.bookingID == booking.id }
-        }
+    private var formattedJourneyDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM d, yyyy"
+        return formatter.string(from: journey.date)
     }
     
     private var suggestedSteps: [SuggestedStep] {
         var steps: [SuggestedStep] = []
         
+        let hasOPDAppointment = journey.steps.contains { $0.type == .doctorConsultation }
+        let hasFollowUp = journey.steps.contains { $0.type == .followUpVisit }
         let hasPharmacy = journey.steps.contains { $0.type == .pharmacy }
         let hasCheckout = journey.steps.contains { $0.type == .checkout }
-        
-        if !availableOPDBookings.isEmpty {
-            steps.append(SuggestedStep(
-                icon: "stethoscope",
-                title: "OPD Check-In",
-                stepType: .doctorConsultation,
-                bookingID: nil
-            ))
-        }
-        
-        if !availableLabBookings.isEmpty {
-            steps.append(SuggestedStep(
-                icon: "flask.fill",
-                title: "Lab Check-In",
-                stepType: .laboratory,
-                bookingID: nil
-            ))
-        }
         
         if !hasPharmacy {
             steps.append(SuggestedStep(
@@ -89,38 +82,35 @@ struct JourneyView: View {
             ))
         }
         
-        if !hasCheckout {
-            steps.append(SuggestedStep(
-                icon: "checkmark.circle.fill",
-                title: "Checkout",
-                stepType: .checkout,
-                bookingID: nil
-            ))
-        }
-        
         return steps
     }
-    
+
     var body: some View {
         ScrollView{
             VStack(spacing:32){
                 ZStack{
                     Circle().stroke(Color(.systemGray5), lineWidth: 16)
-                    
+
                     Circle().trim(from: 0, to: completionPercentage).stroke(Color.blue, style: StrokeStyle(lineWidth: 16, lineCap: .round)).rotationEffect(.degrees(-90))
-                    
+
                     VStack{
                         Text("\(Int(completionPercentage * 100))%").font(.largeTitle).fontWeight(.bold)
                         Text("Completed").foregroundColor(.secondary)
                     }
                 }.padding(.horizontal,104)
-                
+
                 VStack(alignment:.center){
                     Text("Please follow the steps to complete \n your journey").multilineTextAlignment(.center).foregroundColor(Color(.systemGray))
                         .font(.subheadline)
                         .fontWeight(.regular)
+                    
+                    Text(formattedJourneyDate)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .padding(.top, 8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                
+
                 if let current = currentStep {
                     VStack(alignment:.leading, spacing: 0){
                         VStack(spacing: 16){
@@ -132,17 +122,24 @@ struct JourneyView: View {
                                     .padding(12)
                                     .background(Color.blue.opacity(0.1))
                                     .cornerRadius(12)
-                                VStack (alignment: .leading){
+                                VStack (alignment: .leading, spacing: 0){
                                     Text("Current Step").font(.footnote).foregroundColor(.secondary)
                                     Text(stepTitle(for: current.type)).font(.title3).fontWeight(.bold)
                                     if let location = stepLocation(for: current.type) {
                                         Text(location).font(.footnote).foregroundColor(.secondary)
                                     }
                                 }
-                                
+
                                 Spacer()
+                                
+                                Image(systemName: "location.fill")
+                                    .font(.title2)
+                                    .padding()
+                                    .background(Color.white.opacity(0.6))
+                                    .clipShape(Circle())
+                                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
                             }
-                            
+
                             if current.type == .doctorConsultation || current.type == .laboratory {
                                 Divider()
                                 VStack(){
@@ -154,124 +151,40 @@ struct JourneyView: View {
                                                     Text("\(queueNumber)").foregroundColor(.blue).fontWeight(.bold)
                                                 }
                                             }
+                                            if let queueNumber = booking.queueNumber {
+                                                VStack(alignment: .center, spacing: 4){
+                                                    Text("Live queue position ").font(.footnote).foregroundColor(.secondary)
+                                                    Text("\(queueNumber - 2 <= 0 ? 1 : queueNumber - 2 )/18 ").foregroundColor(.blue).fontWeight(.bold)
+                                                }
+                                            }
                                             if let waitTime = booking.estimatedWaitTime {
                                                 VStack(alignment: .center, spacing: 4){
                                                     Text("Wait Time").font(.footnote).foregroundColor(.secondary)
                                                     Text("~ \(waitTime) min").foregroundColor(.orange).fontWeight(.bold)
                                                 }
                                             }
+                                            
                                         }
-                                        Spacer()
-                                        Image(systemName: "location.fill")
-                                            .font(.title2)
-                                            .padding()
-                                            .background(Color.white.opacity(0.6))
-                                            .clipShape(Circle())
-                                            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
                                     }
-                                }
-                            }
-                            
-                            if current.type == .pharmacy || current.type == .checkout {
-                                Divider()
-                                VStack(spacing: 12) {
-                                    HStack(spacing: 12) {
-                                        Button(action: {
-                                            completeStep(current)
-                                        }) {
-                                            HStack {
-                                                Image(systemName: "checkmark.circle.fill")
-                                                Text("Complete")
-                                            }
-                                            .frame(maxWidth: .infinity)
-                                            .padding(.vertical, 12)
-                                            .background(Color.green)
-                                            .foregroundColor(.white)
-                                            .cornerRadius(10)
-                                        }
-                                        .disabled(!isJourneyEditable)
-                                        .opacity(isJourneyEditable ? 1.0 : 0.5)
-                                        
-                                        Button(action: {
-                                            skipStep(current)
-                                        }) {
-                                            HStack {
-                                                Image(systemName: "forward.fill")
-                                                Text("Skip")
-                                            }
-                                            .frame(maxWidth: .infinity)
-                                            .padding(.vertical, 12)
-                                            .background(Color.orange)
-                                            .foregroundColor(.white)
-                                            .cornerRadius(10)
-                                        }
-                                        .disabled(!isJourneyEditable)
-                                        .opacity(isJourneyEditable ? 1.0 : 0.5)
-                                    }
-                                    
-                                    Button(action: {
-                                        removeStep(current)
-                                    }) {
-                                        HStack {
-                                            Image(systemName: "trash.fill")
-                                            Text("Remove from Journey")
-                                        }
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 12)
-                                        .background(Color.red.opacity(0.1))
-                                        .foregroundColor(.red)
-                                        .cornerRadius(10)
-                                    }
-                                    .disabled(!isJourneyEditable)
-                                    .opacity(isJourneyEditable ? 1.0 : 0.5)
                                 }
                             }
                         }.padding()
                     }.background(.gray.opacity(0.08)).cornerRadius(16)
                 }
-                
+
                 VStack(){
                     ForEach(displaySteps) { step in
                         stepRow(for: step)
-                            .contextMenu {
-                                if isJourneyEditable && step.computedStatus == .pending {
-                                    if step.type == .pharmacy || step.type == .checkout {
-                                        Button(role: .destructive) {
-                                            removeStep(step)
-                                        } label: {
-                                            Label("Remove", systemImage: "trash")
-                                        }
-                                    }
-                                    
-                                    if let currentIndex = displaySteps.firstIndex(where: { $0.id == step.id }) {
-                                        if currentIndex > 0 {
-                                            Button {
-                                                moveStep(step, direction: .up)
-                                            } label: {
-                                                Label("Move Up", systemImage: "arrow.up")
-                                            }
-                                        }
-                                        
-                                        if currentIndex < displaySteps.count - 1 {
-                                            Button {
-                                                moveStep(step, direction: .down)
-                                            } label: {
-                                                Label("Move Down", systemImage: "arrow.down")
-                                            }
-                                        }
-                                    }
-                                }
-                            }
                         if step.id != displaySteps.last?.id {
                             Divider().padding(.horizontal)
                         }
                     }
                 }.background().cornerRadius(16)
-                
+
                 if !suggestedSteps.isEmpty && isJourneyEditable {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Add to Journey").font(.headline).foregroundColor(.primary)
-                        
+
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
                                 ForEach(suggestedSteps) { suggested in
@@ -282,7 +195,7 @@ struct JourneyView: View {
                                             Image(systemName: suggested.icon)
                                                 .font(.title2)
                                                 .foregroundColor(.blue)
-                                            
+
                                             Text(suggested.title)
                                                 .font(.caption)
                                                 .foregroundColor(.primary)
@@ -302,36 +215,16 @@ struct JourneyView: View {
                 }
             }.padding(.vertical)
              .padding(.horizontal)
-            
+
         }.background(Color(.systemGroupedBackground))
             .navigationTitle("My Journey")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showOPDSelection) {
-                BookingSelectionSheet(
-                    title: "Select OPD Check-In",
-                    bookings: availableOPDBookings,
-                    onSelect: { booking in
-                        addBookingToJourney(booking, stepType: .doctorConsultation)
-                        showOPDSelection = false
-                    }
-                )
-            }
-            .sheet(isPresented: $showLabSelection) {
-                BookingSelectionSheet(
-                    title: "Select Lab Check-In",
-                    bookings: availableLabBookings,
-                    onSelect: { booking in
-                        addBookingToJourney(booking, stepType: .laboratory)
-                        showLabSelection = false
-                    }
-                )
-            }
     }
-    
+
     @ViewBuilder
     private func stepRow(for step: JourneyStep) -> some View {
         let displayStatus = step.computedStatus
-        
+
         HStack(alignment: .top, spacing: 16){
             Image(systemName: statusIcon(for: displayStatus))
                 .font(.footnote)
@@ -340,29 +233,15 @@ struct JourneyView: View {
                 .background(statusColor(for: displayStatus).opacity(0.2))
                 .fontWeight(.bold)
                 .clipShape(Circle())
-            
+
             VStack(alignment: .leading, spacing: 6){
-                HStack(spacing: 8){
-                    Image(systemName: stepIcon(for: step.type))
-                        .foregroundColor(statusColor(for: displayStatus))
-                        .font(.headline)
-                    Text(stepTitle(for: step.type))
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                }
-                
-                Text(stepDescription(for: step.type))
+                Text(stepTitle(for: step.type))
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+
+                Text(stepDescription(for: step))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                
-                if displayStatus != .completed {
-                    if let location = stepLocation(for: step.type), !location.isEmpty {
-                        HStack(spacing: 6){
-                            Image(systemName: "location").font(.caption).foregroundColor(.blue)
-                            Text(location).font(.footnote).foregroundColor(.blue)
-                        }
-                    }
-                }
                 
                 if step.type == .laboratory {
                     if let booking = getBooking(for: step), let tests = booking.labTests, !tests.isEmpty {
@@ -374,8 +253,31 @@ struct JourneyView: View {
                             .cornerRadius(8)
                     }
                 }
+                
+                if step.type == .doctorConsultation || step.type == .laboratory {
+                    if let booking = getBooking(for: step), let session = MockData.sessions.first(where: { $0.id == booking.sessionId }) {
+                        let arrivalTime = calculateArrivalTime(session: session, estimatedWait: booking.estimatedWaitTime)
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock")
+                                .font(.caption2)
+                            Text(arrivalTime)
+                                .font(.caption)
+                        }
+                        .foregroundColor(.gray)
+                        .padding(.top, 4)
+                    }
+                }
+
+                if displayStatus != .completed {
+                    if let location = stepLocation(for: step.type), !location.isEmpty {
+                        HStack(spacing: 6){
+                            Image(systemName: "location").font(.caption).foregroundColor(.blue)
+                            Text(location).font(.footnote).foregroundColor(.blue)
+                        }
+                    }
+                }
             }.frame(maxWidth:.infinity, alignment: .leading)
-            
+
             VStack(spacing: 8) {
                 Text(statusText(for: displayStatus))
                     .font(.caption)
@@ -384,8 +286,8 @@ struct JourneyView: View {
                     .padding(.all,8)
                     .background(statusColor(for: displayStatus).opacity(0.1))
                     .cornerRadius(8)
-                
-                if displayStatus == .pending {
+
+                if displayStatus == .pending && step.type != .doctorConsultation && step.type != .checkout {
                     HStack(spacing: 8) {
                         if canMoveUp(step) && isJourneyEditable {
                             Button(action: {
@@ -396,7 +298,7 @@ struct JourneyView: View {
                                     .foregroundColor(.blue)
                             }
                         }
-                        
+
                         if canMoveDown(step) && isJourneyEditable {
                             Button(action: {
                                 moveStep(step, direction: .down)
@@ -407,11 +309,27 @@ struct JourneyView: View {
                             }
                         }
                     }
+                    
+                    if step.type == .pharmacy && isJourneyEditable {
+                        Button(action: {
+                            removeStep(step)
+                        }) {
+                            HStack(spacing: 4) {
+                                Text("Remove")
+                                    .font(.footnote)
+                                    .fontWeight(.medium)
+                            }
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                        }
+                        .padding(.top, 4)
+                    }
                 }
                 
                 if displayStatus == .inProgress {
                     Spacer()
-                    
+
                     Button(action: {
                         completeStepInList(step)
                     }) {
@@ -432,47 +350,95 @@ struct JourneyView: View {
         }
         .padding()
     }
-    
+
     private func stepIcon(for type: JourneyStep.StepType) -> String {
         switch type {
         case .opdCheckIn: return "person.badge.plus"
         case .doctorConsultation: return "stethoscope"
         case .laboratory: return "flask"
         case .pharmacy: return "pill"
-        case .checkout: return "checkmark.circle.fill"
+        case .checkout: return "checkmark.circle"
+        case .followUpVisit: return "arrow.uturn.left"
         }
     }
-    
+
     private func stepTitle(for type: JourneyStep.StepType) -> String {
         switch type {
         case .opdCheckIn: return "Registration"
         case .doctorConsultation: return "Doctor Consultation"
         case .laboratory: return "Laboratory"
         case .pharmacy: return "Pharmacy"
-        case .checkout: return "Checkout"
+        case .checkout: return "Exit Gate"
+        case .followUpVisit: return "Follow-up Visit"
         }
     }
-    
-    private func stepDescription(for type: JourneyStep.StepType) -> String {
-        switch type {
+
+    private func stepDescription(for step: JourneyStep) -> String {
+        if let booking = getBooking(for: step) {
+            switch step.type {
+            case .opdCheckIn:
+                return "Complete your registration"
+            case .doctorConsultation:
+                if let doctorName = booking.doctorName, let reason = booking.reasonForVisit {
+                    return "\(doctorName) - \(reason)"
+                } else if let doctorName = booking.doctorName {
+                    return doctorName
+                } else if let reason = booking.reasonForVisit {
+                    return reason
+                }
+                return "Meet with your doctor"
+            case .laboratory:
+                return "Complete lab tests"
+            case .pharmacy:
+                return "Collect your medicine"
+            case .checkout:
+                return "Leave the hospital after completing your visit"
+            case .followUpVisit:
+                if let opdStep = journey.steps.first(where: { $0.type == .doctorConsultation }),
+                   let opdBooking = getBooking(for: opdStep),
+                   let doctorName = opdBooking.doctorName {
+                    return "Return to \(doctorName)"
+                }
+                return "Return to doctor"
+            }
+        }
+        
+        if step.type == .followUpVisit {
+            if let opdStep = journey.steps.first(where: { $0.type == .doctorConsultation }),
+               let opdBooking = getBooking(for: opdStep),
+               let doctorName = opdBooking.doctorName {
+                return "Return to \(doctorName)"
+            }
+            return "Return to doctor"
+        }
+        
+        switch step.type {
         case .opdCheckIn: return "Complete your registration"
         case .doctorConsultation: return "Meet with your doctor"
         case .laboratory: return "Complete lab tests"
         case .pharmacy: return "Collect your medicine"
         case .checkout: return "Complete your visit"
+        case .followUpVisit: return "Return to doctor"
         }
     }
-    
+
     private func stepLocation(for type: JourneyStep.StepType) -> String? {
         switch type {
         case .opdCheckIn: return "Reception"
         case .doctorConsultation: return nil
         case .laboratory: return "Lab Room"
         case .pharmacy: return "Pharmacy Counter"
-        case .checkout: return "Reception"
+        case .checkout: return "Exit Gate"
+        case .followUpVisit:
+            if let opdStep = journey.steps.first(where: { $0.type == .doctorConsultation }),
+               let opdBooking = getBooking(for: opdStep),
+               let room = opdBooking.doctorRoom {
+                return room
+            }
+            return nil
         }
     }
-    
+
     private func statusIcon(for status: StepStatus) -> String {
         switch status {
         case .completed: return "checkmark"
@@ -481,7 +447,7 @@ struct JourneyView: View {
         case .skipped: return "xmark"
         }
     }
-    
+
     private func statusColor(for status: StepStatus) -> Color {
         switch status {
         case .completed: return .green
@@ -490,7 +456,7 @@ struct JourneyView: View {
         case .skipped: return .orange
         }
     }
-    
+
     private func statusText(for status: StepStatus) -> String {
         switch status {
         case .completed: return "Completed"
@@ -499,265 +465,296 @@ struct JourneyView: View {
         case .skipped: return "Skipped"
         }
     }
-    
+
     private func handleSuggestedStepTap(_ suggestedStep: SuggestedStep) {
-        switch suggestedStep.stepType {
-        case .doctorConsultation:
-            showOPDSelection = true
-        case .laboratory:
-            showLabSelection = true
-        case .pharmacy, .checkout:
-            addStepToJourney(suggestedStep)
-        case .opdCheckIn:
-            break
-        }
+        addStepToJourney(suggestedStep)
     }
-    
+
     private func addStepToJourney(_ suggestedStep: SuggestedStep) {
-        let newSequence = (journey.steps.map { $0.sequence }.max() ?? 0) + 1
-        let bookingID = suggestedStep.bookingID ?? "TEMP-\(UUID().uuidString.prefix(8))"
+        let checkoutIndex = journey.steps.firstIndex { $0.type == .checkout }
+        let checkoutSequence = checkoutIndex.map { journey.steps[$0].sequence } ?? ((journey.steps.map { $0.sequence }.max() ?? 0) + 1)
         
+        let newSequence = checkoutSequence
+        let bookingID = suggestedStep.bookingID ?? "TEMP-\(UUID().uuidString.prefix(8))"
+
+        let currentInProgressStep = journey.steps.first { $0.computedStatus == .inProgress }
+        
+        let isCheckoutInProgress = currentInProgressStep?.type == .checkout
+        
+        let initialStatus: StepStatus = isCheckoutInProgress ? .inProgress : .pending
+
         let newStep = JourneyStep(
             id: UUID().uuidString,
             type: suggestedStep.stepType,
             bookingID: bookingID,
             sequence: newSequence,
-            status: .pending
+            status: initialStatus
         )
-        
+
+        if let checkoutIdx = checkoutIndex {
+            journey.steps[checkoutIdx].sequence = newSequence + 1
+            if isCheckoutInProgress {
+                journey.steps[checkoutIdx].status = .pending
+            }
+        }
+
         journey.steps.append(newStep)
-    }
-    
-    private func addBookingToJourney(_ booking: Appointment, stepType: JourneyStep.StepType) {
-        let newSequence = (journey.steps.map { $0.sequence }.max() ?? 0) + 1
         
-        let newStep = JourneyStep(
-            id: UUID().uuidString,
-            type: stepType,
-            bookingID: booking.id,
-            sequence: newSequence,
-            status: .pending
-        )
-        
-        journey.steps.append(newStep)
+        if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+            MockData.sampleJourneys[journeyIndex].steps = journey.steps
+        }
     }
-    
+
     private func getBooking(for step: JourneyStep) -> Appointment? {
         MockData.sampleBookings.first { $0.id == step.bookingID }
     }
     
+    private func calculateArrivalTime(session: Session, estimatedWait: Int?) -> String {
+        let components = session.startTime.split(separator: ":")
+        guard components.count == 2,
+              let hours = Int(components[0]),
+              let minutes = Int(components[1]) else {
+            return session.startTime
+        }
+        
+        let totalMinutes = hours * 60 + minutes + (estimatedWait ?? 0)
+        let arrivalHours = totalMinutes / 60
+        let arrivalMinutes = totalMinutes % 60
+        
+        return String(format: "%02d:%02d", arrivalHours, arrivalMinutes)
+    }
+
     private func completeStep(_ step: JourneyStep) {
         if let index = journey.steps.firstIndex(where: { $0.id == step.id }) {
             journey.steps[index].status = .completed
-            
+
             if let bookingIndex = MockData.sampleBookings.firstIndex(where: { $0.id == step.bookingID }) {
                 MockData.sampleBookings[bookingIndex].status = .completed
             }
             
-            let remainingPendingSteps = displaySteps.filter { $0.status == .pending || $0.status == .inProgress }
-            if let nextStep = remainingPendingSteps.first {
+            if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+                MockData.sampleJourneys[journeyIndex].steps = journey.steps
+            }
+
+            let sortedSteps = displaySteps
+                .sorted { $0.sequence < $1.sequence }
+                .filter { $0.computedStatus == .pending }
+            
+            if let nextStep = sortedSteps.first {
                 if let nextIndex = journey.steps.firstIndex(where: { $0.id == nextStep.id }) {
-                    
-                    if let nextBooking = MockData.sampleBookings.first(where: { $0.id == nextStep.bookingID }) {
+                    if nextStep.type == .pharmacy || nextStep.type == .checkout || nextStep.type == .followUpVisit {
+                        journey.steps[nextIndex].status = .inProgress
+                    } else if let nextBooking = MockData.sampleBookings.first(where: { $0.id == nextStep.bookingID }) {
                         if nextBooking.status == .inProgress {
                             journey.steps[nextIndex].status = .inProgress
                         }
-                    } else {
-                        journey.steps[nextIndex].status = .inProgress
+                    }
+                    
+                    if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+                        MockData.sampleJourneys[journeyIndex].steps = journey.steps
+                    }
+                }
+            } else {
+                let displaySteps = journey.steps.filter { $0.type != .opdCheckIn }
+                let allCompleted = !displaySteps.isEmpty && displaySteps.allSatisfy {
+                    $0.computedStatus == .completed || $0.computedStatus == .skipped
+                }
+                if allCompleted {
+                    journey.status = .completed
+                    if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+                        MockData.sampleJourneys[journeyIndex].status = .completed
                     }
                 }
             }
         }
     }
-    
+
     private func skipStep(_ step: JourneyStep) {
         if let index = journey.steps.firstIndex(where: { $0.id == step.id }) {
             journey.steps[index].status = .skipped
             
-            let remainingPendingSteps = displaySteps.filter { $0.status == .pending || $0.status == .inProgress }
-            if let nextStep = remainingPendingSteps.first {
+            if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+                MockData.sampleJourneys[journeyIndex].steps = journey.steps
+            }
+
+            let sortedSteps = displaySteps
+                .sorted { $0.sequence < $1.sequence }
+                .filter { $0.computedStatus == .pending }
+            
+            if let nextStep = sortedSteps.first {
                 if let nextIndex = journey.steps.firstIndex(where: { $0.id == nextStep.id }) {
-                    journey.steps[nextIndex].status = .inProgress
+                    if nextStep.type == .pharmacy || nextStep.type == .checkout || nextStep.type == .followUpVisit {
+                        journey.steps[nextIndex].status = .inProgress
+                    } else if let nextBooking = MockData.sampleBookings.first(where: { $0.id == nextStep.bookingID }) {
+                        if nextBooking.status == .inProgress {
+                            journey.steps[nextIndex].status = .inProgress
+                        }
+                    }
+                    
+                    if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+                        MockData.sampleJourneys[journeyIndex].steps = journey.steps
+                    }
                 }
             }
         }
     }
-    
+
     private func completeStepInList(_ step: JourneyStep) {
         if let index = journey.steps.firstIndex(where: { $0.id == step.id }) {
             journey.steps[index].status = .completed
-            
+
             if let bookingIndex = MockData.sampleBookings.firstIndex(where: { $0.id == step.bookingID }) {
                 MockData.sampleBookings[bookingIndex].status = .completed
             }
             
-            let nextPendingStep = journey.steps
+            if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+                MockData.sampleJourneys[journeyIndex].steps = journey.steps
+            }
+
+            let sortedSteps = journey.steps
                 .filter { $0.type != .opdCheckIn }
                 .sorted { $0.sequence < $1.sequence }
-                .first { $0.computedStatus == .pending }
-            
+
+            let nextPendingStep = sortedSteps.first { $0.computedStatus == .pending }
+
             if let nextStep = nextPendingStep,
                let nextIndex = journey.steps.firstIndex(where: { $0.id == nextStep.id }) {
-                
-                if let nextBooking = MockData.sampleBookings.first(where: { $0.id == nextStep.bookingID }) {
+                if nextStep.type == .pharmacy || nextStep.type == .checkout || nextStep.type == .followUpVisit {
+                    journey.steps[nextIndex].status = .inProgress
+                } else if let nextBooking = MockData.sampleBookings.first(where: { $0.id == nextStep.bookingID }) {
                     if nextBooking.status == .inProgress {
                         journey.steps[nextIndex].status = .inProgress
                     }
-                } else {
-                    journey.steps[nextIndex].status = .inProgress
+                }
+                
+                if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+                    MockData.sampleJourneys[journeyIndex].steps = journey.steps
+                }
+            } else {
+                let displaySteps = journey.steps.filter { $0.type != .opdCheckIn }
+                let allCompleted = !displaySteps.isEmpty && displaySteps.allSatisfy {
+                    $0.computedStatus == .completed || $0.computedStatus == .skipped
+                }
+                if allCompleted {
+                    journey.status = .completed
+                    if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+                        MockData.sampleJourneys[journeyIndex].status = .completed
+                    }
                 }
             }
         }
     }
-    
+
     private func canMoveUp(_ step: JourneyStep) -> Bool {
         guard let currentIndex = displaySteps.firstIndex(where: { $0.id == step.id }) else { return false }
-        
+
         if currentIndex == 0 { return false }
-        
+
         let previousStep = displaySteps[currentIndex - 1]
-        
-        if previousStep.computedStatus == .completed {
+
+        if previousStep.computedStatus == .completed || previousStep.computedStatus == .inProgress {
             return false
         }
-        
-        if previousStep.computedStatus == .inProgress {
+
+        if step.type == .pharmacy || step.type == .followUpVisit {
+            if previousStep.type == .pharmacy || previousStep.type == .followUpVisit || previousStep.type == .laboratory {
+                return true
+            }
             return false
         }
-        
-        return true
+
+        if step.type == .laboratory {
+            if previousStep.type == .pharmacy || previousStep.type == .followUpVisit {
+                return true
+            }
+            return false
+        }
+
+        return false
     }
-    
+
     private func canMoveDown(_ step: JourneyStep) -> Bool {
         guard let currentIndex = displaySteps.firstIndex(where: { $0.id == step.id }) else { return false }
-        
+
         if currentIndex >= displaySteps.count - 1 { return false }
-        
-        return true
+
+        let nextStep = displaySteps[currentIndex + 1]
+
+        if step.type == .pharmacy || step.type == .followUpVisit {
+            if nextStep.type == .pharmacy || nextStep.type == .laboratory || nextStep.type == .followUpVisit {
+                return true
+            }
+            return false
+        }
+
+        if step.type == .laboratory {
+            if nextStep.type == .pharmacy || nextStep.type == .followUpVisit {
+                return true
+            }
+            return false
+        }
+
+        return false
     }
-    
+
     private func removeStep(_ step: JourneyStep) {
         let wasInProgress = step.computedStatus == .inProgress
         journey.steps.removeAll { $0.id == step.id }
         
+        if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+            MockData.sampleJourneys[journeyIndex].steps = journey.steps
+        }
+
         if wasInProgress {
-            let remainingPendingSteps = displaySteps.filter { $0.computedStatus == .pending }
-            if let nextStep = remainingPendingSteps.first {
+            let sortedSteps = displaySteps
+                .sorted { $0.sequence < $1.sequence }
+                .filter { $0.computedStatus == .pending }
+            
+            if let nextStep = sortedSteps.first {
                 if let nextIndex = journey.steps.firstIndex(where: { $0.id == nextStep.id }) {
                     journey.steps[nextIndex].status = .inProgress
+                    
+                    if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+                        MockData.sampleJourneys[journeyIndex].steps = journey.steps
+                    }
                 }
             }
         }
     }
-    
+
     private func moveStep(_ step: JourneyStep, direction: MoveDirection) {
-        guard let currentIndex = journey.steps.firstIndex(where: { $0.id == step.id }) else { return }
+        guard step.type == .pharmacy || step.type == .laboratory || step.type == .followUpVisit else { return }
         
-        let targetIndex: Int
+        let currentDisplaySteps = displaySteps
+        guard let currentDisplayIndex = currentDisplaySteps.firstIndex(where: { $0.id == step.id }) else { return }
+        
+        let targetDisplayIndex: Int
         switch direction {
         case .up:
-            targetIndex = currentIndex - 1
+            targetDisplayIndex = currentDisplayIndex - 1
         case .down:
-            targetIndex = currentIndex + 1
+            targetDisplayIndex = currentDisplayIndex + 1
         }
         
-        guard targetIndex >= 0 && targetIndex < journey.steps.count else { return }
+        guard targetDisplayIndex >= 0 && targetDisplayIndex < currentDisplaySteps.count else { return }
         
-        journey.steps.swapAt(currentIndex, targetIndex)
+        let targetStep = currentDisplaySteps[targetDisplayIndex]
+        let currentStep = currentDisplaySteps[currentDisplayIndex]
         
-        for (index, _) in journey.steps.enumerated() {
-            journey.steps[index].sequence = index + 1
+        guard let currentIndex = journey.steps.firstIndex(where: { $0.id == currentStep.id }),
+              let targetIndex = journey.steps.firstIndex(where: { $0.id == targetStep.id }) else { return }
+        
+        let tempSequence = journey.steps[currentIndex].sequence
+        journey.steps[currentIndex].sequence = journey.steps[targetIndex].sequence
+        journey.steps[targetIndex].sequence = tempSequence
+        
+        if let journeyIndex = MockData.sampleJourneys.firstIndex(where: { $0.id == journeyId }) {
+            MockData.sampleJourneys[journeyIndex].steps = journey.steps
         }
     }
-    
+
     enum MoveDirection {
         case up, down
-    }
-}
-
-struct BookingSelectionSheet: View {
-    let title: String
-    let bookings: [Appointment]
-    let onSelect: (Appointment) -> Void
-    @Environment(\.dismiss) var dismiss
-    
-    var body: some View {
-        NavigationView {
-            List(bookings) { booking in
-                Button(action: {
-                    onSelect(booking)
-                }) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text(booking.type == .opd ? "OPD Appointment" : "Lab Test")
-                                .font(.headline)
-                            Spacer()
-                            Text(booking.status.rawValue)
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(statusColor(for: booking.status).opacity(0.1))
-                                .foregroundColor(statusColor(for: booking.status))
-                                .cornerRadius(6)
-                        }
-                        
-                        if let reason = booking.reasonForVisit {
-                            Text(reason)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
-                        
-                        if let tests = booking.labTests, !tests.isEmpty {
-                            Text(tests.map { $0.name }.joined(separator: ", "))
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                                .lineLimit(2)
-                        }
-                        
-                        HStack {
-                            Image(systemName: "calendar")
-                                .font(.caption)
-                                .foregroundColor(.blue)
-                            Text(booking.date, style: .date)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            
-                            Spacer()
-                            
-                            if let session = MockData.sessions.first(where: { $0.id == booking.sessionId }) {
-                                Image(systemName: "clock")
-                                    .font(.caption)
-                                    .foregroundColor(.blue)
-                                Text(session.displayTime)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
-            .navigationTitle(title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-    
-    private func statusColor(for status: AppointmentStatus) -> Color {
-        switch status {
-        case .pending: return .orange
-        case .confirmed: return .blue
-        case .inProgress: return .purple
-        case .completed: return .green
-        case .cancelled: return .red
-        }
     }
 }
 

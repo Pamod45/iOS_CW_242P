@@ -11,10 +11,6 @@ import SwiftUI
 struct iOS_CW_242PApp: App {
     @StateObject private var authViewModel = AuthViewModel()
     
-    init() {
-        MockData.updateAppointmentStatuses()
-    }
-    
     var body: some Scene {
         WindowGroup {
             if authViewModel.isAuthenticated, let user = authViewModel.currentUser {

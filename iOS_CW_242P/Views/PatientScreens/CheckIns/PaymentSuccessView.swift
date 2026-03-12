@@ -79,7 +79,7 @@ struct PaymentSuccessView: View {
                         HStack(spacing: 20) {
                             QueueStatCard(
                                 icon: "person.2.fill",
-                                title: "Position",
+                                title: "Live queue position",
                                 value: "\(currentPosition)/\(totalInQueue)",
                                 color: .blue
                             )

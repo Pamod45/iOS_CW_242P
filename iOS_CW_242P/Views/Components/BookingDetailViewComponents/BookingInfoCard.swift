@@ -19,6 +19,11 @@ struct BookingInfoCard: View {
                 .font(.headline)
             
             VStack(spacing: 14) {
+                
+                BookingInfoRow(icon: "number", label: "Booking ID", value: booking.id.prefix(12).uppercased().description, color: iconColor, showCancelConfirmation: $showCancelConfirmation)
+                
+                Divider()
+                
                 BookingInfoRow(icon: "calendar", label: "Date", value: booking.displayDate, color: iconColor, showCancelConfirmation: $showCancelConfirmation )
                 
                 Divider()
@@ -26,6 +31,11 @@ struct BookingInfoCard: View {
                 BookingInfoRow(icon: "clock", label: "Session", value: booking.sessionDisplay, color: iconColor, showCancelConfirmation: $showCancelConfirmation)
                 
                 if booking.type == .opd {
+                    if let doctorName = booking.doctorName {
+                        Divider()
+                        BookingInfoRow(icon: "person.fill", label: "Doctor", value: doctorName, color: iconColor, showCancelConfirmation: $showCancelConfirmation)
+                    }
+                    
                     Divider()
                     
                     BookingInfoRow(icon: "text.bubble", label: "Reason", value: booking.reasonForVisit ?? "N/A", color: iconColor, showCancelConfirmation: $showCancelConfirmation)
@@ -36,14 +46,21 @@ struct BookingInfoCard: View {
                     }
                 }
                 
-                Divider()
-                
-                BookingInfoRow(icon: "number", label: "Booking ID", value: booking.id.prefix(12).uppercased().description, color: iconColor, showCancelConfirmation: $showCancelConfirmation)
-                
+                if booking.type == .opd && (booking.medications != nil || booking.prescribedLabTests != nil) {
+                    
+                    Divider()
+                    BookingInfoRow(icon: "medical_report_link", label: "Medical Reports", value: booking.id, color: iconColor, showCancelConfirmation: $showCancelConfirmation)
+                    
+                }
                 
                 if booking.requiresApproval == true {
                     Divider()
                     BookingInfoRow(icon: "note", label: "Doctor Note (Proof doc)", value:"Uploaded", color: iconColor, showCancelConfirmation: $showCancelConfirmation)
+                }
+                
+                if booking.type == .laboratory && booking.status == .completed {
+                    Divider()
+                    BookingInfoRow(icon: "doc.text.fill", label: "Lab Report", value:"Completed", color: iconColor, showCancelConfirmation: $showCancelConfirmation)
                 }
                 
             }

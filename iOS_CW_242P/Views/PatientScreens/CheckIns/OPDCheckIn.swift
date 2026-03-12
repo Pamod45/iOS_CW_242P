@@ -33,7 +33,7 @@ struct OPDCheckInFlow: View {
                         DateSelectionView(selectedDate: $viewModel.selectedDate)
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     } else if currentStep == 2 {
-                        SessionSelectionView(selectedSession: $selectedSession)
+                        SessionSelectionView(selectedSession: $selectedSession, selectedDate: viewModel.selectedDate)
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     } else if currentStep == 3 {
                         ReasonForVisitView(reasonForVisit: $reasonForVisit, user: authViewModel.currentUser, flowType: .opd, hasUploadedDocuments: $hasUploadedDocuments, isFormValid: $isVisitFormValid)
@@ -97,6 +97,12 @@ struct OPDCheckInFlow: View {
                         isPresented = false
                     }
                 )
+            }
+            .onChange(of: viewModel.selectedDate) { oldValue, newValue in
+                // Clear selected session if it has passed for the new date
+                if let session = selectedSession, session.hasPassed(for: newValue) {
+                    selectedSession = nil
+                }
             }
         }
         .interactiveDismissDisabled(showPaymentSuccess)

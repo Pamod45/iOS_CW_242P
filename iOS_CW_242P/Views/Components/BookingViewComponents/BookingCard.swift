@@ -28,7 +28,7 @@ struct BookingCard: View {
         case .pending:    return .orange
         case .confirmed:  return .blue
         case .inProgress: return .purple
-        case .completed:  return .green
+        case .completed:  return .gray
         case .cancelled:  return .gray
         }
     }
@@ -80,24 +80,24 @@ struct BookingCard: View {
                         .foregroundColor(.primary)
                         .lineLimit(1)
                     
-                    HStack(spacing: 12) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "clock")
-                                .font(.caption2)
-                            Text(booking.sessionDisplay)
-                                .font(.caption)
-                        }
-                        .foregroundColor(.secondary)
-                        
-                        if let room = booking.doctorRoom {
-                            HStack(spacing: 4) {
-                                Image(systemName: "door.left.hand.open")
-                                    .font(.caption2)
-                                Text(room)
-                                    .font(.caption)
-                            }
+                    if booking.type == .opd, let doctorName = booking.doctorName {
+                        Text(doctorName)
+                            .font(.caption)
                             .foregroundColor(.secondary)
-                        }
+                    }
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock")
+                            .font(.caption2)
+                        Text(arrivalTime)
+                            .font(.caption)
+                    }
+                    .foregroundColor(.secondary)
+                    
+                    if let room = booking.doctorRoom {
+                        Text(room)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                 }
                 
@@ -159,53 +159,6 @@ struct BookingCard: View {
                     onPayNow()
                 }
             }
-            
-            if booking.journeyId != nil || (booking.type == .opd && booking.hasPrescription == true && booking.status == .completed) {
-                Divider()
-                    .padding(.vertical, 4)
-                
-                HStack(spacing: 12) {
-                    if let journeyId = booking.journeyId {
-                        NavigationLink(destination: JourneyView(journeyId: journeyId)) {
-                            HStack(spacing: 6) {
-                                Text("View Journey")
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.white)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .background(
-                                Color.blue
-                            )
-                            .cornerRadius(10)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    
-                    if booking.type == .opd && booking.hasPrescription == true && booking.status == .completed {
-                        NavigationLink(destination: PrescriptionView()) {
-                            HStack(spacing: 6) {
-                                Text("Prescription")
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.blue.opacity(0.6))
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.blue.opacity(0.06))
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.blue.opacity(0.5), lineWidth: 1.5)
-                            )
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                }
-            }
         }
         .padding(14)
         .background(Color.white)
@@ -234,5 +187,18 @@ struct BookingCard: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM"
         return formatter.string(from: booking.date).uppercased()
+    }
+    
+    private var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, yyyy"
+        return formatter.string(from: booking.date)
+    }
+    
+    private var arrivalTime: String {
+        if let session = MockData.sessions.first(where: { $0.id == booking.sessionId }) {
+            return session.displayTime
+        }
+        return booking.sessionDisplay
     }
 }

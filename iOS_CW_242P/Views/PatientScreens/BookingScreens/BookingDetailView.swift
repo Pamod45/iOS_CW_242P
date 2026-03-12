@@ -39,7 +39,7 @@ struct BookingDetailView: View {
                         CompactQueueCard(
                             queueNumber: queue,
                             estimatedWait: wait,
-                            room: localBooking.doctorRoom ?? (localBooking.type == .opd ? "Room 101" : "Lab Room 1"),
+                            room: localBooking.doctorRoom ?? (localBooking.type == .opd ? "Room 101" : "Lab Room"),
                             appointmentType: localBooking.type
                         )
                         .padding(.horizontal)
