@@ -111,7 +111,6 @@ class AuthViewModel: ObservableObject {
             self.isVerifyingOTP = false
             self.otpSent = false
 
-            // Set the initial active UI based on whether user is (also) a pharmacist
             self.activeRole = user.roles.contains(.pharmacist) ? .pharmacist : .patient
 
             self.objectWillChange.send()

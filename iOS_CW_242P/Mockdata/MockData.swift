@@ -8,8 +8,6 @@
 import Foundation
 import SwiftUI
 
-// MARK: - Pharmacy Queue Models
-
 enum QueueStatus: String {
     case pending    = "Pending"
     case preparing  = "Preparing"
@@ -42,7 +40,6 @@ struct QueueItem: Identifiable {
     let timeAgo: String
 }
 
-// MARK: - Mock Data
 
 struct MockData {
 
@@ -70,7 +67,6 @@ struct MockData {
         Session(id: "8", startTime: "03:00", endTime: "06:00", isAvailable: false, currentQueueNumber: 0,  averageConsultationTimeInMinutes: 0)
     ]
 
-    // MARK: Pharmacy Queue Items
 
     static let sampleQueueItems: [QueueItem] = [
         QueueItem(
@@ -130,7 +126,6 @@ struct MockData {
         )
     ]
 
-    // MARK: Appointments
 
     static let sampleBookings: [Appointment] = [
         Appointment(
@@ -276,7 +271,6 @@ struct MockData {
         ),
     ]
 
-    // MARK: Lab Tests
 
     static let sampleTests: [LabTest] = [
         LabTest(
@@ -380,8 +374,6 @@ struct MockData {
             preparationRequired: nil
         )
     ]
-
-    // MARK: Notifications
 
     static let sampleNotifications: [AppNotification] = [
         AppNotification(
