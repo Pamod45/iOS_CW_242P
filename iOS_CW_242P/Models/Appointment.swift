@@ -27,19 +27,44 @@ struct Session: Identifiable, Codable {
     let isAvailable: Bool
     let currentQueueNumber: Int
     let averageConsultationTimeInMinutes: Int
+    let doctorName: String?
     
     var displayTime: String {
         "\(startTime) - \(endTime)"
     }
     
-    init(id: String = UUID().uuidString, startTime: String, endTime: String, isAvailable: Bool, currentQueueNumber: Int, averageConsultationTimeInMinutes: Int = 5) {
+    init(id: String = UUID().uuidString, startTime: String, endTime: String, isAvailable: Bool, currentQueueNumber: Int, averageConsultationTimeInMinutes: Int = 5, doctorName: String? = nil) {
             self.id = id
             self.startTime = startTime
             self.endTime = endTime
             self.isAvailable = isAvailable
             self.currentQueueNumber = currentQueueNumber
             self.averageConsultationTimeInMinutes = averageConsultationTimeInMinutes
+            self.doctorName = doctorName
         }
+    
+    func hasPassed(for date: Date) -> Bool {
+        guard Calendar.current.isDateInToday(date) else {
+            return false
+        }
+        
+        let timeComponents = endTime.split(separator: ":")
+        guard timeComponents.count == 2,
+              let hour = Int(timeComponents[0]),
+              let minute = Int(timeComponents[1]) else {
+            return false
+        }
+        
+        var sessionEndComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        sessionEndComponents.hour = hour
+        sessionEndComponents.minute = minute
+        
+        guard let sessionEndDate = Calendar.current.date(from: sessionEndComponents) else {
+            return false
+        }
+        
+        return Date() > sessionEndDate
+    }
 }
 
 enum ApprovalStatus: String, Codable {
@@ -58,6 +83,7 @@ struct Appointment: Identifiable, Codable {
     var estimatedWaitTime: Int?
     var reasonForVisit: String?
     var doctorRoom: String?
+    var doctorName: String?
     var status: AppointmentStatus
     var paymentCompleted: Bool
     var amount: Double
@@ -67,12 +93,15 @@ struct Appointment: Identifiable, Codable {
     var requiresApproval: Bool?
     var approvalStatus: ApprovalStatus?
     
+    var medications: [Medication]?
+    var prescribedLabTests: [LabTest]?
+    
     var hasPrescription: Bool?
     var prescriptionId: String?
     var journeyId: String?
     
     
-    init(id: String = UUID().uuidString, patientId: String, type: AppointmentType, date: Date, sessionId: String, queueNumber: Int? = nil, estimatedWaitTime: Int? = nil, reasonForVisit: String? = nil, doctorRoom: String? = nil, status: AppointmentStatus = .pending, paymentCompleted: Bool = false, amount: Double = 0, createdAt: Date = Date(), labTests: [LabTest]? = nil, requiresApproval: Bool? = nil, approvalStatus: ApprovalStatus? = nil, hasPrescription: Bool? = nil, prescriptionId: String? = nil, journeyId: String? = nil) {
+    init(id: String = UUID().uuidString, patientId: String, type: AppointmentType, date: Date, sessionId: String, queueNumber: Int? = nil, estimatedWaitTime: Int? = nil, reasonForVisit: String? = nil, doctorRoom: String? = nil, doctorName: String? = nil, status: AppointmentStatus = .pending, paymentCompleted: Bool = false, amount: Double = 0, createdAt: Date = Date(), labTests: [LabTest]? = nil, requiresApproval: Bool? = nil, approvalStatus: ApprovalStatus? = nil, medications: [Medication]? = nil, prescribedLabTests: [LabTest]? = nil, hasPrescription: Bool? = nil, prescriptionId: String? = nil, journeyId: String? = nil) {
         self.id = id
         self.patientId = patientId
         self.type = type
@@ -82,6 +111,7 @@ struct Appointment: Identifiable, Codable {
         self.estimatedWaitTime = estimatedWaitTime
         self.reasonForVisit = reasonForVisit
         self.doctorRoom = doctorRoom
+        self.doctorName = doctorName
         self.status = status
         self.paymentCompleted = paymentCompleted
         self.amount = amount
@@ -89,6 +119,8 @@ struct Appointment: Identifiable, Codable {
         self.labTests = labTests
         self.requiresApproval = requiresApproval
         self.approvalStatus = approvalStatus
+        self.medications = medications
+        self.prescribedLabTests = prescribedLabTests
         self.hasPrescription = hasPrescription
         self.prescriptionId = prescriptionId
         self.journeyId = journeyId

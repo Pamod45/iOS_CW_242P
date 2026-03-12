@@ -10,31 +10,59 @@ import Foundation
 
 struct PrescriptionView: View {
     let appointment: Appointment
-    let appointmentMedications: [Medication]
+    
+    @State private var showDownloadAlert = false
+    
+    private var appointmentMedications: [Medication] {
+        appointment.medications ?? []
+    }
+    
+    private var prescribedLabTests: [LabTest] {
+        appointment.prescribedLabTests ?? []
+    }
     
     let importantNotes: [String] = ["Take medications at the same time each day","Don't skip doses","Complete the full course","Consult doctor in case of side effects"]
     
-    init() {
-        self.appointment = MockData.sampleBookings[0]
-        self.appointmentMedications = [
-            Medication("Paracetamol","500mg",4,5),
-            Medication("Amoxicillin","250mg",3,3)
-        ]
+    init(appointment: Appointment) {
+        self.appointment = appointment
     }
     
     var body: some View {
             ScrollView{
                 VStack(spacing: 16){
                     VStack(spacing: 8){
-                        InformationRaw(label: "Prescribed By", value: "Dr. Nihal Ambawatta")
+                        InformationRaw(label: "Prescribed By", value: appointment.doctorName ?? "N/A")
                         
                         Divider().padding(.vertical,4)
                         
-                        InformationRaw(label: "Issued Date", value: Date().formatted(date: .long, time: .omitted))
+                        InformationRaw(label: "Issued Date", value: appointment.date.formatted(date: .long, time: .omitted))
                         
                         Divider().padding(.vertical,4)
                         
                         InformationRaw(label: "Number of medications", value: "\(appointmentMedications.count)")
+                        
+                        Divider().padding(.vertical,4)
+                        
+                        InformationRaw(label: "Number of lab tests", value: "\(prescribedLabTests.count)")
+                        
+                        Divider().padding(.vertical,4)
+                        
+                        HStack(spacing: 12) {
+                            Text("Download Medical Report")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                showDownloadAlert = true
+                            }) {
+                                Text("Download")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.blue)
+                            }
+                        }
                         
                     }.padding().background(.white).cornerRadius(16)
                     
@@ -67,13 +95,29 @@ struct PrescriptionView: View {
                         }
                     }.padding(.all, 16).background(.white).cornerRadius(16)
                     
+                    if !prescribedLabTests.isEmpty {
+                        VStack(alignment:.leading, spacing: 16){
+                            HStack{
+                                Image(systemName: "flask.fill").foregroundColor(Color.gray)
+                                Text("Prescribed Lab Tests").font(.headline)
+                            }
+                            ForEach(prescribedLabTests){ test in
+                                PrescribedLabTestCard(labTest: test)
+                            }
+                        }.padding(.all, 16).background(.white).cornerRadius(16)
+                    }
  
                 }.padding(.horizontal).padding(.top)
                 
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Prescription Details")
+            .navigationTitle("Medical Report")
             .navigationBarTitleDisplayMode(.inline)
+            .alert("Download Complete", isPresented: $showDownloadAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Medical report has been downloaded successfully.")
+            }
         
     }
 }
@@ -171,6 +215,48 @@ struct MedicationCard: View {
     }
 }
 
+struct PrescribedLabTestCard: View {
+    let labTest: LabTest
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(labTest.name)
+                        .font(.headline)
+                    Text(labTest.description)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Rs. \(String(format: "%.2f", labTest.price))")
+                        .font(.headline)
+                        .foregroundColor(.blue)
+                    Text("\(labTest.duration) min")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            if let instructions = labTest.instructions {
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "info.circle.fill")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    Text(instructions)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemGray5))
+        .cornerRadius(16)
+    }
+}
+
 #Preview {
-    PrescriptionView()
+    PrescriptionView(appointment: MockData.sampleBookings[5])
 }
