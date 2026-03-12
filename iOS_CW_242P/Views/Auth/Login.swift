@@ -35,15 +35,18 @@ struct LoginView: View {
         ScrollView {
             VStack(spacing: 28) {
                 VStack(spacing: 12) {
-                    Image(systemName: "heart.text.square.fill")
-                        .font(.system(size: 80))
-                        .foregroundColor(.blue)
+                    Image("AppLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 120, height: 120)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        
                     
-                    Text("OPD Clinic")
+                    Text("Q-Less")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                     
-                    Text("Patient Management System")
+                    Text("Spend time on health, not on lines")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -110,7 +113,7 @@ struct LoginView: View {
                 Spacer()
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color(.white))
         .sheet(isPresented: $showCountryPicker) {
             CountryCodePickerView(selectedCountry: $selectedCountry)
         }
@@ -144,8 +147,6 @@ struct LoginView: View {
                         }
                         .padding(.horizontal, 12)
                         .frame(height: 50)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
                     }
                     
                     TextField("7X XXX XXXX", text: $phoneNumber)
@@ -154,8 +155,6 @@ struct LoginView: View {
                         .focused($focusedField, equals: .phone)
                         .padding(.horizontal, 14)
                         .frame(height: 50)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
                         .onChange(of: phoneNumber) { oldValue, newValue in
                             phoneNumber = formatPhoneNumber(newValue)
                         }

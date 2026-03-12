@@ -696,7 +696,7 @@ struct MockData {
         let endTotalMinutes = endHour * 60 + endMinute
         
         return currentTotalMinutes >= startTotalMinutes && currentTotalMinutes < endTotalMinutes
-    
+    }
     
     //Sample data for map locations
     static let sampleLocations: [MapLocation] = [
