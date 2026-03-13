@@ -22,6 +22,7 @@ struct BookingDetailView: View {
     @State private var successMessage = ""
     
     @State var showDownloadSuccessAlert: Bool = false
+    @State var showReceiptDownloadAlert: Bool = false
     
 
     init(booking: Binding<Appointment>, shouldDismissAfterPayment: Binding<Bool>, onPayNow: @escaping () -> Void) {
@@ -45,7 +46,7 @@ struct BookingDetailView: View {
                         .padding(.horizontal)
                     }
                     
-                    BookingInfoCard(booking: localBooking,showCancelConfirmation:$showDownloadSuccessAlert )
+                    BookingInfoCard(booking: localBooking,showCancelConfirmation:$showDownloadSuccessAlert, showRecieptDownload: $showReceiptDownloadAlert )
                         .padding(.horizontal)
                     
                     if localBooking.type == .laboratory, let tests = localBooking.labTests {
@@ -108,7 +109,7 @@ struct BookingDetailView: View {
                     BookingStatusHeader(booking: localBooking)
                         .padding(.horizontal)
                     
-                    BookingInfoCard(booking: localBooking, showCancelConfirmation:$showDownloadSuccessAlert)
+                    BookingInfoCard(booking: localBooking, showCancelConfirmation:$showDownloadSuccessAlert, showRecieptDownload: $showReceiptDownloadAlert)
                         .padding(.horizontal)
                     
                     if localBooking.type == .laboratory, let tests = localBooking.labTests {
@@ -165,6 +166,12 @@ struct BookingDetailView: View {
             Button("OK", role: .cancel) { }
         } message: {
             Text("Your file has been downloaded.")
+        }
+        .alert("Download Appointment Confirmation", isPresented: $showReceiptDownloadAlert) {
+            Button("Download Booking", role: .cancel) {
+            }
+        } message: {
+            Text("You can download your appointment confirmation.")
         }
     }
         

@@ -12,6 +12,7 @@ struct BookingInfoCard: View {
     let iconColor: Color = .gray
     
     @Binding var showCancelConfirmation: Bool
+    @Binding var showRecieptDownload: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -61,6 +62,11 @@ struct BookingInfoCard: View {
                 if booking.type == .laboratory && booking.status == .completed {
                     Divider()
                     BookingInfoRow(icon: "doc.text.fill", label: "Lab Report", value:"Completed", color: iconColor, showCancelConfirmation: $showCancelConfirmation)
+                }
+                
+                if booking.status == .confirmed || booking.status == .completed || booking.status == .inProgress {
+                    Divider()
+                    BookingInfoRow(icon: "doc.text.fill", label: "Appointment Receipt", value:"Completed", color: iconColor, showCancelConfirmation: $showRecieptDownload)
                 }
                 
             }

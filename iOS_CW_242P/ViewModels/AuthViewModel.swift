@@ -103,6 +103,13 @@ class AuthViewModel: ObservableObject {
                     authProvider: .phone
                 )
             }
+            
+            if(user.roles.contains(.pharmacist)){
+                user.nic = "123456789V"
+                user.pharmacistID = "PH12345"
+                user.email = "pharmacist@gmail.com"
+                
+            }
 
             self.currentUser = user
             self.saveUser(user)
@@ -112,6 +119,7 @@ class AuthViewModel: ObservableObject {
             self.otpSent = false
 
             self.activeRole = user.roles.contains(.pharmacist) ? .pharmacist : .patient
+            
 
             self.objectWillChange.send()
             print("Phone auth — activeRole: \(self.activeRole)")

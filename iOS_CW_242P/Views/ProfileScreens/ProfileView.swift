@@ -42,6 +42,8 @@ struct ProfileView: View {
         var c = 0
         if !(authViewModel.currentUser?.name ?? "").isEmpty          { c += 1 }
         if !(authViewModel.currentUser?.email ?? "").isEmpty         { c += 1 }
+        if !(authViewModel.currentUser?.nic ?? "").isEmpty         { c += 1 }
+        if !(authViewModel.currentUser?.pharmacistID ?? "").isEmpty && authViewModel.activeRole == .pharmacist { c += 1 }
         let phone = authViewModel.currentUser?.telephone
                  ?? authViewModel.currentUser?.phoneNumber ?? ""
         if !phone.isEmpty { c += 1 }
