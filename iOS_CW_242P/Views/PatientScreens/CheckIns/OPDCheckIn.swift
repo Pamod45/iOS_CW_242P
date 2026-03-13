@@ -33,7 +33,7 @@ struct OPDCheckInFlow: View {
                         DateSelectionView(selectedDate: $viewModel.selectedDate)
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     } else if currentStep == 2 {
-                        SessionSelectionView(selectedSession: $selectedSession, selectedDate: viewModel.selectedDate)
+                        SessionSelectionView(selectedSession: $selectedSession, selectedDate: viewModel.selectedDate, displayRoomNumber: true)
                             .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
                     } else if currentStep == 3 {
                         ReasonForVisitView(reasonForVisit: $reasonForVisit, user: authViewModel.currentUser, flowType: .opd, hasUploadedDocuments: $hasUploadedDocuments, isFormValid: $isVisitFormValid)
@@ -99,7 +99,6 @@ struct OPDCheckInFlow: View {
                 )
             }
             .onChange(of: viewModel.selectedDate) { oldValue, newValue in
-                // Clear selected session if it has passed for the new date
                 if let session = selectedSession, session.hasPassed(for: newValue) {
                     selectedSession = nil
                 }
@@ -128,6 +127,54 @@ struct OPDCheckInFlow: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             viewModel.isLoading = false
             showPaymentSuccess = true
+            
+            if let session = selectedSession {
+                let appointmentId: String = UUID().uuidString
+                let journeyId: String = UUID().uuidString
+                var appointment = Appointment(
+                    id: appointmentId ,
+                    patientId: authViewModel.currentUser?.id ?? "user123",
+                    type: .opd,
+                    date: viewModel.selectedDate,
+                    sessionId: session.id,
+                    queueNumber: session.currentQueueNumber + 1,
+                    estimatedWaitTime: (session.currentQueueNumber - 1) * session.averageConsultationTimeInMinutes,
+                    reasonForVisit: reasonForVisit,
+                    doctorRoom: session.roomNumber,
+                    doctorName: MockData.doctorSchedule[session.id],
+                    status: .confirmed,
+                    paymentCompleted: true,
+                    amount: 1500.00,
+                    createdAt: Date(),
+                    hasPrescription: false,
+                    journeyId: journeyId
+                )
+                
+                var journey: Journey = Journey(
+                    id: journeyId,
+                    patientID: authViewModel.currentUser?.id ?? "user123",
+                    date: viewModel.selectedDate,
+                    steps: [
+                        JourneyStep(
+                            id: UUID().uuidString,
+                            type: .doctorConsultation,
+                            bookingID: appointmentId,
+                            sequence: 1,
+                            status: .pending
+                        )
+                    ],
+                    status: .pending
+                )
+                
+                MockData.sampleBookings.append(appointment)
+                MockData.sampleJourneys.append(journey)
+                
+                if let index = MockData.sessions.firstIndex(where: { $0.id == session.id }) {
+                    MockData.sessions[index].currentQueueNumber += 1
+                }
+            }
+            
+            
         }
     }
 }

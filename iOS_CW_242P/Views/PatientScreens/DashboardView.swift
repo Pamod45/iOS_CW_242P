@@ -17,6 +17,8 @@ struct DashboardView: View {
     
     @State private var todaysAppointments: [Appointment] = Appointment.todaysAppointments
     
+    @StateObject private var dataManager = DataManager.shared
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -49,20 +51,36 @@ struct DashboardView: View {
                     .padding(.horizontal)
                     .padding(.top)
                     
-                    if hasActiveJourney {
-                        NavigationLink(destination: Text("Coming soon")) {
+                    if let activeJourney = dataManager.sampleJourneys.filter{Calendar.current.isDate($0.date, inSameDayAs: Date())}.first {
+                        
+                        NavigationLink(destination: JourneyView(journeyId: activeJourney.id)) {
                             HStack(spacing: 12) {
+                                
                                 Image(systemName: "exclamationmark.circle.fill")
                                     .font(.title2)
                                     .foregroundColor(.orange)
-                                
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Visit in Progress")
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-                                    Text("Lab tests - Queue #5")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
+                                if let journeyStep = activeJourney.steps.first(where: {$0.status == .inProgress}) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Visit in Progress")
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                        Text(
+                                            "\(journeyStep.type.displayText) - Queue #5"
+                                        )
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
+                                } else if let journeyStep = activeJourney.steps.first(where: {$0.status == .pending}) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Upcoming visit")
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                        Text(
+                                            "\(journeyStep.type.displayText) - Queue #5"
+                                        )
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
                                 
                                 Spacer()

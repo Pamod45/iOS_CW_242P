@@ -94,8 +94,7 @@ struct LoginView: View {
                     .disabled(authViewModel.isLoading)
                     
                     Button(action: {
-                        triggerAppleSignIn()
-                    }) {
+                        authViewModel.handleAppleSignIn{ _ in }                    }) {
                         ZStack {
                             Circle()
                                 .fill(Color(.systemBackground))
@@ -335,14 +334,6 @@ class AppleSignInCoordinator: NSObject, ASAuthorizationControllerDelegate, ASAut
             }
         }
         return window
-    }
-    
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        authViewModel.handleAppleSignIn(result: .success(authorization))
-    }
-    
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        authViewModel.handleAppleSignIn(result: .failure(error))
     }
 }
 

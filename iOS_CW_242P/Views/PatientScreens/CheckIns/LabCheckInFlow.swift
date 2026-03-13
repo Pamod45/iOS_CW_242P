@@ -22,8 +22,12 @@ struct LabCheckInFlow: View {
     @State private var reasonForVisit: String = ""
     @State private var hasUploadedDocuments = false
     @State private var isVisitFormValid = false
+    @State private var isExistingJourney: Bool = false
+    @State private var requiresNewJourney: Bool = true
 
     @State private var pendingPaymentSuccessAfterAlert = false
+    
+    @State var index: Int? = nil
 
     var body: some View {
         NavigationView {
@@ -141,6 +145,20 @@ struct LabCheckInFlow: View {
                     selectedSession = nil
                 }
             }
+            .alert("Add to an existing journey", isPresented: $isExistingJourney){
+                Button("Yes", role: .confirm){
+                    requiresNewJourney = false
+                    completeBooking()
+                }
+                Button("No", role: .cancel){
+                    requiresNewJourney = false
+                    completeBooking()
+                }
+            } message: {
+                Text("We found another appointment in the same date do you want to add this booking to the existing visit journey?")
+            }
+                
+            
         }
         .interactiveDismissDisabled(showPaymentSuccess)
     }
@@ -170,24 +188,103 @@ struct LabCheckInFlow: View {
         }
     }
     
+    private func completeBooking() {
+        if hasPayableTests {
+            if requiresApproval {
+                pendingPaymentSuccessAfterAlert = true
+            } else {
+                showPaymentSuccess = true
+            }
+        } else if !requiresApproval {
+            showPaymentSuccess = true
+        }
+        
+        if let session = selectedSession {
+            let appointmentId = UUID().uuidString
+            var journeyId = UUID().uuidString
+            
+            let appointment = Appointment(
+                id: appointmentId ,
+                patientId: authViewModel.currentUser?.id ?? "user123",
+                type: .laboratory,
+                date: selectedDate,
+                sessionId: session.id,
+                queueNumber: session.currentQueueNumber + 1,
+                estimatedWaitTime: (session.currentQueueNumber - 1) * session.averageConsultationTimeInMinutes,
+                status: requiresApproval ? .pending : .confirmed,
+                paymentCompleted: !requiresApproval,
+                amount: selectedTests.reduce(0) {$0 + $1.price},
+                createdAt: Date(),
+                labTests: selectedTests,
+                requiresApproval: requiresApproval,
+                approvalStatus: .pending,
+                journeyId: journeyId
+            )
+            
+            MockData.sampleBookings.append(appointment)
+            
+            if(requiresNewJourney){
+                MockData.sampleJourneys.append(Journey(
+                    id: journeyId,
+                    patientID: authViewModel.currentUser?.id ?? "user123",
+                    date: selectedDate,
+                    steps: [
+                        JourneyStep(
+                            id: UUID().uuidString,
+                            type: .laboratory,
+                            bookingID: appointmentId,
+                            sequence: 1,
+                            status: .pending
+                        )
+                    ],
+                    status: .pending
+                ))
+
+            } else {
+                let nextSequenceNumber = MockData.sampleJourneys[index!].steps.count + 1
+                MockData.sampleJourneys[index!].steps.append(
+                   JourneyStep(
+                       id: UUID().uuidString,
+                       type: .laboratory,
+                       bookingID: appointmentId,
+                       sequence: nextSequenceNumber,
+                       status: .pending
+                   )
+                )
+                journeyId = MockData.sampleJourneys[index!].id
+            }
+            
+            if let index = MockData.sessions.firstIndex(where: { $0.id == session.id }) {
+                MockData.sessions[index].currentQueueNumber += 1
+            }
+        }
+    }
+    
     private func processPayment() {
+        
+        
         viewModel.isLoading = true
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             viewModel.isLoading = false
 
             if requiresApproval {
                 showApprovalRequired = true
             }
-
-            if hasPayableTests {
-                if requiresApproval {
-                    pendingPaymentSuccessAfterAlert = true
-                } else {
-                    showPaymentSuccess = true
-                }
-            } else if !requiresApproval {
-                showPaymentSuccess = true
+            
+            index = MockData.sampleJourneys.firstIndex(where: {
+               $0.patientID == authViewModel.currentUser?.id ?? "user123" &&
+               Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
+            })
+            
+            if let index = index {
+                isExistingJourney = true
             }
+            else {
+                completeBooking()
+            }
+            
+
         }
     }
 }

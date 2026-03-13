@@ -52,7 +52,7 @@ class AuthViewModel: ObservableObject {
             self.otpSent = true
             self.isLoading = false
             self.objectWillChange.send()
-            print("📱 OTP sent to \(phoneNumber)")
+            print("OTP sent to \(phoneNumber)")
             completion(true)
         }
     }
@@ -134,8 +134,8 @@ class AuthViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
             guard let self else { return }
             let user = User(
-                email: "user@gmail.com",
-                name: "Google User",
+                email: "google@gmail.com",
+                name: "Pubudu Perera",
                 phoneNumber: nil,
                 role: .patient,
                 authProvider: .google
@@ -146,41 +146,34 @@ class AuthViewModel: ObservableObject {
             self.activeRole = .patient
             self.isLoading = false
             self.objectWillChange.send()
-            print("✅ Google Sign-In — role: \(user.role)")
+            print("Google Sign-In — role: \(user.role)")
             completion(true)
         }
     }
 
-    func handleAppleSignIn(result: Result<ASAuthorization, Error>) {
+    func handleAppleSignIn(completion: @escaping (Bool) -> Void) {
         isLoading = true
+        errorMessage = nil
 
-        switch result {
-        case .success(let authorization):
-            if let cred = authorization.credential as? ASAuthorizationAppleIDCredential {
-                let fullName = [cred.fullName?.givenName, cred.fullName?.familyName]
-                    .compactMap { $0 }.joined(separator: " ")
-
-                let user = User(
-                    email: cred.email,
-                    name: fullName.isEmpty ? "Apple User" : fullName,
-                    role: .patient,
-                    authProvider: .apple
-                )
-                self.currentUser = user
-                self.saveUser(user)
-                self.isAuthenticated = true
-                self.activeRole = .patient
-                self.isLoading = false
-                self.objectWillChange.send()
-                print("Apple Sign-In — name: \(user.name)")
-            }
-
-        case .failure(let error):
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            guard let self else { return }
+            let user = User(
+                email: "apple@gmail.com",
+                name: "Pubudu Perera",
+                phoneNumber: nil,
+                role: .patient,
+                authProvider: .apple
+            )
+            self.currentUser = user
+            self.saveUser(user)
+            self.isAuthenticated = true
+            self.activeRole = .patient
             self.isLoading = false
-            if (error as NSError).code != ASAuthorizationError.canceled.rawValue {
-                showErrorMessage("Apple Sign-In failed: \(error.localizedDescription)")
-            }
+            self.objectWillChange.send()
+            print("Apple Sign-In — role: \(user.role)")
+            completion(true)
         }
+
     }
 
     func switchActiveRole(to role: UserRole) {

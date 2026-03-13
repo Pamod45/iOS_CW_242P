@@ -110,6 +110,17 @@ struct JourneyStep: Identifiable, Codable {
         case pharmacy
         case checkout
         case followUpVisit
+        
+        var displayText: String {
+            switch self {
+                case .opdCheckIn: return "OPD Check In"
+                case .doctorConsultation: return "OPD Check In"
+                case .laboratory: return "Lab Check In"
+                case .pharmacy: return "Pharmacy"
+                case .followUpVisit: return "Follow-Up Visit"
+                case .checkout : return "Leaving the hospital"
+            }
+        }
     }
     
     init(id: String, type: StepType, bookingID: String, sequence: Int, status: StepStatus) {
