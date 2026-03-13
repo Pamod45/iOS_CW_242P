@@ -50,15 +50,21 @@ struct PaymentView: View {
                         )
                         
                         SummaryRow(
+                            icon: "stethoscope",
+                            label: "Doctor Name",
+                            value: "\(session.doctorName ?? "N/A")"
+                        )
+                        
+                        SummaryRow(
                             icon: "number",
-                            label: "Current Queue",
-                            value: "\(session.currentQueueNumber)"
+                            label: "Expected Queue Number",
+                            value: "\(session.currentQueueNumber + 1)"
                         )
                         
                         SummaryRow(
                             icon: "hourglass",
                             label: "Estimated Wait Time",
-                            value: "~\(session.averageConsultationTimeInMinutes * session.currentQueueNumber) minutes"
+                            value: "~\(session.currentQueueNumber * 5) minutes"
                         )
                     }
                     

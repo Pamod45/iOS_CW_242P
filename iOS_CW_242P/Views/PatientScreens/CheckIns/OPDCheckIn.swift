@@ -16,7 +16,7 @@ struct OPDCheckInFlow: View {
     
     @State private var currentStep = 1
     @State private var selectedSession: Session?
-    @State private var reasonForVisit = "Headache"
+    @State private var reasonForVisit = ""
     @State private var showPaymentSuccess = false
     @State private var showQueueTracking = false
     @State private var hasUploadedDocuments = false
@@ -89,8 +89,8 @@ struct OPDCheckInFlow: View {
             }
             .sheet(isPresented: $showPaymentSuccess) {
                 PaymentSuccessView(
-                    queueNumber: 15,
-                    estimatedWaitTime: 45,
+                    queueNumber: 4,
+                    estimatedWaitTime: 15,
                     doctorRoom: "Room 105",
                     dismissEntireFlow: {
                         showPaymentSuccess = false

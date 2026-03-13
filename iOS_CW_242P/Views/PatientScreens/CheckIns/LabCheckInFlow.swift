@@ -130,8 +130,8 @@ struct LabCheckInFlow: View {
             }
             .sheet(isPresented: $showPaymentSuccess) {
                 PaymentSuccessView(
-                    queueNumber: 8,
-                    estimatedWaitTime: 30,
+                    queueNumber: 4,
+                    estimatedWaitTime: 15,
                     doctorRoom: "Lab Room",
                     dismissEntireFlow: {
                         showPaymentSuccess = false

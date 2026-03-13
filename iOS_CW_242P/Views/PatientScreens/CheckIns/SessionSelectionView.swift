@@ -106,10 +106,10 @@ struct SessionCard: View {
                     
                     HStack(spacing: 20) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Queue")
+                            Text("Expected Queue Number")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                            Text("\(session.currentQueueNumber)")
+                            Text("\(session.currentQueueNumber + 1)")
                                 .font(.title3)
                                 .fontWeight(.bold)
                                 .foregroundColor(.blue)
@@ -119,7 +119,7 @@ struct SessionCard: View {
                             Text("Wait Time")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                            Text("~\(session.averageConsultationTimeInMinutes * session.currentQueueNumber) min")
+                            Text("~\(session.currentQueueNumber * 5) min")
                                 .font(.title3)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.orange)

@@ -270,17 +270,15 @@ struct JourneyView: View {
                         .padding(.top, 4)
                     }
                 }
-
-                if displayStatus != .completed {
-                    if let location = stepLocation(for: step.type), !location.isEmpty {
-                        NavigationLink(destination: IndoorNavigationView(source: MockData.sampleLocations[0], destination: MockData.sampleLocations[1])) {
-                            HStack(spacing: 6){
-                                Image(systemName: "location").font(.caption).foregroundColor(.blue)
-                                Text(location).font(.footnote).foregroundColor(.blue)
-                            }
+                if let location = stepLocation(for: step.type), !location.isEmpty {
+                    NavigationLink(destination: IndoorNavigationView(source: MockData.sampleLocations[0], destination: MockData.sampleLocations[2])) {
+                        HStack(spacing: 6){
+                            Image(systemName: "location").font(.caption).foregroundColor(.blue)
+                            Text(location).font(.footnote).foregroundColor(.blue)
                         }
                     }
                 }
+                
             }.frame(maxWidth:.infinity, alignment: .leading)
 
             VStack(spacing: 8) {

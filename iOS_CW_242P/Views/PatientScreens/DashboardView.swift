@@ -51,7 +51,7 @@ struct DashboardView: View {
                     .padding(.horizontal)
                     .padding(.top)
                     
-                    if let activeJourney = dataManager.sampleJourneys.filter{Calendar.current.isDate($0.date, inSameDayAs: Date())}.first {
+                    if let activeJourney = MockData.sampleJourneys.filter{Calendar.current.isDate($0.date, inSameDayAs: Date())}.first {
                         
                         NavigationLink(destination: JourneyView(journeyId: activeJourney.id)) {
                             HStack(spacing: 12) {
@@ -65,7 +65,7 @@ struct DashboardView: View {
                                             .font(.headline)
                                             .foregroundColor(.primary)
                                         Text(
-                                            "\(journeyStep.type.displayText) - Queue #5"
+                                            "\(journeyStep.type.displayText) - Queue #3"
                                         )
                                             .font(.subheadline)
                                             .foregroundColor(.secondary)
@@ -232,24 +232,7 @@ struct AppointmentCard: View {
     }
     
     private var estimatedCallTime: String? {
-        guard let queue = appointment.queueNumber,
-              let wait = appointment.estimatedWaitTime,
-              let session = session else { return nil }
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        guard let sessionStart = formatter.date(from: session.startTime) else { return nil }
-        
-        let perPerson = max(3, wait / max(queue, 1))
-        let fromMinutes = (queue - 1) * perPerson
-        let toMinutes = fromMinutes + perPerson + 10
-        
-        let fromDate = sessionStart.addingTimeInterval(TimeInterval(fromMinutes * 60))
-        let toDate   = sessionStart.addingTimeInterval(TimeInterval(toMinutes  * 60))
-        
-        let display = DateFormatter()
-        display.dateFormat = "h:mm a"
-        return "\(display.string(from: fromDate)) – \(display.string(from: toDate))"
+        return appointment.estimatedWaitTime.map { "~\($0) min" }
     }
     
     var body: some View {
@@ -290,6 +273,20 @@ struct AppointmentCard: View {
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.blue)
+                        }
+                    }
+                    
+                    if let queueNumber = appointment.queueNumber {
+                        VStack(alignment: .center, spacing: 4){
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Live queue position ")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Text("\(queueNumber - 2 <= 0 ? 1 : queueNumber - 2 )/18 ")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.blue)
+                            }
                         }
                     }
                     

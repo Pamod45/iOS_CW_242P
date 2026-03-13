@@ -175,10 +175,13 @@ extension Appointment{
         let todaysAll = MockData.sampleBookings.filter {
             Calendar.current.isDate($0.date, inSameDayAs: Date())
         }
+
         let inProgress = todaysAll.filter { $0.status == .inProgress }
-        let completed = todaysAll.filter { $0.status == .completed }
+        let completed = todaysAll.filter { $0.status == .confirmed }
         
         let combined = inProgress + completed
+        
+        
         
         return Array(combined.prefix(3))
     }

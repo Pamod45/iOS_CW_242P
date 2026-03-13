@@ -86,7 +86,7 @@ struct PaymentSuccessView: View {
                             
                             QueueStatCard(
                                 icon: "clock.fill",
-                                title: "Wait Time",
+                                title: "Estimated wait time",
                                 value: "~\(estimatedWaitTime) min",
                                 color: .orange
                             )
@@ -103,7 +103,7 @@ struct PaymentSuccessView: View {
                             QueueStatCard(
                                 icon: "bell.fill",
                                 title: "Status",
-                                value: "Waiting",
+                                value: "Confirmed",
                                 color: .green
                             )
                         }
@@ -142,7 +142,8 @@ struct PaymentSuccessView: View {
                     .cornerRadius(12)
                     
                     VStack(spacing: 12) {
-                        NavigationLink(destination: Text("Indoor Navigation")) {
+                        
+                        NavigationLink(destination:IndoorNavigationView(source: MockData.sampleLocations[0], destination: MockData.sampleLocations[2]) ) {
                             HStack {
                                 Image(systemName: "location.fill")
                                 if doctorRoom == "Lab Room" {
