@@ -15,6 +15,7 @@ struct QueueCard: View {
                     Text(item.patientName)
                         .font(.system(size: 17, weight: .bold))
                         .foregroundColor(.black)
+                    
                 }
                 Spacer()
                 StatusBadge(status: item.status)
@@ -31,14 +32,56 @@ struct QueueCard: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(.black)
             }
+            
             ForEach(item.medicines) { med in
-                HStack(spacing: 6) {
-                    Circle().fill(Color(hex: "#3B82F6")).frame(width: 6, height: 6)
-                    Text(med.name).font(.system(size: 13)).foregroundColor(.black)
-                    Text("• \(med.dose)").font(.system(size: 13)).foregroundColor(.gray)
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(alignment: .center) {
+                        Text(med.name)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(.black)
+                        
+                        Spacer()
+                        
+                        Text(med.dose)
+                            .font(.system(size: 13))
+                            .foregroundColor(.gray)
+                    }
+                    
+                    HStack {
+                        Text("\(med.frequency) \(med.frequency == 1 ? "time" : "times") daily · \(med.durationInDays) \(med.durationInDays == 1 ? "day" : "days")")
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
+                        
+                        Spacer()
+                        
+                        Text(String(format: "%.2f LKR", Double(med.frequency * med.durationInDays) * med.price))
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
+                    }
                 }
-                .padding(.leading, 4)
+                .padding(.vertical, 6)
+                .padding(.horizontal, 4)
+                
+                if med.id != item.medicines.last?.id {
+                    Divider()
+                }
             }
+
+            Divider()
+
+            HStack {
+                Text("Total")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.black)
+                
+                Spacer()
+                
+                Text(String(format: "%.2f LKR", item.medicines.reduce(0.0) { $0 + Double($1.frequency * $1.durationInDays) * $1.price }))
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.black)
+            }
+            .padding(.vertical, 6)
+            .padding(.horizontal, 4)
 
             // Doctor + time
             HStack {

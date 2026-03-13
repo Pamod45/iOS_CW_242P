@@ -28,6 +28,9 @@ struct QueueMedicine: Identifiable {
     let id = UUID()
     let name: String
     let dose: String
+    let frequency: Int
+    let durationInDays: Int
+    let price: Double
 }
 
 struct QueueItem: Identifiable {
@@ -38,6 +41,31 @@ struct QueueItem: Identifiable {
     let medicines: [QueueMedicine]
     let doctorName: String
     let timeAgo: String
+    let date: Date
+    let sessionId: String
+    
+    func matchesFilter(_ filter: QueueFilter) -> Bool {
+        switch filter {
+        case .all:
+            return true
+        case .pending:
+            return status == .pending
+        case .preparing:
+            return status == .preparing
+        case .ready:
+            return status == .ready
+        case .collected:
+            return status == .collected
+        }
+    }
+}
+
+enum QueueFilter: String, CaseIterable {
+    case all = "All"
+    case pending = "Pending"
+    case preparing = "Preparing"
+    case ready = "Ready"
+    case collected = "Collected"
 }
 
 
@@ -62,56 +90,140 @@ struct MockData {
             patientName: "Amal Perera",
             status: .pending,
             medicines: [
-                QueueMedicine(name: "Paracetamol", dose: "500 mg"),
-                QueueMedicine(name: "Amoxicillin",  dose: "250 mg")
+                QueueMedicine(name: "Paracetamol", dose: "500 mg", frequency: 4, durationInDays: 3, price: 50.0),
+                QueueMedicine(name: "Amoxicillin",  dose: "250 mg", frequency: 3, durationInDays: 3, price: 100.0)
             ],
-            doctorName: "Dr. Sarah Wilson",
-            timeAgo: "1h ago"
+            doctorName: "Dr. kamal Perera",
+            timeAgo: "1h ago",
+            date: Date(),
+            sessionId: "1"
         ),
         QueueItem(
             queueNumber: 2,
             patientName: "Nimal Silva",
             status: .preparing,
             medicines: [
-                QueueMedicine(name: "Ibuprofen", dose: "400 mg")
+                QueueMedicine(name: "Ibuprofen", dose: "400 mg", frequency: 2, durationInDays: 2, price: 75.0),
             ],
-            doctorName: "Dr. Sarah Wilson",
-            timeAgo: "30min ago"
+            doctorName: "Dr. Pubudu Perera",
+            timeAgo: "30min ago",
+            date: Date(),
+            sessionId: "1"
         ),
         QueueItem(
             queueNumber: 3,
-            patientName: "Liviru Navaratna",
+            patientName: "Nuwan Mendis",
             status: .collected,
             medicines: [
-                QueueMedicine(name: "Paracetamol", dose: "500 mg"),
-                QueueMedicine(name: "Amoxicillin",  dose: "250 mg")
+                QueueMedicine(name: "Amoxicillin",  dose: "250 mg", frequency: 2, durationInDays: 2, price: 100.0),
             ],
-            doctorName: "Dr. Sarah Wilson",
-            timeAgo: "30min ago"
+            doctorName: "Dr. Liviru Navartna",
+            timeAgo: "30min ago",
+            date: Date(),
+            sessionId: "1"
         ),
         QueueItem(
             queueNumber: 4,
-            patientName: "Kasun Rajapaksa",
+            patientName: "Chamudi Jayasinghe",
             status: .ready,
             medicines: [
-                QueueMedicine(name: "Metformin",   dose: "500 mg"),
-                QueueMedicine(name: "Atorvastatin", dose: "10 mg")
+                QueueMedicine(name: "Metformin",   dose: "500 mg", frequency: 2, durationInDays: 7, price: 120.0),
+                QueueMedicine(name: "Atorvastatin", dose: "10 mg", frequency: 1, durationInDays: 10, price: 150.0)
             ],
             doctorName: "Dr. Priya Fernando",
-            timeAgo: "45min ago"
+            timeAgo: "45min ago",
+            date: Date(),
+            sessionId: "3"
         ),
         QueueItem(
             queueNumber: 5,
-            patientName: "Dilani Wijesinghe",
+            patientName: "Yulani Alwis",
             status: .pending,
             medicines: [
-                QueueMedicine(name: "Cetirizine",  dose: "10 mg"),
-                QueueMedicine(name: "Prednisolone", dose: "5 mg"),
-                QueueMedicine(name: "Omeprazole",  dose: "20 mg")
+                QueueMedicine(name: "Cetirizine",  dose: "10 mg", frequency: 1, durationInDays: 4, price: 80.0),
+                QueueMedicine(name: "Prednisolone", dose: "5 mg", frequency: 1, durationInDays: 2, price: 200.0),
+                QueueMedicine(name: "Omeprazole",  dose: "20 mg", frequency: 1, durationInDays: 5, price: 150.0)
             ],
-            doctorName: "Dr. Rajan Mendis",
-            timeAgo: "10min ago"
-        )
+            doctorName: "Dr. Sarith Ranathunga",
+            timeAgo: "10min ago",
+            date: Date(),
+            sessionId: "3"
+        ),
+        QueueItem(
+                queueNumber: 1,
+                patientName: "Kanishka Bandara",
+                status: .collected,
+                medicines: [
+                    QueueMedicine(name: "Losartan", dose: "50 mg", frequency: 1, durationInDays: 30, price: 450.0),
+                    QueueMedicine(name: "Metformin", dose: "500 mg", frequency: 2, durationInDays: 30, price: 300.0)
+                ],
+                doctorName: "Dr. Anura Kumara",
+                timeAgo: "1 day ago",
+                date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!,
+                sessionId: "2"
+            ),
+            QueueItem(
+                queueNumber: 2,
+                patientName: "Dilini Rajapaksa",
+                status: .collected,
+                medicines: [
+                    QueueMedicine(name: "Salbutamol Inhaler", dose: "100 mcg", frequency: 4, durationInDays: 1, price: 850.0)
+                ],
+                doctorName: "Dr. Nihal Silva",
+                timeAgo: "1 day ago",
+                date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!,
+                sessionId: "2"
+            ),
+            QueueItem(
+                queueNumber: 1,
+                patientName: "Tharindu Perera",
+                status: .collected,
+                medicines: [
+                    QueueMedicine(name: "Panadol", dose: "500 mg", frequency: 4, durationInDays: 2, price: 40.0),
+                    QueueMedicine(name: "Vitamin C", dose: "500 mg", frequency: 1, durationInDays: 10, price: 100.0)
+                ],
+                doctorName: "Dr. Sanduni Perera",
+                timeAgo: "2 days ago",
+                date: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
+                sessionId: "3"
+            ),
+            QueueItem(
+                queueNumber: 1,
+                patientName: "Malkanthi Gunawardena",
+                status: .collected,
+                medicines: [
+                    QueueMedicine(name: "Amlodipine", dose: "5 mg", frequency: 1, durationInDays: 14, price: 210.0),
+                    QueueMedicine(name: "Atorvastatin", dose: "20 mg", frequency: 1, durationInDays: 14, price: 280.0)
+                ],
+                doctorName: "Dr. Ruwan Wickramasinghe",
+                timeAgo: "3 days ago",
+                date: Calendar.current.date(byAdding: .day, value: -3, to: Date())!,
+                sessionId: "5"
+            ),
+            QueueItem(
+                queueNumber: 2,
+                patientName: "Arjun Jayawardena",
+                status: .collected,
+                medicines: [
+                    QueueMedicine(name: "Augmentin", dose: "625 mg", frequency: 2, durationInDays: 5, price: 1200.0)
+                ],
+                doctorName: "Dr. Ruwan Wickramasinghe",
+                timeAgo: "3 days ago",
+                date: Calendar.current.date(byAdding: .day, value: -3, to: Date())!,
+                sessionId: "4"
+            ),
+            QueueItem(
+                queueNumber: 1,
+                patientName: "Ishara Madushanka",
+                status: .collected,
+                medicines: [
+                    QueueMedicine(name: "Chlorphenamine", dose: "4 mg", frequency: 3, durationInDays: 3, price: 60.0)
+                ],
+                doctorName: "Dr. Priya Fernando",
+                timeAgo: "4 days ago",
+                date: Calendar.current.date(byAdding: .day, value: -4, to: Date())!,
+                sessionId: "2"
+            )
     ]
 
 
