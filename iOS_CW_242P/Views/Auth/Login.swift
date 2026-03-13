@@ -199,8 +199,6 @@ struct LoginView: View {
                 }
             }
             .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(10)
             
             VStack(alignment: .leading, spacing: 8) {
                 Text("Verification Code")

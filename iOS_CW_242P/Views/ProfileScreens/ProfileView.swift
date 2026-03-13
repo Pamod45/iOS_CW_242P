@@ -47,7 +47,7 @@ struct ProfileView: View {
         if !phone.isEmpty { c += 1 }
         return c
     }
-    private var totalFields = 3
+    private var totalFields: Int { authViewModel.activeRole == .pharmacist ? 5 : 4 }
     private var isProfileComplete: Bool { completedFields >= totalFields }
 
     private var canSwitchRoles: Bool {

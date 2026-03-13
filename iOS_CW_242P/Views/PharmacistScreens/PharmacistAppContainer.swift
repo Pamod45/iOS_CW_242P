@@ -15,10 +15,14 @@ struct PharmacistAppContainer: View {
             PharmacistDashboardView()
                  .tabItem { Label("Home", systemImage: "house.fill") }
                  .tag(0)
-
+            
+            NotificationView()
+                .tabItem { Label("Notifications", systemImage: "bell.fill") }
+                .tag(1)
+            
             ProfileView()
                 .tabItem { Label("Profile", systemImage: "person.fill") }
-                .tag(1)
+                .tag(2)
         }
         .accentColor(.blue)
     }
