@@ -9,7 +9,6 @@ import SwiftUI
 
 
 struct IndoorNavigationView: View {
-    
     @State private var sourceLocation: MapLocation?
     @State private var destinationLocation: MapLocation?
     @State private var selectedFloor = 1
@@ -33,6 +32,16 @@ struct IndoorNavigationView: View {
     enum ViewMode {
         case map
         case ar
+    }
+    
+    init(){
+    }
+    
+    init(source: MapLocation, destination: MapLocation){
+        self._sourceLocation = State(initialValue: source)
+            self._destinationLocation = State(initialValue: destination)
+            
+            self._selectedFloor = State(initialValue: source.floor)
     }
     
     

@@ -115,12 +115,12 @@ struct MockData {
     ]
 
 
-    static let sessions: [Session] = [
-        Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true, currentQueueNumber: 1, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Samanthi Perera"),
-        Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 3, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Kamal Silva"),
-        Session(id: "3", startTime: "12:00", endTime: "15:00", isAvailable: true, currentQueueNumber: 2, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Nimesha Fernando"),
-        Session(id: "4", startTime: "15:00", endTime: "18:00", isAvailable: true, currentQueueNumber: 1, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Ruwan Bandara"),
-        Session(id: "5", startTime: "18:00", endTime: "21:00", isAvailable: true, currentQueueNumber: 4, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Kumara Dissanayake")
+    static var sessions: [Session] = [
+        Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true, currentQueueNumber: 1, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Samanthi Perera", roomNumber: "Room 101"),
+        Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 3, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Kamal Silva", roomNumber: "Room 103"),
+        Session(id: "3", startTime: "12:00", endTime: "15:00", isAvailable: true, currentQueueNumber: 2, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Nimesha Fernando",roomNumber: "Room 101"),
+        Session(id: "4", startTime: "15:00", endTime: "18:00", isAvailable: true, currentQueueNumber: 1, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Ruwan Bandara", roomNumber: "Room 104"),
+        Session(id: "5", startTime: "18:00", endTime: "21:00", isAvailable: true, currentQueueNumber: 4, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Kumara Dissanayake",roomNumber: "Room 102")
     ]
     
     static let doctorSchedule: [String: String] = [
@@ -130,6 +130,7 @@ struct MockData {
         "4": "Dr. Ruwan Bandara",
         "5": "Dr. Kumara Dissanayake"
     ]
+    
     
     static var sampleBookings: [Appointment] = [
         Appointment(

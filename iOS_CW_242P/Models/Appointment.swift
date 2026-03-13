@@ -25,15 +25,16 @@ struct Session: Identifiable, Codable {
     let startTime: String
     let endTime: String
     let isAvailable: Bool
-    let currentQueueNumber: Int
+    var currentQueueNumber: Int
     let averageConsultationTimeInMinutes: Int
     let doctorName: String?
+    let roomNumber: String?
     
     var displayTime: String {
         "\(startTime) - \(endTime)"
     }
     
-    init(id: String = UUID().uuidString, startTime: String, endTime: String, isAvailable: Bool, currentQueueNumber: Int, averageConsultationTimeInMinutes: Int = 5, doctorName: String? = nil) {
+    init(id: String = UUID().uuidString, startTime: String, endTime: String, isAvailable: Bool, currentQueueNumber: Int, averageConsultationTimeInMinutes: Int = 5, doctorName: String? = nil, roomNumber: String? = nil) {
             self.id = id
             self.startTime = startTime
             self.endTime = endTime
@@ -41,6 +42,7 @@ struct Session: Identifiable, Codable {
             self.currentQueueNumber = currentQueueNumber
             self.averageConsultationTimeInMinutes = averageConsultationTimeInMinutes
             self.doctorName = doctorName
+            self.roomNumber = roomNumber
         }
     
     func hasPassed(for date: Date) -> Bool {
@@ -170,9 +172,15 @@ extension Appointment{
     }
     
     static var todaysAppointments: [Appointment] {
-        MockData.sampleBookings.filter { appointment in
-                Calendar.current.isDate(appointment.date, inSameDayAs: Date())
-            }
+        let todaysAll = MockData.sampleBookings.filter {
+            Calendar.current.isDate($0.date, inSameDayAs: Date())
+        }
+        let inProgress = todaysAll.filter { $0.status == .inProgress }
+        let completed = todaysAll.filter { $0.status == .completed }
+        
+        let combined = inProgress + completed
+        
+        return Array(combined.prefix(3))
     }
     
     var statusColor: String {

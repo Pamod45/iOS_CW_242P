@@ -10,6 +10,7 @@ import SwiftUI
 struct SessionSelectionView: View {
     @Binding var selectedSession: Session?
     var selectedDate: Date = Date()
+    var displayRoomNumber: Bool = false
     
     var availableSessions: [Session] {
         MockData.sessions.filter { session in
@@ -35,7 +36,8 @@ struct SessionSelectionView: View {
                     ForEach(availableSessions) { session in
                         SessionCard(
                             session: session,
-                            isSelected: selectedSession?.id == session.id
+                            isSelected: selectedSession?.id == session.id,
+                            displayRoomNumber: displayRoomNumber
                         ) {
                             selectedSession = session
                         }
@@ -67,7 +69,9 @@ struct SessionSelectionView: View {
 struct SessionCard: View {
     let session: Session
     let isSelected: Bool
+    let displayRoomNumber: Bool
     let action: () -> Void
+    
     
     var body: some View {
         Button(action: action) {
@@ -81,12 +85,20 @@ struct SessionCard: View {
                             .foregroundColor(.primary)
                     }
                     
-                    if let doctorName = session.doctorName {
+                    if displayRoomNumber {
                         HStack {
                             Image(systemName: "stethoscope")
                                 .foregroundColor(.blue)
                                 .font(.caption)
-                            Text(doctorName)
+                            Text("\(session.doctorName ?? "N/A")")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        HStack {
+                            Image(systemName: "location")
+                                .foregroundColor(.blue)
+                                .font(.caption)
+                            Text("\(session.roomNumber ?? "N/A")")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
@@ -112,6 +124,17 @@ struct SessionCard: View {
                                 .fontWeight(.semibold)
                                 .foregroundColor(.orange)
                         }
+//                        if displayRoomNumber {
+//                            VStack(alignment: .leading, spacing: 4) {
+//                                Text("Room number")
+//                                    .font(.caption)
+//                                    .foregroundColor(.secondary)
+//                                Text("\(session.roomNumber ?? "N/A")")
+//                                    .font(.title3)
+//                                    .fontWeight(.bold)
+//                                    .foregroundColor(.blue)
+//                            }
+//                        }
                     }
                 }
                 

@@ -131,13 +131,16 @@ struct JourneyView: View {
                                 }
 
                                 Spacer()
+                                NavigationLink(destination: IndoorNavigationView(source: MockData.sampleLocations[0], destination: MockData.sampleLocations[2])) {
+                                    Image(systemName: "location.fill")
+                                        .font(.title2)
+                                        .padding()
+                                        .background(Color.white.opacity(0.6))
+                                        .clipShape(Circle())
+                                        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                                }
                                 
-                                Image(systemName: "location.fill")
-                                    .font(.title2)
-                                    .padding()
-                                    .background(Color.white.opacity(0.6))
-                                    .clipShape(Circle())
-                                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                                
                             }
 
                             if current.type == .doctorConsultation || current.type == .laboratory {
@@ -270,9 +273,11 @@ struct JourneyView: View {
 
                 if displayStatus != .completed {
                     if let location = stepLocation(for: step.type), !location.isEmpty {
-                        HStack(spacing: 6){
-                            Image(systemName: "location").font(.caption).foregroundColor(.blue)
-                            Text(location).font(.footnote).foregroundColor(.blue)
+                        NavigationLink(destination: IndoorNavigationView(source: MockData.sampleLocations[0], destination: MockData.sampleLocations[1])) {
+                            HStack(spacing: 6){
+                                Image(systemName: "location").font(.caption).foregroundColor(.blue)
+                                Text(location).font(.footnote).foregroundColor(.blue)
+                            }
                         }
                     }
                 }
