@@ -65,7 +65,7 @@ struct DashboardView: View {
                                             .font(.headline)
                                             .foregroundColor(.primary)
                                         Text(
-                                            "\(journeyStep.type.displayText) - Queue #3"
+                                            "\(journeyStep.type.displayText) - Queue #7"
                                         )
                                             .font(.subheadline)
                                             .foregroundColor(.secondary)

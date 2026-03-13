@@ -232,7 +232,7 @@ struct MockData {
         Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 3, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Kamal Silva", roomNumber: "Room 103"),
         Session(id: "3", startTime: "12:00", endTime: "15:00", isAvailable: true, currentQueueNumber: 2, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Nimesha Fernando",roomNumber: "Room 101"),
         Session(id: "4", startTime: "15:00", endTime: "18:00", isAvailable: true, currentQueueNumber: 1, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Ruwan Bandara", roomNumber: "Room 104"),
-        Session(id: "5", startTime: "18:00", endTime: "21:00", isAvailable: true, currentQueueNumber: 4, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Kumara Dissanayake",roomNumber: "Room 102")
+        Session(id: "5", startTime: "00:00", endTime: "03:00", isAvailable: true, currentQueueNumber: 4, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Kumara Dissanayake",roomNumber: "Room 102")
     ]
     
     static let doctorSchedule: [String: String] = [
@@ -263,24 +263,24 @@ struct MockData {
             hasPrescription: false,
             journeyId: "J001"
         ),
-        Appointment(
-            id: "bk-002",
-            patientId: "user123",
-            type: .opd,
-            date: Date(),
-            sessionId: "5",
-            queueNumber: 3,
-            estimatedWaitTime: 15,
-            reasonForVisit: "Headache and fever",
-            doctorRoom: "Room 103",
-            doctorName: "Dr. Ruwan Bandara",
-            status: .inProgress,
-            paymentCompleted: true,
-            amount: 1500.00,
-            createdAt: Date().addingTimeInterval(-3600),
-            hasPrescription: false,
-            journeyId: "J002"
-        ),
+//        Appointment(
+//            id: "bk-002",
+//            patientId: "user123",
+//            type: .opd,
+//            date: Date(),
+//            sessionId: "5",
+//            queueNumber: 3,
+//            estimatedWaitTime: 15,
+//            reasonForVisit: "Headache and fever",
+//            doctorRoom: "Room 103",
+//            doctorName: "Dr. Ruwan Bandara",
+//            status: .inProgress,
+//            paymentCompleted: true,
+//            amount: 1500.00,
+//            createdAt: Date().addingTimeInterval(-3600),
+//            hasPrescription: false,
+//            journeyId: "J002"
+//        ),
         
 //        Appointment(
 //            id: "bk-010",
@@ -301,23 +301,23 @@ struct MockData {
 //            journeyId: "J003"
 //        ),
         
-        Appointment(
-            id: "bk-011",
-            patientId: "user123",
-            type: .laboratory,
-            date: Date(),
-            sessionId: "4",
-            queueNumber: 4,
-            estimatedWaitTime: 20,
-            status: .completed,
-            paymentCompleted: true,
-            amount: 1200.00,
-            createdAt: Date().addingTimeInterval(-10800),
-            labTests: [MockData.sampleTests[2]],
-            requiresApproval: false,
-            approvalStatus: nil,
-            journeyId: "J002"
-        ),
+//        Appointment(
+//            id: "bk-011",
+//            patientId: "user123",
+//            type: .laboratory,
+//            date: Date(),
+//            sessionId: "4",
+//            queueNumber: 4,
+//            estimatedWaitTime: 20,
+//            status: .completed,
+//            paymentCompleted: true,
+//            amount: 1200.00,
+//            createdAt: Date().addingTimeInterval(-10800),
+//            labTests: [MockData.sampleTests[2]],
+//            requiresApproval: false,
+//            approvalStatus: nil,
+//            journeyId: "J002"
+//        ),
         
         Appointment(
             id: "bk-012",
@@ -638,30 +638,6 @@ struct MockData {
     
     static var sampleJourneys: [Journey] = [
         Journey(
-            id: "J002",
-            patientID: "user123",
-            date: Date(),
-            steps: [
-                JourneyStep(
-                    id: "S007",
-                    type: .laboratory,
-                    bookingID: "bk-011",
-                    sequence: 1,
-                    status: .completed
-                ),
-                JourneyStep(
-                    id: "S006",
-                    type: .doctorConsultation,
-                    bookingID: "bk-002",
-                    sequence: 2,
-                    status: .inProgress
-                )
-                
-            ],
-            status: .inProgress
-        ),
-        
-        Journey(
             id: "J001",
             patientID: "user123",
             date: Date(),
@@ -686,10 +662,41 @@ struct MockData {
                     bookingID: "bk-001",
                     sequence: 3,
                     status: .pending
-                )
+                ),
+                JourneyStep(
+                    id: "S005",
+                    type: .pharmacy,
+                    bookingID: "PHAR010",
+                    sequence: 4,
+                    status: .pending
+                ),
             ],
             status: .inProgress
         ),
+        
+//        Journey(
+//            id: "J002",
+//            patientID: "user123",
+//            date: Date(),
+//            steps: [
+//                JourneyStep(
+//                    id: "S007",
+//                    type: .laboratory,
+//                    bookingID: "bk-011",
+//                    sequence: 1,
+//                    status: .completed
+//                ),
+//                JourneyStep(
+//                    id: "S006",
+//                    type: .doctorConsultation,
+//                    bookingID: "bk-002",
+//                    sequence: 2,
+//                    status: .inProgress
+//                )
+//                
+//            ],
+//            status: .inProgress
+//        ),
         
 //        Journey(
 //            id: "J003",
