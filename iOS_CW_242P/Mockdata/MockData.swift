@@ -229,10 +229,10 @@ struct MockData {
 
     static var sessions: [Session] = [
         Session(id: "1", startTime: "06:00", endTime: "09:00", isAvailable: true, currentQueueNumber: 1, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Samanthi Perera", roomNumber: "Room 101"),
-        Session(id: "2", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 3, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Kamal Silva", roomNumber: "Room 103"),
+        Session(id: "2", startTime: "18:00", endTime: "21:00", isAvailable: true, currentQueueNumber: 3, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Kamal Silva", roomNumber: "Room 103"),
         Session(id: "3", startTime: "12:00", endTime: "15:00", isAvailable: true, currentQueueNumber: 2, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Nimesha Fernando",roomNumber: "Room 101"),
         Session(id: "4", startTime: "15:00", endTime: "18:00", isAvailable: true, currentQueueNumber: 1, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Ruwan Bandara", roomNumber: "Room 104"),
-        Session(id: "5", startTime: "00:00", endTime: "03:00", isAvailable: true, currentQueueNumber: 4, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Kumara Dissanayake",roomNumber: "Room 102")
+        Session(id: "5", startTime: "09:00", endTime: "12:00", isAvailable: true, currentQueueNumber: 4, averageConsultationTimeInMinutes: 15, doctorName: "Dr. Kumara Dissanayake",roomNumber: "Room 102")
     ]
     
     static let doctorSchedule: [String: String] = [
@@ -250,9 +250,9 @@ struct MockData {
             patientId: "user123",
             type: .opd,
             date: Date(),
-            sessionId: "4",
-            queueNumber: 12,
-            estimatedWaitTime: 60,
+            sessionId: "5",
+            queueNumber: 2,
+            estimatedWaitTime: 10,
             reasonForVisit: "Annual Checkup",
             doctorRoom: "Room 101",
             doctorName: "Dr. Samanthi Perera",
