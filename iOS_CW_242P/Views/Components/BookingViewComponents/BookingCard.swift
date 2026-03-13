@@ -35,29 +35,29 @@ struct BookingCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                HStack(spacing: 5) {
-                    Text(booking.type.rawValue)
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                }
-                .foregroundColor(typeColor)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(typeColor.opacity(0.1))
-                .cornerRadius(8)
-                
-                Spacer()
-                
-                Text(statusDisplayText)
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundColor(statusColor)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(statusColor.opacity(0.1))
-                    .cornerRadius(8)
-            }
+//            HStack {
+//                HStack(spacing: 5) {
+//                    Text(booking.type.rawValue)
+//                        .font(.caption)
+//                        .fontWeight(.semibold)
+//                }
+//                .foregroundColor(typeColor)
+//                .padding(.horizontal, 10)
+//                .padding(.vertical, 5)
+//                .background(typeColor.opacity(0.1))
+//                .cornerRadius(8)
+//                
+//                Spacer()
+//                
+//                Text(statusDisplayText)
+//                    .font(.caption)
+//                    .fontWeight(.semibold)
+//                    .foregroundColor(statusColor)
+//                    .padding(.horizontal, 10)
+//                    .padding(.vertical, 5)
+//                    .background(statusColor.opacity(0.1))
+//                    .cornerRadius(8)
+//            }
             
             HStack(spacing: 14) {
                 VStack(spacing: 2) {

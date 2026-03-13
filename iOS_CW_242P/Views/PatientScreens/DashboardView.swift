@@ -67,7 +67,7 @@ struct DashboardView: View {
                                         Text(
                                             "\(journeyStep.type.displayText) - Queue #7"
                                         )
-                                            .font(.subheadline)
+                                            .font(.caption)
                                             .foregroundColor(.secondary)
                                     }
                                 } else if let journeyStep = activeJourney.steps.first(where: {$0.status == .pending}) {
@@ -257,7 +257,7 @@ struct AppointmentCard: View {
                 
                 if let session = session {
                     Text("Session  \(session.displayTime)")
-                        .font(.subheadline)
+                        .font(.caption)
                         .foregroundColor(.secondary)
                 }
                 
@@ -270,7 +270,7 @@ struct AppointmentCard: View {
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                             Text("#\(queue)")
-                                .font(.title2)
+                                .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.blue)
                         }
@@ -283,7 +283,7 @@ struct AppointmentCard: View {
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 Text("\(queueNumber - 2 <= 0 ? 1 : queueNumber - 2 )/18 ")
-                                    .font(.title2)
+                                    .font(.headline)
                                     .fontWeight(.bold)
                                     .foregroundColor(.blue)
                             }
@@ -296,7 +296,7 @@ struct AppointmentCard: View {
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                             Text(room.replacingOccurrences(of: "Room ", with: ""))
-                                .font(.title2)
+                                .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.primary)
                         }
@@ -308,7 +308,7 @@ struct AppointmentCard: View {
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                             Text("\(tests.count)")
-                                .font(.title2)
+                                .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.primary)
                         }
