@@ -115,14 +115,18 @@ struct ReasonForVisitView: View {
                     )
 
                     if personType == .child {
-                        CustomTextField(
-                            title: "Age",
-                            placeholder: "Enter child's age",
-                            text: $nicOrAge,
-                            icon: "person.crop.circle.badge.clock",
-                            keyboardType: .numberPad,
-                            backgroundColor: inputBoxBgColor
-                        )
+                        VStack(alignment: .leading) {
+                            Text("Age")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Picker("Age", selection: $nicOrAge) {
+                                ForEach(1...17, id: \.self) { age in
+                                    Text("\(age) years").tag("\(age)")
+                                }
+                            }
+                            .pickerStyle(.wheel)
+                            .frame(height: 120)
+                        }
                     } else {
                         CustomTextField(
                             title: "NIC Number",

@@ -151,7 +151,7 @@ struct LabCheckInFlow: View {
                     completeBooking()
                 }
                 Button("No", role: .cancel){
-                    requiresNewJourney = false
+                    requiresNewJourney = true
                     completeBooking()
                 }
             } message: {
@@ -189,15 +189,6 @@ struct LabCheckInFlow: View {
     }
     
     private func completeBooking() {
-        if hasPayableTests {
-            if requiresApproval {
-                pendingPaymentSuccessAfterAlert = true
-            } else {
-                showPaymentSuccess = true
-            }
-        } else if !requiresApproval {
-            showPaymentSuccess = true
-        }
         
         if let session = selectedSession {
             let appointmentId = UUID().uuidString
@@ -258,33 +249,34 @@ struct LabCheckInFlow: View {
                 MockData.sessions[index].currentQueueNumber += 1
             }
         }
+        
+        if requiresApproval {
+            if hasPayableTests {
+                pendingPaymentSuccessAfterAlert = true
+            }
+            showApprovalRequired = true
+        } else {
+            showPaymentSuccess = true
+        }
     }
     
     private func processPayment() {
-        
-        
         viewModel.isLoading = true
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             viewModel.isLoading = false
-
-            if requiresApproval {
-                showApprovalRequired = true
-            }
             
             index = MockData.sampleJourneys.firstIndex(where: {
                $0.patientID == authViewModel.currentUser?.id ?? "user123" &&
                Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
             })
             
-            if let index = index {
+            if index != nil {
                 isExistingJourney = true
             }
             else {
                 completeBooking()
             }
-            
-
         }
     }
 }
